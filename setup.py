@@ -1,6 +1,6 @@
 from setuptools import setup, find_namespace_packages
 
-requirements = ["brainrender", "napari"]
+requirements = ["brainrender", "napari", "imlib", "pandas"]
 
 
 setup(
@@ -37,5 +37,11 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
     ],
+    entry_points={
+        "console_scripts": [
+            "points_to_brainrender = "
+            "neuro.points.points_to_brainrender:main",
+        ]
+    },
     zip_safe=False,
 )
