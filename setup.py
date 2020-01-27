@@ -1,6 +1,6 @@
 from setuptools import setup, find_namespace_packages
 
-requirements = ["brainrender", "napari"]
+requirements = ["brainrender", "napari", "imlib", "pandas"]
 
 
 setup(
@@ -22,7 +22,7 @@ setup(
             "coverage<=4.5.4",
         ]
     },
-    python_requires=">=3.6",
+    python_requires=">=3.6, <3.8",
     packages=find_namespace_packages(exclude=("docs", "tests*")),
     include_package_data=True,
     url="https://github.com/SainsburyWellcomeCentre/neuro",
@@ -37,5 +37,11 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
     ],
+    entry_points={
+        "console_scripts": [
+            "points_to_brainrender = "
+            "neuro.points.points_to_brainrender:main",
+        ]
+    },
     zip_safe=False,
 )
