@@ -31,3 +31,11 @@ notifications:
     - adam.tyson@ucl.ac.uk
     on_success: change
     on_failure: always
+deploy:
+  - provider: pypi
+    user: __token__
+    distributions: sdist bdist_wheel
+    skip_existing: true
+    on:
+      branch: master
+      tags: true
