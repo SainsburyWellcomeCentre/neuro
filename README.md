@@ -1,4 +1,4 @@
-[![Python Version](https://img.shields.io/pypi/pyversions/neuro.svg)](https://python.org)
+[![Python Version](https://img.shields.io/pypi/pyversions/neuro.svg)](https://pypi.org/project/neuro)
 [![PyPI](https://img.shields.io/pypi/v/neuro.svg)](https://pypi.org/project/neuro)
 [![Wheel](https://img.shields.io/pypi/wheel/neuro.svg)](https://pypi.org/project/neuro)
 [![Development Status](https://img.shields.io/pypi/status/neuro.svg)](https://github.com/SainsburyWellcomeCentre/neuro)
