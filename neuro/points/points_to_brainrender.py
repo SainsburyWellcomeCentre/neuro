@@ -1,5 +1,8 @@
 """
 Converts point positions from cellfinder coordinates to brainrender
+
+N.B. This is currently specific to coronal images, with the origin at the most
+caudal, ventral left point. The default is also for 10um voxel spacing.
 """
 
 import argparse
