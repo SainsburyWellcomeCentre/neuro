@@ -5,7 +5,7 @@ requirements = ["brainrender", "napari", "imlib", "pandas"]
 
 setup(
     name="neuro",
-    version="0.0.4",
+    version="0.0.5",
     description="Visualisation and analysis of brain imaging data",
     install_requires=requirements,
     extras_require={
@@ -33,7 +33,6 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
     ],
