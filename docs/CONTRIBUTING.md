@@ -5,6 +5,7 @@ To set up a development install, please:
 * Clone your fork
 
     `git clone https://github.com/YOUR_USERNAME/neuro`
+    
     `cd neuro`
 * Add this repository as the upstream
 
@@ -14,13 +15,25 @@ To set up a development install, please:
 
     `pip install -e .[dev]`
 
+* To keep your fork up to date:
+
+    `git fetch upstream`
+    
+    `git merge upstream/master`
+    
+#### Pull requests
+In all cases, please submit code to the main repository via a pull request. 
+Upon approval, please merge via "Squash and Merge" on Github to maintain a 
+clean commit history.
+
+
 #### Formatting
 `neuro` uses [Black](https://github.com/python/black) o ensure a consistent 
 code style. Please run `black ./ -l 79 --target-version py37` before making 
 any commits. To prevent any errors, it is easier to add a formatting check 
 as a [pre-commit hook](https://www.atlassian.com/git/tutorials/git-hooks). 
 E.g. on linux by adding this to your `.git/hooks/pre-commit`:
- 
+
     black ./ -l 79 --target-version py37 --check || exit 1
 
 #### Testing
