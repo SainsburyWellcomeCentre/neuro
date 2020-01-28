@@ -21,12 +21,15 @@ def run(
 ):
     print(f"Converting file: {cells_file}")
     cells = cells_io.get_cells(cells_file)
+    for cell in cells:
+        cell.transform(
+            x_scale=pixel_size_x,
+            y_scale=pixel_size_y,
+            z_scale=pixel_size_z,
+            integer=True,
+        )
+
     cells = cells_io.cells_to_dataframe(cells)
-
-    cells["x"] = cells["x"] * pixel_size_x
-    cells["y"] = cells["y"] * pixel_size_y
-    cells["z"] = cells["z"] * pixel_size_z
-
     cells.columns = ["z", "y", "x", "type"]
 
     cells["x"] = max_z - cells["x"]
