@@ -1,6 +1,14 @@
 from setuptools import setup, find_namespace_packages
 
-requirements = ["brainrender", "napari", "imlib", "pandas"]
+requirements = [
+    "numpy",
+    "scikit-image",
+    "pandas",
+    "napari",
+    "brainrender",
+    "imlib",
+    "brainio",
+]
 
 
 setup(
