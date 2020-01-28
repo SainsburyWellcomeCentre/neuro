@@ -49,7 +49,7 @@ before pushing changes.
 
 #### Releases
 Travis will automatically release any tagged commit on the master branch. 
-Hence to release a new version of cellfinder, use either GitHub, or the git 
+Hence to release a new version of neuro, use either GitHub, or the git 
 CLI to tag the relevant commit and push to master.
 
 
