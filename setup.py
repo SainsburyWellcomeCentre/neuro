@@ -48,6 +48,7 @@ setup(
         "console_scripts": [
             "points_to_brainrender = "
             "neuro.points.points_to_brainrender:main",
+            "heatmap = neuro.heatmap.heatmap:cli",
         ]
     },
     zip_safe=False,

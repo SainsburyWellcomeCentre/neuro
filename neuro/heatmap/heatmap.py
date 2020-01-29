@@ -230,7 +230,7 @@ class HeatmapParams:
         )
 
     def _get_atlas_data(self):
-        self.atlas_data = self._downsampled_image.get_data()
+        self.atlas_data = self._downsampled_image.get_fdata()
 
     def _get_atlas_scale(self):
         self.atlas_scale = self._downsampled_image.header.get_zooms()
