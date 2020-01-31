@@ -1,11 +1,19 @@
 from setuptools import setup, find_namespace_packages
 
-requirements = ["brainrender", "napari", "imlib", "pandas"]
+requirements = [
+    "numpy",
+    "scikit-image",
+    "pandas",
+    "napari",
+    "brainrender",
+    "imlib",
+    "brainio",
+]
 
 
 setup(
     name="neuro",
-    version="0.0.1a",
+    version="0.0.6",
     description="Visualisation and analysis of brain imaging data",
     install_requires=requirements,
     extras_require={
@@ -33,7 +41,6 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
     ],
@@ -41,6 +48,7 @@ setup(
         "console_scripts": [
             "points_to_brainrender = "
             "neuro.points.points_to_brainrender:main",
+            "heatmap = neuro.heatmap.heatmap:cli",
         ]
     },
     zip_safe=False,

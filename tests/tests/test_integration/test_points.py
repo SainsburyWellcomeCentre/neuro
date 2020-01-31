@@ -33,6 +33,11 @@ def test_points_to_brainrender(tmpdir):
     sys.argv = args
     points_to_brainrender_run()
 
-    pd.read_hdf(brainrender_file_test, key="df") == pd.read_hdf(
-        brainrender_file, key="df"
+    assert (
+        (
+            pd.read_hdf(brainrender_file_test, key="df")
+            == pd.read_hdf(brainrender_file, key="df")
+        )
+        .all()
+        .all()
     )
