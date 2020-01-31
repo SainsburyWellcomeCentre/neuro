@@ -7,7 +7,7 @@ caudal, ventral left point. The default is also for 10um voxel spacing.
 
 import argparse
 import imlib.IO.cells as cells_io
-from imlib.general.misc import check_positive_float, check_positive_int
+from imlib.general.numerical import check_positive_float, check_positive_int
 
 
 def run(

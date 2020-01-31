@@ -16,7 +16,7 @@ from imlib.image.scale import scale_and_convert_to_16_bits
 from imlib.image.binning import get_bins
 from imlib.image.shape import convert_shape_dict_to_array_shape
 from imlib.image.masking import mask_image_threshold
-from imlib.general.misc import check_positive_float
+from imlib.general.numerical import check_positive_float
 
 
 def run(
