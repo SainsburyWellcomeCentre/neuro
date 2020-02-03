@@ -10,3 +10,9 @@
 
 # neuro
 Visualisation and analysis of brain imaging data
+
+### Installation
+`pip install neuro`
+
+
+### [Documentation](https://sainsburywellcomecentre.github.io/neuro/)
