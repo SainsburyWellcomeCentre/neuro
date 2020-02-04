@@ -168,7 +168,7 @@ def main():
 
     # Get output directory
     if args.output_directory is None:
-        outdir = os.get_cwd()
+        outdir = os.getcwd()
     elif not os.path.isdir(args.output_directory):
         raise ValueError("Output directory invalid")
     else:
