@@ -38,8 +38,8 @@ def extraction_parser():
         "--obj-path",
         dest="obj_path",
         type=str,
-        default=False,
-        help="Path to output .obj file. Optional.",
+        default=None,
+        help="Path to output .obj file. Will default to the image directory.",
     )
 
     parser.add_argument(

@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from pathlib import Path
 
 from skimage.filters import gaussian as gaussian_filter
 from skimage.filters import threshold_otsu
@@ -177,6 +178,11 @@ def main():
         raise ValueError("Output directory invalid")
     else:
         outdir = args.output_directory
+
+    if args.obj_path is None:
+        args.obj_path = Path(args.img_filepath).with_suffix(".obj")
+    else:
+        args.obj_path = Path(args.obj_path)
 
     # Start log
     log_name = "injection_finder_{}".format(
