@@ -1,15 +1,18 @@
 import os
 
 from brainio import brainio
-from amap.tools import source_files
-from amap.config.config import get_binary
-from amap.tools.exceptions import RegistrationError
 
-
-from cellfinder.tools.system import (
+from imlib.general.system import (
     safe_execute_command,
     SafeExecuteCommandError,
 )
+
+from imlib.general.exceptions import RegistrationError
+
+
+from amap.tools import source_files
+from amap.config.config import get_binary
+
 
 PROGRAM_NAME = "reg_resample"
 DEFAULT_CONTROL_POINT_FILE = "inverse_control_point_file.nii"
