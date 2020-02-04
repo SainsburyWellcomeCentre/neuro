@@ -13,10 +13,11 @@ from imlib.image.orient import reorient_image
 from neuro.injection_finder.registration import get_registered_image
 from neuro.injection_finder.parsers import extraction_parser
 
+import neuro as package_for_log
+
 # For logging
 import logging
 from fancylog import fancylog
-import fancylog as package
 
 
 class Extractor:
@@ -183,10 +184,13 @@ def main():
         args.obj_path = Path(args.obj_path)
 
     # Start log
-    log_name = "injection_finder_{}".format(
-        os.path.split(args.registration_folder)[-1]
+    fancylog.start_logging(
+        outdir,
+        package_for_log,
+        filename="injection_finder",
+        verbose=args.debug,
+        log_to_file=args.save_log,
     )
-    fancylog.start_logging(outdir, package, filename=log_name, verbose=True)
 
     # Start extraction
     Extractor(

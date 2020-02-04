@@ -77,4 +77,17 @@ def extraction_parser():
         default="False",
         help="If false skip running again the registration",
     )
+    parser.add_argument(
+        "--debug",
+        dest="debug",
+        action="store_true",
+        help="Debug mode. Will increase verbosity of logging and save all "
+        "intermediate files for diagnosis of software issues.",
+    )
+    parser.add_argument(
+        "--save-log",
+        dest="save_log",
+        action="store_true",
+        help="Save logging to file (in addition to logging to terminal).",
+    )
     return parser
