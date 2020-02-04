@@ -1,5 +1,6 @@
 import numpy as np
 from vtkplotter.analysis import extractLargestRegion
+from vtkplotter import load, save
 
 # ----------------------- IMAGE MANIPULATION FUNCTIONS ----------------------- #
 def reorient_image(image, invert_axes=None, orientation="saggital"):
@@ -27,28 +28,29 @@ def reorient_image(image, invert_axes=None, orientation="saggital"):
     return image
 
 
-# ------------------------- MARCHING CUBES FUNCTIONS ------------------------- #
-def marching_cubes_to_obj(marching_cubes_out, output_file):
-    """
-    Saves the output of skimage.measure.marching_cubes as an .obj file
-
-    :param marching_cubes_out: tuple
-    :param output_file: str
-
-    """
-
-    verts, faces, normals, _ = marching_cubes_out
-    with open(output_file, "w") as f:
-        for item in verts:
-            f.write(f"v {item[0]} {item[1]} {item[2]}\n")
-        for item in normals:
-            f.write(f"vn {item[0]} {item[1]} {item[2]}\n")
-        for item in faces:
-            f.write(
-                f"f {item[0]}//{item[0]} {item[1]}//{item[1]} "
-                f"{item[2]}//{item[2]}\n"
-            )
-        f.close()
+#
+# # ------------------------- MARCHING CUBES FUNCTIONS ------------------------- #
+# def marching_cubes_to_obj(marching_cubes_out, output_file):
+#     """
+#     Saves the output of skimage.measure.marching_cubes as an .obj file
+#
+#     :param marching_cubes_out: tuple
+#     :param output_file: str
+#
+#     """
+#
+#     verts, faces, normals, _ = marching_cubes_out
+#     with open(output_file, "w") as f:
+#         for item in verts:
+#             f.write(f"v {item[0]} {item[1]} {item[2]}\n")
+#         for item in normals:
+#             f.write(f"vn {item[0]} {item[1]} {item[2]}\n")
+#         for item in faces:
+#             f.write(
+#                 f"f {item[0]}//{item[0]} {item[1]}//{item[1]} "
+#                 f"{item[2]}//{item[2]}\n"
+#             )
+#         f.close()
 
 
 # ----------------------------- VTKPLOTTER UTILS ----------------------------- #
@@ -64,6 +66,6 @@ def get_largest_component(obj_filepath):
         Given a .obj file with multiple disconnected meshes in it, it
         selects the largest of these and discards the rest. 
     """
-    actor = load(obj_filepath)
+    actor = load(str(obj_filepath))
     actor = extractLargestRegion(actor).flipNormals()
     save(actor, obj_filepath)

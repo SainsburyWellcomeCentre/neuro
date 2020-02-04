@@ -7,11 +7,11 @@ from skimage.filters import threshold_otsu
 from skimage import measure
 
 from brainio import brainio
+from imlib.IO.surfaces import marching_cubes_to_obj
 
 from neuro.injection_finder.registration import get_registered_image
 from neuro.injection_finder.utils import (
     reorient_image,
-    marching_cubes_to_obj,
     get_largest_component,
 )
 from neuro.injection_finder.parsers import extraction_parser
