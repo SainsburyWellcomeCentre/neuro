@@ -14,8 +14,6 @@ from neuro.injection_finder.registration import get_registered_image
 from neuro.injection_finder.parsers import extraction_parser
 
 import neuro as package_for_log
-
-# For logging
 import logging
 from fancylog import fancylog
 
