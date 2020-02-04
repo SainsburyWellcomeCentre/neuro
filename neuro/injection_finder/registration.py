@@ -8,10 +8,7 @@ from imlib.general.system import (
 )
 
 from imlib.general.exceptions import RegistrationError
-
-
-from amap.tools import source_files
-from amap.config.config import get_binary
+from imlib.source.niftyreg_binaries import get_binary, get_niftyreg_binaries
 
 
 PROGRAM_NAME = "reg_resample"
@@ -38,7 +35,7 @@ def prepare_segmentation_cmd(
 
 def get_registered_image(nii_path, registration_dir, logging, overwrite=False):
     # get binaries
-    nifty_reg_binaries_folder = source_files.get_niftyreg_binaries()
+    nifty_reg_binaries_folder = get_niftyreg_binaries()
     program_path = get_binary(nifty_reg_binaries_folder, PROGRAM_NAME)
 
     # get file paths

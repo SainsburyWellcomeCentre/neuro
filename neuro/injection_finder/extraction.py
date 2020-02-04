@@ -8,12 +8,9 @@ from skimage import measure
 
 from brainio import brainio
 from imlib.IO.surfaces import marching_cubes_to_obj
+from imlib.image.orient import reorient_image
 
 from neuro.injection_finder.registration import get_registered_image
-from neuro.injection_finder.utils import (
-    reorient_image,
-    get_largest_component,
-)
 from neuro.injection_finder.parsers import extraction_parser
 
 # For logging
@@ -165,7 +162,8 @@ class Extractor:
         marching_cubes_to_obj((verts, faces, normals, values), self.obj_path)
 
         # Keep only the largest connected component
-        get_largest_component(self.obj_path)
+        # DO THIS AT THE IMAGE STAGE
+        # get_largest_component(self.obj_path)
 
 
 def main():
