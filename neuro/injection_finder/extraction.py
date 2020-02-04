@@ -7,9 +7,13 @@ from skimage import measure
 
 from brainio import brainio
 
-from registration import get_registered_image
-from utils import reorient_image, marching_cubes_to_obj, get_largest_component
-from parsers import extraction_parser
+from neuro.injection_finder.registration import get_registered_image
+from neuro.injection_finder.utils import (
+    reorient_image,
+    marching_cubes_to_obj,
+    get_largest_component,
+)
+from neuro.injection_finder.parsers import extraction_parser
 
 # For logging
 import logging
