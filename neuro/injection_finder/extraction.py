@@ -131,7 +131,7 @@ class Extractor:
                 )
             )
         else:
-            raise valueError(
+            raise ValueError(
                 "Unrecognised thresholding type: " + self.threshold_type
             )
 
