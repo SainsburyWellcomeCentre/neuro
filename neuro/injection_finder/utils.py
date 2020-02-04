@@ -58,6 +58,7 @@ def get_center_of_mass(actor):
     """
     return actor.centerOfMass()
 
+
 def get_largest_component(obj_filepath):
     """
         Given a .obj file with multiple disconnected meshes in it, it
