@@ -23,7 +23,6 @@ class Extractor:
         self,
         img_filepath,
         registration_folder,
-        logging,
         overwrite=False,
         gaussian_kernel=2,
         percentile_threshold=99.95,
@@ -41,7 +40,6 @@ class Extractor:
         :param img_filepath: str, path to .nii file
         :param registration_folder: str, path to the registration folder
         [from cellfinder or amap]
-        :param logging: instance of fancylog logger
         :param overwrite: bool, if False it will avoid overwriting files
         :gaussian_kernel: float, size of kernel used for smoothing
         :param percentile_threshold: float, in range [0, 1] percentile to use
@@ -94,7 +92,6 @@ class Extractor:
         image = get_registered_image(
             self.img_filepath,
             self.registration_folder,
-            self.logging,
             overwrite=self.overwrite_registration,
         )
         return image
@@ -235,7 +232,6 @@ def main():
     Extractor(
         args.img_filepath,
         args.registration_folder,
-        logging,
         overwrite=args.overwrite,
         gaussian_kernel=args.gaussian_kernel,
         percentile_threshold=args.percentile_threshold,

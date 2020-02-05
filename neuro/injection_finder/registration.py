@@ -1,4 +1,5 @@
 import os
+import logging
 
 from brainio import brainio
 from imlib.register.niftyreg.transform import run_transform
@@ -8,7 +9,7 @@ DEFAULT_CONTROL_POINT_FILE = "inverse_control_point_file.nii"
 default_atlas_name = "brain_filtered.nii"
 
 
-def get_registered_image(nii_path, registration_dir, logging, overwrite=False):
+def get_registered_image(nii_path, registration_dir, overwrite=False):
     # get file paths
     basedir = os.path.split(nii_path)[0]
     output_filename = os.path.join(
