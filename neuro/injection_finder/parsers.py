@@ -57,7 +57,8 @@ def extraction_parser():
         dest="percentile_threshold",
         type=float,
         default=99.995,
-        help="Float in range [0, 100]. The percentile number of pixel intensity values for tresholding",
+        help="Float in range [0, 100]. The percentile number of pixel "
+        "intensity values for tresholding",
     )
 
     parser.add_argument(
@@ -66,7 +67,8 @@ def extraction_parser():
         dest="threshold_type",
         type=str,
         default="otsu",
-        help="'otsu' or 'percentile'. Determines how the threshold value is computed",
+        help="'otsu' or 'percentile'. Determines how the threshold "
+        "value is computed",
     )
 
     parser.add_argument(

@@ -31,21 +31,26 @@ class Extractor:
         obj_path=None,
         overwrite_registration=False,
     ):
-
         """
-            Extractor processes a downsampled.nii image to extract the location of the injection site.
-            This is done by registering the image to the allen CCF, blurring, thresholding and finally a 
-            marching cube algorithm to extract the surface of the injection site. 
+        Extractor processes a downsampled.nii image to extract the location of
+        the injection site.
+        This is done by registering the image to the allen CCF, blurring,
+        thresholding and finally a marching cube algorithm to extract the
+        surface of the injection site.
 
-            :param img_filepath: str, path to .nii file
-            :param registration_folder: str, path to the registration folder [from cellfinder or amap]
-            :param logging: instance of fancylog logger
-            :param overwrite: bool, if False it will avoid overwriting files
-            :gaussian_kernel: float, size of kernel used for smoothing
-            :param percentile_threshold: float, in range [0, 1] percentile to use for thresholding
-            :param threshold_type: str, either ['otsu', 'percentile'], type of threshold used
-            :param obj_path: path to .obj file destination. 
-            :param overwrite_registration: if false doesn't overwrite the registration step
+        :param img_filepath: str, path to .nii file
+        :param registration_folder: str, path to the registration folder
+        [from cellfinder or amap]
+        :param logging: instance of fancylog logger
+        :param overwrite: bool, if False it will avoid overwriting files
+        :gaussian_kernel: float, size of kernel used for smoothing
+        :param percentile_threshold: float, in range [0, 1] percentile to use
+        for thresholding
+        :param threshold_type: str, either ['otsu', 'percentile'],
+        type of threshold used
+        :param obj_path: path to .obj file destination.
+        :param overwrite_registration: if false doesn't overwrite the
+        registration step
         """
 
         # Get arguments
@@ -73,14 +78,14 @@ class Extractor:
             self.img_filepath.split(".")[0] + "_thresholded.nii"
         )
 
-        # Get path to obj file and check if it existsts
+        # Get path to obj file and check if it exists
         if self.obj_path is None:
             self.obj_path = self.img_filepath.split(".")[0] + ".obj"
 
         if os.path.isfile(self.obj_path) and not self.overwrite:
             self.logging.warning(
-                "A file exists already at {}. \
-                        Analysis will not run as overwrite is set disabled".format(
+                "A file exists already at {}."
+                "Analysis will not run as overwrite is set disabled".format(
                     self.obj_path
                 )
             )
@@ -122,7 +127,8 @@ class Extractor:
         ):
             thresh = np.percentile(filtered.ravel(), self.percentile_threshold)
             self.logging.info(
-                "Thresholding with {} threshold type. {}th percentile [{}]".format(
+                "Thresholding with {} threshold type. "
+                "{}th percentile [{}]".format(
                     self.threshold_type, self.percentile_threshold, thresh
                 )
             )
