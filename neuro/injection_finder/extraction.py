@@ -109,12 +109,12 @@ class Extractor:
 
         # Gaussian filter
         kernel_shape = [self.gaussian_kernel, self.gaussian_kernel, 6]
-        filtered = gaussian_filter(image, kernel_shape)
+        image = gaussian_filter(image, kernel_shape)
         self.logging.info("Filtering completed")
 
         # Thresholding
         if self.threshold_type.lower() == "otsu":
-            thresh = threshold_otsu(filtered)
+            thresh = threshold_otsu(image)
             self.logging.info(
                 "Thresholding with {} threshold type".format(
                     self.threshold_type
@@ -125,7 +125,7 @@ class Extractor:
             self.threshold_type.lower() == "percentile"
             or self.threshold_type.lower() == "perc"
         ):
-            thresh = np.percentile(filtered.ravel(), self.percentile_threshold)
+            thresh = np.percentile(image.ravel(), self.percentile_threshold)
             self.logging.info(
                 "Thresholding with {} threshold type. "
                 "{}th percentile [{}]".format(
@@ -137,11 +137,8 @@ class Extractor:
                 "Unrecognised thresholding type: " + self.threshold_type
             )
 
-        binary = filtered > thresh
+        binary = image > thresh
         binary = keep_n_largest_objects(binary)
-        oriented_binary = reorient_image(
-            binary, invert_axes=[2,], orientation="coronal"
-        )
 
         # Save thresholded image
         if not os.path.isfile(self.thresholded_savepath) or self.overwrite:
@@ -152,10 +149,14 @@ class Extractor:
             )
             brainio.to_nii(binary.astype(np.int16), self.thresholded_savepath)
 
+        binary = reorient_image(
+            binary, invert_axes=[2,], orientation="coronal"
+        )
+
         # apply marching cubes
         self.logging.info("Extracting surface from thresholded image")
         verts, faces, normals, values = measure.marching_cubes_lewiner(
-            oriented_binary, 0, step_size=1
+            binary, 0, step_size=1
         )
 
         # Scale to atlas spacing
