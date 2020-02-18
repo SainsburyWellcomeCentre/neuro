@@ -38,8 +38,8 @@ def extraction_parser():
         "--obj-path",
         dest="obj_path",
         type=str,
-        default=False,
-        help="Path to output .obj file. Optional.",
+        default=None,
+        help="Path to output .obj file. Will default to the image directory.",
     )
 
     parser.add_argument(
@@ -57,7 +57,8 @@ def extraction_parser():
         dest="percentile_threshold",
         type=float,
         default=99.995,
-        help="Float in range [0, 100]. The percentile number of pixel intensity values for tresholding",
+        help="Float in range [0, 100]. The percentile number of pixel "
+        "intensity values for tresholding",
     )
 
     parser.add_argument(
@@ -66,7 +67,8 @@ def extraction_parser():
         dest="threshold_type",
         type=str,
         default="otsu",
-        help="'otsu' or 'percentile'. Determines how the threshold value is computed",
+        help="'otsu' or 'percentile'. Determines how the threshold "
+        "value is computed",
     )
 
     parser.add_argument(
@@ -76,5 +78,18 @@ def extraction_parser():
         type=str,
         default="False",
         help="If false skip running again the registration",
+    )
+    parser.add_argument(
+        "--debug",
+        dest="debug",
+        action="store_true",
+        help="Debug mode. Will increase verbosity of logging and save all "
+        "intermediate files for diagnosis of software issues.",
+    )
+    parser.add_argument(
+        "--save-log",
+        dest="save_log",
+        action="store_true",
+        help="Save logging to file (in addition to logging to terminal).",
     )
     return parser
