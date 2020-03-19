@@ -1,41 +1,47 @@
-# Converting cells from cellfinder to brainrender format
+# Heatmap generation
+
+To generate a heatmap of detected cells, which shows cell distributions in a 
+more intuitive way that showing individual cell positions:
 
 
-To convert cell positions (e.g. in `cells_in_standard_space.xml`) to 
-a format that can be used in 
-[BrainRender](https://github.com/BrancoLab/BrainRender).
+<img src="https://raw.githubusercontent.com/SainsburyWellcomeCentre/cellfinder/master/resources/heatmap.png" alt="heatmap" width="500"/>
+
+*Overlay on raw data and segentation from 
+[amap](https://github.com/SainsburyWellcomeCentre) added separately*
 
 
+### Usage
 ```bash
-    points_to_brainrender cells_in_standard_space.xml exported_cells.h5
+    heatmap cell_classification.xml heatmap.nii raw_data registered_atlas.nii -x 2 -y 2 -z 5
 ```
 
 ### Arguments
-Run `points_to_brainrender -h` to see all options.
+Run `heatmap -h` to see all options.
 
-#### Positional
+#### Positional arguments
 * [Cellfinder](https://github.com/SainsburyWellcomeCentre/cellfinder) 
-cells file to be converted
-* Output filename. Should end with '.h5'. If the containing directory doesn't 
+classified cells file (usually `cell_classification.xml`)
+* Output filename. Should end with '.nii'. If the containing directory doesn't 
 exist, it will be created.
+* Path to raw data (just a single channel). Used to find the shape of the 
+raw image that the detected cell positions are defined in.
+* Registered atlas file from [amap](https://github.com/SainsburyWellcomeCentre)
+ (typically run automatically in 
+ [Cellfinder](https://github.com/SainsburyWellcomeCentre/cellfinder)). File 
+ is usually `registered_atlas.nii`.
+ 
+
+#### Keyword arguments
+* `-x` or `--x-pixel-size` Pixel spacing of the data that the cells are 
+defined in, in the first dimension, specified in um.
+* `-y` or `--y-pixel-size` Pixel spacing of the data that the cells are 
+defined in, in the second dimension, specified in um.
+* `-z` or `--z-pixel-size` Pixel spacing of the data that the cells are 
+defined in, in the third dimension, specified in um. 
 
 
 #### The following options may also need to be used:
-* `-x` or `--x-pixel-size` Pixel spacing of the data that the cells are 
-defined in, in the first dimension, specified in um. (Default: 10)
-* `-y` or `--y-pixel-size` Pixel spacing of the data that the cells are 
-defined in, in the second dimension, specified in um. (Default: 10)
-* `-z` or `--z-pixel-size` Pixel spacing of the data that the cells are 
-defined in, in the third dimension, specified in um. (Default: 10)
-* `--max-z` Maximum z extent of the atlas, specified in um. (Default: 13200)
-* `--hdf-key` HDF identifying key. If this has changed, it must be specified
-in the call to `BrainRender.scene.Scene.add_cells_from_file()`
-
-
-### To visualise this file in BrainRender
-```python
-from brainrender.scene import Scene
-scene = Scene(jupyter=True)
-scene.add_cells_from_file("exported_cells.h5")
-scene.render()
-```
+* `--heatmap-bin` Heatmap bin size (um of each edge of histogram cube)
+* `--heatmap-smoothing` Gaussian smoothing sigma, in um.
+* `--no-mask-figs` Don't mask the figures (removing any areas outside the 
+brain, from e.g. smoothing)
