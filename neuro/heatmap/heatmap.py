@@ -6,6 +6,7 @@ image
 import logging
 import argparse
 
+from pathlib import Path
 import numpy as np
 from skimage.filters import gaussian
 from brainio import brainio
@@ -15,6 +16,7 @@ from imlib.image.binning import get_bins
 from imlib.image.shape import convert_shape_dict_to_array_shape
 from imlib.image.masking import mask_image_threshold
 from imlib.general.numerical import check_positive_float
+from imlib.general.system import ensure_directory_exists
 from imlib.image.size import resize_array
 
 
@@ -86,6 +88,9 @@ def run(
     if convert_16bit:
         logging.debug("Converting to 16 bit")
         heatmap_array = scale_and_convert_to_16_bits(heatmap_array)
+
+    logging.debug("Ensuring output directory exists")
+    ensure_directory_exists(Path(output_filename).parent)
 
     logging.debug("Saving heatmap image")
     brainio.to_nii(
