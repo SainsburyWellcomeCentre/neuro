@@ -8,7 +8,6 @@ import argparse
 
 import numpy as np
 from skimage.filters import gaussian
-from skimage.transform import resize
 from scipy.ndimage import zoom
 from brainio import brainio
 from imlib.cells.utils import get_cell_location_array
