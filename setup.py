@@ -3,7 +3,7 @@ from setuptools import setup, find_namespace_packages
 requirements = [
     "numpy",
     "scikit-image",
-    "pandas",
+    "pandas<=0.25.3,>=0.25.1",
     "napari",
     "brainrender",
     "imlib",

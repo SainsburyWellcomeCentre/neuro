@@ -8,6 +8,8 @@ caudal, ventral left point. The default is also for 10um voxel spacing.
 import argparse
 import imlib.IO.cells as cells_io
 from imlib.general.numerical import check_positive_float, check_positive_int
+from imlib.general.system import ensure_directory_exists
+from pathlib import Path
 
 
 def run(
@@ -34,6 +36,9 @@ def run(
 
     cells["x"] = max_z - cells["x"]
 
+    print("Ensuring output directory exists")
+    ensure_directory_exists(output_filename.parent)
+
     print(f"Saving to: {output_filename}")
     cells.to_hdf(output_filename, key=key, mode="w")
 
@@ -51,7 +56,7 @@ def get_parser():
     )
     parser.add_argument(
         dest="output_filename",
-        type=str,
+        type=Path,
         help="Output filename. Should end with '.h5'",
     )
 
