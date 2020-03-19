@@ -8,7 +8,6 @@ import argparse
 
 import numpy as np
 from skimage.filters import gaussian
-from scipy.ndimage import zoom
 from brainio import brainio
 from imlib.cells.utils import get_cell_location_array
 from imlib.image.scale import scale_and_convert_to_16_bits
@@ -16,6 +15,7 @@ from imlib.image.binning import get_bins
 from imlib.image.shape import convert_shape_dict_to_array_shape
 from imlib.image.masking import mask_image_threshold
 from imlib.general.numerical import check_positive_float
+from imlib.image.size import resize_array
 
 
 def run(
@@ -68,13 +68,7 @@ def run(
     heatmap_array = heatmap_array.astype(np.uint16)
 
     logging.debug("Resizing heatmap to the size of the target image")
-    # heatmap_array = imresize(heatmap_array, target_size, interp='nearest')
-
-    factors = np.asarray(target_size, dtype=float) / np.asarray(
-        heatmap_array.shape, dtype=float
-    )
-
-    heatmap_array = zoom(heatmap_array, factors, order=0)
+    heatmap_array = resize_array(heatmap_array, target_size)
 
     if smoothing is not None:
         logging.debug(
