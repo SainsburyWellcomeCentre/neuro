@@ -9,7 +9,7 @@ import argparse
 import numpy as np
 from skimage.filters import gaussian
 from skimage.transform import resize
-
+from scipy.ndimage import zoom
 from brainio import brainio
 from imlib.cells.utils import get_cell_location_array
 from imlib.image.scale import scale_and_convert_to_16_bits
@@ -65,9 +65,18 @@ def run(
 
     logging.debug("Generating heatmap (3D histogram)")
     heatmap_array, _ = np.histogramdd(cells_array, bins=bins)
+    # otherwise resized array is too big to fit into RAM
+    heatmap_array = heatmap_array.astype(np.uint16)
 
     logging.debug("Resizing heatmap to the size of the target image")
-    heatmap_array = resize(heatmap_array, target_size, order=0)
+    # heatmap_array = imresize(heatmap_array, target_size, interp='nearest')
+
+    factors = np.asarray(target_size, dtype=float) / np.asarray(
+        heatmap_array.shape, dtype=float
+    )
+
+    heatmap_array = zoom(heatmap_array, factors, order=0)
+
     if smoothing is not None:
         logging.debug(
             "Applying Gaussian smoothing with a kernel sigma of: "
@@ -230,7 +239,9 @@ class HeatmapParams:
         )
 
     def _get_atlas_data(self):
-        self.atlas_data = self._downsampled_image.get_fdata()
+        # self.atlas_data = self._downsampled_image.get_fdata()
+        # self.atlas_data = self._downsampled_image
+        self.atlas_data = brainio.load_nii(self._target_image, as_array=True)
 
     def _get_atlas_scale(self):
         self.atlas_scale = self._downsampled_image.header.get_zooms()
