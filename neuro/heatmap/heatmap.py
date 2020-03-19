@@ -239,8 +239,6 @@ class HeatmapParams:
         )
 
     def _get_atlas_data(self):
-        # self.atlas_data = self._downsampled_image.get_fdata()
-        # self.atlas_data = self._downsampled_image
         self.atlas_data = brainio.load_nii(self._target_image, as_array=True)
 
     def _get_atlas_scale(self):
