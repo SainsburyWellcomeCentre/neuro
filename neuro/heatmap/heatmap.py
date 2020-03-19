@@ -135,6 +135,7 @@ def get_parser():
         type=check_positive_float,
         help="Pixel spacing of the data in the first "
         "dimension, specified in um.",
+        required=True,
     )
     parser.add_argument(
         "-y",
@@ -143,6 +144,7 @@ def get_parser():
         type=check_positive_float,
         help="Pixel spacing of the data in the second "
         "dimension, specified in um.",
+        required=True,
     )
     parser.add_argument(
         "-z",
@@ -151,6 +153,7 @@ def get_parser():
         type=check_positive_float,
         help="Pixel spacing of the data in the third "
         "dimension, specified in um.",
+        required=True,
     )
     parser.add_argument(
         "--heatmap-smoothing",
