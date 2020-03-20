@@ -47,8 +47,15 @@ def extraction_parser():
         "--gaussian-kernel",
         dest="gaussian_kernel",
         type=float,
-        default=2.5,
-        help="Float, size of kernel for gaussian smooting (x,y directions).",
+        default=2,
+        help="Float, size of kernel for gaussian smoothing (x,y directions).",
+    )
+    parser.add_argument(
+        "--gaussian-kernel-z",
+        dest="gaussian_kernel_z",
+        type=float,
+        default=6,
+        help="Float, size of kernel for gaussian smoothing (zdirections).",
     )
 
     parser.add_argument(

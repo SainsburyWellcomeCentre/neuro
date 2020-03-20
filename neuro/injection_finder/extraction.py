@@ -9,6 +9,7 @@ from skimage import measure
 from brainio import brainio
 from imlib.IO.surfaces import marching_cubes_to_obj
 from imlib.image.orient import reorient_image
+from imlib.image.objects import keep_n_largest_objects
 
 from neuro.injection_finder.registration import get_registered_image
 from neuro.injection_finder.parsers import extraction_parser
@@ -25,6 +26,7 @@ class Extractor:
         registration_folder,
         overwrite=False,
         gaussian_kernel=2,
+        gaussian_kernel_z=6,
         percentile_threshold=99.95,
         threshold_type="otsu",
         obj_path=None,
@@ -41,7 +43,8 @@ class Extractor:
         :param registration_folder: str, path to the registration folder
         [from cellfinder or amap]
         :param overwrite: bool, if False it will avoid overwriting files
-        :gaussian_kernel: float, size of kernel used for smoothing
+        :param gaussian_kernel: float, size of kernel used for smoothing (x, y)
+        :param gaussian_kernel_z: float, size of kernel used for smoothing (z)
         :param percentile_threshold: float, in range [0, 1] percentile to use
         for thresholding
         :param threshold_type: str, either ['otsu', 'percentile'],
@@ -57,6 +60,7 @@ class Extractor:
         self.logging = logging
         self.overwrite = overwrite
         self.gaussian_kernel = gaussian_kernel
+        self.gaussian_kernel_z = gaussian_kernel_z
         self.percentile_threshold = percentile_threshold
         self.threshold_type = threshold_type
         self.obj_path = obj_path
@@ -105,7 +109,11 @@ class Extractor:
         )
 
         # Gaussian filter
-        kernel_shape = [self.gaussian_kernel, self.gaussian_kernel, 6]
+        kernel_shape = [
+            self.gaussian_kernel,
+            self.gaussian_kernel,
+            self.gaussian_kernel_z,
+        ]
         image = gaussian_filter(image, kernel_shape)
         self.logging.info("Filtering completed")
 
@@ -166,43 +174,6 @@ class Extractor:
         marching_cubes_to_obj((verts, faces, normals, values), self.obj_path)
 
 
-def keep_n_largest_objects(numpy_array, n=1, connectivity=None):
-    """
-    Given an input binary numpy array, return a "clean" array with only the
-    n largest connected components remaining
-
-    Inspired by stackoverflow.com/questions/47540926
-
-    TODO: optimise
-
-    :param numpy_array: Binary numpy array
-    :param n: How many objects to keep
-    :param connectivity: Labelling connectivity (see skimage.measure.label)
-    :return: "Clean" numpy array with n largest objects
-    """
-
-    labels = measure.label(numpy_array, connectivity=connectivity)
-    assert labels.max() != 0  # assume at least 1 CC
-    n_largest_objects = get_largest_non_zero_object(labels)
-    if n > 1:
-        i = 1
-        while i < n:
-            labels[n_largest_objects] = 0
-            n_largest_objects += get_largest_non_zero_object(labels)
-            i += 1
-    return n_largest_objects
-
-
-def get_largest_non_zero_object(label_image):
-    """
-    In a labelled (each object assigned an int) numpy array. Return the
-    largest object with a value >= 1.
-    :param label_image: Output of skimage.measure.label
-    :return: Boolean numpy array or largest object
-    """
-    return label_image == np.argmax(np.bincount(label_image.flat)[1:]) + 1
-
-
 def main():
     args = extraction_parser().parse_args()
 
@@ -234,6 +205,7 @@ def main():
         args.registration_folder,
         overwrite=args.overwrite,
         gaussian_kernel=args.gaussian_kernel,
+        gaussian_kernel_z=args.gaussian_kernel_z,
         percentile_threshold=args.percentile_threshold,
         threshold_type=args.threshold_type,
         obj_path=args.obj_path,
