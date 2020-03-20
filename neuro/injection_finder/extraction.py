@@ -26,6 +26,7 @@ class Extractor:
         registration_folder,
         overwrite=False,
         gaussian_kernel=2,
+        gaussian_kernel_z=6,
         percentile_threshold=99.95,
         threshold_type="otsu",
         obj_path=None,
@@ -42,7 +43,8 @@ class Extractor:
         :param registration_folder: str, path to the registration folder
         [from cellfinder or amap]
         :param overwrite: bool, if False it will avoid overwriting files
-        :gaussian_kernel: float, size of kernel used for smoothing
+        :param gaussian_kernel: float, size of kernel used for smoothing (x, y)
+        :param gaussian_kernel_z: float, size of kernel used for smoothing (z)
         :param percentile_threshold: float, in range [0, 1] percentile to use
         for thresholding
         :param threshold_type: str, either ['otsu', 'percentile'],
@@ -58,6 +60,7 @@ class Extractor:
         self.logging = logging
         self.overwrite = overwrite
         self.gaussian_kernel = gaussian_kernel
+        self.gaussian_kernel_z = gaussian_kernel_z
         self.percentile_threshold = percentile_threshold
         self.threshold_type = threshold_type
         self.obj_path = obj_path
@@ -106,7 +109,11 @@ class Extractor:
         )
 
         # Gaussian filter
-        kernel_shape = [self.gaussian_kernel, self.gaussian_kernel, 6]
+        kernel_shape = [
+            self.gaussian_kernel,
+            self.gaussian_kernel,
+            self.gaussian_kernel_z,
+        ]
         image = gaussian_filter(image, kernel_shape)
         self.logging.info("Filtering completed")
 
@@ -198,6 +205,7 @@ def main():
         args.registration_folder,
         overwrite=args.overwrite,
         gaussian_kernel=args.gaussian_kernel,
+        gaussian_kernel_z=args.gaussian_kernel_z,
         percentile_threshold=args.percentile_threshold,
         threshold_type=args.threshold_type,
         obj_path=args.obj_path,
