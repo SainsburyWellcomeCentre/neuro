@@ -13,7 +13,7 @@ from skimage.filters import (
 )
 
 from brainio import brainio
-from lesion_estimation.brain_tools.generic_neuro_tools import (
+from neuro.generic_neuro_tools import (
     save_brain,
     transform_all_channels_to_standard_space,
 )

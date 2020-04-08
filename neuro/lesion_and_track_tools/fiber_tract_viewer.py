@@ -3,18 +3,12 @@ import pathlib
 import numpy as np
 
 from PySide2.QtWidgets import QApplication
-from amap.vis.vis import prepare_load_nii
+from neuro.visualise.vis_tools import prepare_load_nii
 from brainio import brainio
 
-from lesion_estimation.brain_tools.brain_render_tools import (
-    volume_to_vector_array_to_obj_file,
-)
-from lesion_estimation.brain_tools.lesion_and_track_estimation import (
-    get_fiber_track,
-)
-from lesion_estimation.brain_tools.generic_neuro_tools import (
-    transform_background_channel_to_standard_space,
-)
+from neuro.brain_render_tools import volume_to_vector_array_to_obj_file
+from neuro.lesion_and_track_tools.lesion_and_track_estimation import get_fiber_track
+from neuro.generic_neuro_tools import transform_background_channel_to_standard_space
 
 
 def display_channel(viewer, reg_dir, channel_fname):
