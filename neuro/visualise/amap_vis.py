@@ -9,7 +9,7 @@ from imlib.anatomy.structures.structures_tree import (
     UnknownAtlasValue,
 )
 from neuro.atlas_tools.paths import Paths
-from neuro.atlas_tools.amap_source_files import get_structures_path
+from imlib.source.source_files import get_structures_path
 from neuro.visualise.vis_tools import display_raw, display_downsampled, display_registration
 
 
