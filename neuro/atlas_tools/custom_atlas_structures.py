@@ -81,7 +81,14 @@ def get_all_structure_children(df, k):
     return all_children
 
 
-def render_all_subregions(atlas_id, out_dir, atlas_path, structures_csv_path, smooth_threshold=0.4, smooth_sigma=10):
+def render_all_subregions(
+    atlas_id,
+    out_dir,
+    atlas_path,
+    structures_csv_path,
+    smooth_threshold=0.4,
+    smooth_sigma=10,
+):
     """
     renders all children structures of a given id
 
@@ -122,7 +129,9 @@ def get_region(atlas_ids, atlas_path, smooth=True):
     return all_regions
 
 
-def get_arbitrary_structure_mask_from_custom_atlas(atlas_ids, atlas_path, sigma, smoothing_threshold):
+def get_arbitrary_structure_mask_from_custom_atlas(
+    atlas_ids, atlas_path, sigma, smoothing_threshold
+):
     """
     uses id numbers from custom atlas to generate a smoothed mask of those ids combined
 
@@ -152,4 +161,3 @@ def smooth_structure(image, threshold=0.4, sigma=10):
 def get_n_pixels_in_region(atlas_ids, atlas_path):
     all_regions_smooth = get_region(atlas_ids, atlas_path)
     return np.count_nonzero(all_regions_smooth)
-

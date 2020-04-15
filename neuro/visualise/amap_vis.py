@@ -10,7 +10,11 @@ from imlib.anatomy.structures.structures_tree import (
 )
 from neuro.atlas_tools.paths import Paths
 from imlib.source.source_files import get_structures_path
-from neuro.visualise.vis_tools import display_raw, display_downsampled, display_registration
+from neuro.visualise.vis_tools import (
+    display_raw,
+    display_downsampled,
+    display_registration,
+)
 
 
 def parser():

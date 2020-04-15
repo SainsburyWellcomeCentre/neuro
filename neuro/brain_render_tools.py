@@ -2,7 +2,9 @@ from brainrender.Utils.image import reorient_image, marching_cubes_to_obj
 from brainrender.scene import Scene
 from skimage import measure
 
-from neuro.atlas_tools.custom_atlas_structures import get_arbitrary_structure_mask_from_custom_atlas
+from neuro.atlas_tools.custom_atlas_structures import (
+    get_arbitrary_structure_mask_from_custom_atlas,
+)
 
 
 def render_region_from_custom_atlas(
@@ -15,7 +17,9 @@ def render_region_from_custom_atlas(
     voxel_size=10,
 ):
 
-    all_regions = get_arbitrary_structure_mask_from_custom_atlas(atlas_ids, atlas_path, sigma, smoothing_threshold)
+    all_regions = get_arbitrary_structure_mask_from_custom_atlas(
+        atlas_ids, atlas_path, sigma, smoothing_threshold
+    )
 
     output_path = f"{output_dir}{structure_name}.obj"
     oriented_binary = reorient_image(
@@ -68,6 +72,3 @@ def create_scene(default_structures):
     for structure in default_structures:
         scene.add_brain_regions([structure], use_original_color=True)
     return scene
-
-
-

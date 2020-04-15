@@ -84,7 +84,9 @@ def transform_image_to_standard_space(
     control_point_file = reg_dir / "inverse_control_point_file.nii"
     output_path = reg_dir / output_fname
 
-    nifty_reg_binaries_folder = imlib.source.niftyreg_binaries.get_niftyreg_binaries()
+    nifty_reg_binaries_folder = (
+        imlib.source.niftyreg_binaries.get_niftyreg_binaries()
+    )
     program_path = get_binary(nifty_reg_binaries_folder, PROGRAM_NAME)
 
     reg_cmd = get_registration_cmd(
