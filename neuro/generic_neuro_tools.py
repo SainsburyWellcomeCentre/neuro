@@ -3,9 +3,10 @@ from pathlib import Path
 
 import numpy as np
 from brainio import brainio
+
+import imlib
 from cellfinder.summarise import count_summary as cells_regions
-from cellfinder.tools import source_files
-from cellfinder.tools.source_files import source_custom_config
+from imlib.source.source_files import source_custom_config_cellfinder
 from imlib.general.exceptions import TransformationError
 from imlib.general.system import safe_execute_command, SafeExecuteCommandError
 from imlib.source.niftyreg_binaries import get_binary
@@ -19,7 +20,7 @@ PROGRAM_NAME = "reg_resample"
 
 
 def save_brain(image, source_image_path, output_path):
-    registration_config = source_custom_config()
+    registration_config = source_custom_config_cellfinder()
     atlas_scale, transformation_matrix = get_transform_space_params(
         registration_config, source_image_path
     )
@@ -72,7 +73,7 @@ def get_registration_cmd(
 
 
 def transform_image_to_standard_space(
-    reg_dir="/home/slenzi/winstor/margrie/slenzi/serial2p/SL_1029105_1016719/SL_1029105/analysis_200116/registration/",
+    reg_dir,
     image_to_transform_fname="downsampled.nii",
     output_fname="background_channel_reg_to_filtered_brain.nii",
 ):
@@ -83,7 +84,7 @@ def transform_image_to_standard_space(
     control_point_file = reg_dir / "inverse_control_point_file.nii"
     output_path = reg_dir / output_fname
 
-    nifty_reg_binaries_folder = source_files.get_niftyreg_binaries()
+    nifty_reg_binaries_folder = imlib.source.niftyreg_binaries.get_niftyreg_binaries()
     program_path = get_binary(nifty_reg_binaries_folder, PROGRAM_NAME)
 
     reg_cmd = get_registration_cmd(
