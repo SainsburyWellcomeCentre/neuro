@@ -2,11 +2,12 @@ from pathlib import Path
 
 import numpy as np
 from brainio import brainio
+from natsort import natsorted
+
 from napari.utils.io import magic_imread
 
 from imlib.general.config import get_config_obj
-from imlib.general.system import get_sorted_file_paths
-from neuro.visualise.amap_vis import read_log_file, get_most_recent_log
+from imlib.general.system import get_sorted_file_paths, get_text_lines
 from vispy.color import Colormap
 
 label_red = Colormap([[0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0]])
@@ -164,3 +165,45 @@ def display_registration(
         scale=image_scales,
     )
     return labels
+
+
+def get_most_recent_log(directory, log_pattern="amap*.log"):
+    """
+    Returns the most recent amap log file (for parsing of arguments)
+    :param directory:
+    :param log_pattern: String pattern that defines the log
+    :return: Path to the most recent log file
+    """
+    directory = Path(directory)
+    return natsorted(directory.glob(log_pattern))[-1]
+
+
+def read_log_file(
+    log_file,
+    log_entries_to_get=[
+        "x_pixel_um",
+        "y_pixel_um",
+        "z_pixel_um",
+        "image_paths",
+        "registration_config",
+    ],
+    separator=": ",
+):
+    """
+    Reads an amap log file, and returns a dict of entries corresponding to
+    "log_entries_to_get"
+    :param log_file: Path to the log file
+    :param log_entries_to_get: List of strings corresponding to entries
+    in the log file
+    :param separator: Separator between the log item label and the entry.
+    Default: ": "
+    :return: A dict of the entries and labels
+    """
+    lines = get_text_lines(log_file)
+    entries = {}
+    for line in lines:
+        for entry in log_entries_to_get:
+            if line.startswith(entry):
+                entries[entry] = line.strip(entry + separator)
+
+    return entries
