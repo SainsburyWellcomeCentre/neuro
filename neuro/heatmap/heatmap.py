@@ -6,10 +6,9 @@ image
 import logging
 import argparse
 
+from pathlib import Path
 import numpy as np
 from skimage.filters import gaussian
-from skimage.transform import resize
-
 from brainio import brainio
 from imlib.cells.utils import get_cell_location_array
 from imlib.image.scale import scale_and_convert_to_16_bits
@@ -17,6 +16,8 @@ from imlib.image.binning import get_bins
 from imlib.image.shape import convert_shape_dict_to_array_shape
 from imlib.image.masking import mask_image_threshold
 from imlib.general.numerical import check_positive_float
+from imlib.general.system import ensure_directory_exists
+from imlib.image.size import resize_array
 
 
 def run(
@@ -65,9 +66,12 @@ def run(
 
     logging.debug("Generating heatmap (3D histogram)")
     heatmap_array, _ = np.histogramdd(cells_array, bins=bins)
+    # otherwise resized array is too big to fit into RAM
+    heatmap_array = heatmap_array.astype(np.uint16)
 
     logging.debug("Resizing heatmap to the size of the target image")
-    heatmap_array = resize(heatmap_array, target_size, order=0)
+    heatmap_array = resize_array(heatmap_array, target_size)
+
     if smoothing is not None:
         logging.debug(
             "Applying Gaussian smoothing with a kernel sigma of: "
@@ -84,6 +88,9 @@ def run(
     if convert_16bit:
         logging.debug("Converting to 16 bit")
         heatmap_array = scale_and_convert_to_16_bits(heatmap_array)
+
+    logging.debug("Ensuring output directory exists")
+    ensure_directory_exists(Path(output_filename).parent)
 
     logging.debug("Saving heatmap image")
     brainio.to_nii(
@@ -128,6 +135,7 @@ def get_parser():
         type=check_positive_float,
         help="Pixel spacing of the data in the first "
         "dimension, specified in um.",
+        required=True,
     )
     parser.add_argument(
         "-y",
@@ -136,6 +144,7 @@ def get_parser():
         type=check_positive_float,
         help="Pixel spacing of the data in the second "
         "dimension, specified in um.",
+        required=True,
     )
     parser.add_argument(
         "-z",
@@ -144,6 +153,7 @@ def get_parser():
         type=check_positive_float,
         help="Pixel spacing of the data in the third "
         "dimension, specified in um.",
+        required=True,
     )
     parser.add_argument(
         "--heatmap-smoothing",
@@ -230,7 +240,7 @@ class HeatmapParams:
         )
 
     def _get_atlas_data(self):
-        self.atlas_data = self._downsampled_image.get_fdata()
+        self.atlas_data = brainio.load_nii(self._target_image, as_array=True)
 
     def _get_atlas_scale(self):
         self.atlas_scale = self._downsampled_image.header.get_zooms()

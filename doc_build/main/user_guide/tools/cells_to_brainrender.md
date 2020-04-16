@@ -5,7 +5,7 @@ To convert cell positions (e.g. in `cells_in_standard_space.xml`) to
 a format that can be used in 
 [BrainRender](https://github.com/BrancoLab/BrainRender).
 
-
+### Usage
 ```bash
     points_to_brainrender cells_in_standard_space.xml exported_cells.h5
 ```
@@ -16,7 +16,8 @@ Run `points_to_brainrender -h` to see all options.
 #### Positional
 * [Cellfinder](https://github.com/SainsburyWellcomeCentre/cellfinder) 
 cells file to be converted
-* Output filename. Should end with '.h5'
+* Output filename. Should end with '.h5'. If the containing directory doesn't 
+exist, it will be created.
 
 
 #### The following options may also need to be used:

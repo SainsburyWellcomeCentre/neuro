@@ -3,7 +3,7 @@ from setuptools import setup, find_namespace_packages
 requirements = [
     "numpy",
     "scikit-image",
-    "pandas",
+    "pandas<=0.25.3,>=0.25.1",
     "napari",
     "brainrender",
     "imlib",
@@ -49,6 +49,7 @@ setup(
             "points_to_brainrender = "
             "neuro.points.points_to_brainrender:main",
             "heatmap = neuro.heatmap.heatmap:cli",
+            "amap_vis = neuro.visualise.amap_vis:main",
         ]
     },
     zip_safe=False,

@@ -117,3 +117,7 @@ venv.bak/
 .idea/
 .vs/
 *.~lock.*
+
+
+# macOS
+*.DS_Store
