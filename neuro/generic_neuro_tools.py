@@ -5,12 +5,12 @@ import numpy as np
 from brainio import brainio
 
 import imlib
-from cellfinder.summarise import count_summary as cells_regions
 from imlib.source.source_files import source_custom_config_cellfinder
 from imlib.general.exceptions import TransformationError
 from imlib.general.system import safe_execute_command, SafeExecuteCommandError
 from imlib.source.niftyreg_binaries import get_binary
 
+from neuro.atlas_tools.misc import get_atlas_pixel_sizes
 
 SOURCE_IMAGE_NAME = "downsampled.nii"
 DEFAULT_CONTROL_POINT_FILE = "inverse_control_point_file.nii"
@@ -37,9 +37,7 @@ def save_brain(image, source_image_path, output_path):
 def get_transform_space_params(registration_config, destination_image):
     atlas = brainio.load_nii(str(destination_image), as_array=False)
     atlas_scale = atlas.header.get_zooms()
-    atlas_pixel_sizes = cells_regions.get_atlas_pixel_sizes(
-        registration_config
-    )
+    atlas_pixel_sizes = get_atlas_pixel_sizes(registration_config)
     transformation_matrix = np.eye(4)
     for i, axis in enumerate(("x", "y", "z")):
         transformation_matrix[i, i] = atlas_pixel_sizes[axis]
@@ -47,7 +45,7 @@ def get_transform_space_params(registration_config, destination_image):
 
 
 def get_transformation_matrix(self):
-    atlas_pixel_sizes = cells_regions.get_atlas_pixel_sizes(self._atlas_config)
+    atlas_pixel_sizes = get_atlas_pixel_sizes(self._atlas_config)
     transformation_matrix = np.eye(4)
     for i, axis in enumerate(("x", "y", "z")):
         transformation_matrix[i, i] = atlas_pixel_sizes[axis]
