@@ -13,6 +13,22 @@ from vispy.color import Colormap
 label_red = Colormap([[0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0]])
 
 
+def display_channel(viewer, reg_dir, channel_fname):
+    """
+    Display downsampled data
+    :param viewer:
+    :param args:
+    :param paths:
+    :return:
+    """
+    reg_dir = Path(reg_dir)
+
+    viewer.add_image(
+        prepare_load_nii(reg_dir / channel_fname, memory=False),
+        name="Downsampled filtered_brain_space",
+    )
+
+
 def prepare_load_nii(nii_path, memory=False):
     """
     Transforms a nii file into the same coordinate space as the raw data

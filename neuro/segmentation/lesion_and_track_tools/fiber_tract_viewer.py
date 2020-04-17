@@ -15,22 +15,7 @@ from neuro.segmentation.lesion_and_track_tools.lesion_and_track_estimation impor
 from neuro.generic_neuro_tools import (
     transform_background_channel_to_standard_space,
 )
-
-
-def display_channel(viewer, reg_dir, channel_fname):
-    """
-    Display downsampled data
-    :param viewer:
-    :param args:
-    :param paths:
-    :return:
-    """
-    reg_dir = pathlib.Path(reg_dir)
-
-    viewer.add_image(
-        prepare_load_nii(reg_dir / channel_fname, memory=False),
-        name="Downsampled filtered_brain_space",
-    )
+from neuro.visualise.vis_tools import display_channel
 
 
 def run_track_viewer(
