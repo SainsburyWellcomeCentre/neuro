@@ -74,6 +74,8 @@ def transform_image_to_standard_space(
     reg_dir,
     image_to_transform_fname="downsampled.nii",
     output_fname="background_channel_reg_to_filtered_brain.nii",
+    log_file_path=None,
+    error_file_path=None,
 ):
 
     reg_dir = Path(reg_dir)
@@ -95,8 +97,11 @@ def transform_image_to_standard_space(
         control_point_file,
     )
 
-    log_file_path = output_path.parent / "roi_transform_log.txt"
-    error_file_path = output_path.parent / "roi_transform_error.txt"
+    if log_file_path is None:
+        log_file_path = output_path.parent / "roi_transform_log.txt"
+
+    if error_file_path is None:
+        error_file_path = output_path.parent / "roi_transform_error.txt"
     safely_execute_amap_registration(error_file_path, log_file_path, reg_cmd)
     print(f"Registered ROI image can be found at {output_path}")
 

@@ -5,7 +5,6 @@ import pathlib
 import numpy as np
 
 from PySide2.QtWidgets import QApplication
-from neuro.visualise.vis_tools import prepare_load_nii
 from brainio import brainio
 
 from neuro.brain_render_tools import volume_to_vector_array_to_obj_file

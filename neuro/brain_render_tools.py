@@ -37,14 +37,21 @@ def render_region_from_custom_atlas(
     marching_cubes_to_obj((verts, faces, normals, values), output_path)
 
 
-def volume_to_vector_array_to_obj_file(image, output_path, voxel_size=10):
+def volume_to_vector_array_to_obj_file(
+    image,
+    output_path,
+    invert_axes=[2],
+    voxel_size=10,
+    orientation="coronal",
+    step_size=1,
+):
 
     oriented_binary = reorient_image(
-        image, invert_axes=[2], orientation="coronal"
+        image, invert_axes=invert_axes, orientation=orientation
     )
 
     verts, faces, normals, values = measure.marching_cubes_lewiner(
-        oriented_binary, 0, step_size=1
+        oriented_binary, 0, step_size=step_size
     )
 
     if voxel_size is not 1:
