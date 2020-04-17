@@ -90,7 +90,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#arguments">Arguments</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#napari-gui">napari GUI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#napari-gui">napari GUI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#to-segment-regions">To segment regions:</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -214,7 +217,35 @@ intermediate files for diagnosis of software issues. (default: False)</p></li>
 <h3>napari GUI<a class="headerlink" href="#napari-gui" title="Permalink to this headline">¶</a></h3>
 <p>manual_region_seg will transform your image into standard space (this may
 take a few minutes) and then display the image in a
-<a class="reference external" href="https://github.com/napari/napari">napari</a> viewer.</p>
+<a class="reference external" href="https://github.com/napari/napari">napari</a> viewer:</p>
+<img src="https://raw.githubusercontent.com/SainsburyWellcomeCentre/neuro/master/resources/manual_segmentation_window.png" alt="manual_seg_window" width="700"/><div class="section" id="to-segment-regions">
+<h4>To segment regions:<a class="headerlink" href="#to-segment-regions" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Ensure that the “Regions” tab is selected (left hand side)</p></li>
+<li><p>Navigate to where you want to draw your region of interest.</p>
+<ul>
+<li><p>Use the scroll bar at the bottom (or left/right keys) to navigate
+through the image stack</p></li>
+<li><p>Use the mouse scrollwheel to zoom in or out</p></li>
+<li><p>Drag with the mouse the pan the view</p></li>
+</ul>
+</li>
+<li><p>Select a label ID (by pressing the <code class="docutils literal notranslate"><span class="pre">+</span></code> button in the <code class="docutils literal notranslate"><span class="pre">label</span></code> row, top-left),
+the ID is not important, but <code class="docutils literal notranslate"><span class="pre">0</span></code> refers to no label, so you may as well start
+from 1.</p></li>
+<li><p>Choose a brush size (also in top left box)</p></li>
+<li><p>Activate painting mode (by selecting the paintbrush, top left). You can
+go back to the navigation mode by selecting the magnifying glass.</p></li>
+<li><p>Colour in your region that you want to segment, ensuring that you make a
+solid object.</p></li>
+<li><p>Selecting the <code class="docutils literal notranslate"><span class="pre">ndim</span></code> toggle in the top left will extend the brush size in
+three dimensions (so it will colour in multiple layers).</p></li>
+<li><p>Repeat above for each region you wish to segment.</p></li>
+<li><p>Press <code class="docutils literal notranslate"><span class="pre">Control+S</span></code> on your keyboard to save the regions. If you used the
+<code class="docutils literal notranslate"><span class="pre">--preview</span> <span class="pre">flag</span></code>, once they are saved, they will be displayed in a brainrender
+window.</p></li>
+</ul>
+</div>
 </div>
 </div>
 </div>
