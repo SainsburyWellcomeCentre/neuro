@@ -1,3 +1,5 @@
+import argparse
+
 import napari
 import pathlib
 import numpy as np
@@ -88,3 +90,24 @@ def get_fiber_tract_in_standard_space(
     volume_to_vector_array_to_obj_file(
         brain, str(reg_dir / output_name.replace(".nii", ".obj"))
     )
+
+
+def get_parser():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        dest="registration_directory",
+        type=str,
+        help="amap/cellfinder registration output directory",
+    )
+    return parser
+
+
+def main():
+    args = get_parser().parse_args()
+    get_fiber_tract_in_standard_space(args.registration_directory)
+
+
+if __name__ == "__main__":
+    main()
