@@ -50,13 +50,14 @@ take a few minutes) and then display the image in a
 
 <img src="https://raw.githubusercontent.com/SainsburyWellcomeCentre/neuro/master/resources/manual_segmentation_window.png" alt="manual_seg_window" width="700"/>
 
-To segment regions:
+##### To segment regions:
 * Ensure that the "Regions" tab is selected (left hand side)
 * Navigate to where you want to draw your region of interest.
     * Use the scroll bar at the bottom (or left/right keys) to navigate 
     through the image stack
     * Use the mouse scrollwheel to zoom in or out
     * Drag with the mouse the pan the view
+    
 * Select a label ID (by pressing the `+` button in the `label` row, top-left),
 the ID is not important, but `0` refers to no label, so you may as well start 
 from 1.
