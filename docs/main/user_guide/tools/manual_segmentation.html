@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Manual segmentation &mdash; neuro  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Contributing" href="../../dev/CONTRIBUTING.html" />
+    <link rel="prev" title="Heatmap generation" href="heatmap.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> neuro
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cells_to_brainrender.html">Converting cells from cellfinder to brainrender format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="heatmap.html">Heatmap generation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Manual segmentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#command-line">Command line</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#arguments">Arguments</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../dev/CONTRIBUTING.html">Contributing</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">neuro</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Manual segmentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="manual-segmentation">
+<h1>Manual segmentation<a class="headerlink" href="#manual-segmentation" title="Permalink to this headline">¶</a></h1>
+<p>To manually segment brain regions in standard space that can then be visualised
+along with other samples (e.g. in
+<a class="reference external" href="https://github.com/BrancoLab/BrainRender">BrainRender</a>.)</p>
+<p><strong>N.B. This tool depends (for now) on
+<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/amap">amap</a>. Please
+run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">amap</span></code> and then <code class="docutils literal notranslate"><span class="pre">amap_download</span></code> before running this tool if
+you don’t already have cellfinder installed</strong></p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Data must be registered to a standard atlas (currently only the
+<a class="reference external" href="http://mouse.brain-map.org/">Allen Reference Atlas</a> is supported) using
+<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/amap-python">amap</a> (or the amap
+based registration in
+<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/cellfinder">cellfinder</a>). Please
+follow the instructions for these packages, and ensure that the channel that
+you want to segment is downsampled (e.g. using the <code class="docutils literal notranslate"><span class="pre">--downsample</span></code> flag in
+amap).</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="command-line">
+<h3>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>    manual_region_seg <span class="s2">&quot;name_of_downsampled_image.nii&quot;</span> registration_directory
+</pre></div>
+</div>
+<div class="section" id="arguments">
+<h4>Arguments<a class="headerlink" href="#arguments" title="Permalink to this headline">¶</a></h4>
+<p>Run <code class="docutils literal notranslate"><span class="pre">manual_region_seg</span> <span class="pre">-h</span></code> to see all options.</p>
+<div class="section" id="positional-arguments">
+<h5>Positional arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h5>
+<ul class="simple">
+<li><p>Downsampled image to be segmented, as a string (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;downsampled.nii&quot;</span></code>)</p></li>
+<li><p>amap/cellfinder registration directory (e.g.
+<code class="docutils literal notranslate"><span class="pre">/home/analysis/cellfinder_output/registration/</span></code>)</p></li>
+</ul>
+</div>
+<div class="section" id="the-following-options-may-also-need-to-be-used">
+<h5>The following options may also need to be used:<a class="headerlink" href="#the-following-options-may-also-need-to-be-used" title="Permalink to this headline">¶</a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--save-image</span></code> Store the resulting segmented region image (e.g. for
+inspecting in 2D. (default: False)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--preview</span></code> Preview the segmented regions in brainrender (default:False)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--debug</span></code> Debug mode. Will increase verbosity of logging and save all
+intermediate files for diagnosis of software issues. (default: False)</p></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../dev/CONTRIBUTING.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="heatmap.html" class="btn btn-neutral float-left" title="Heatmap generation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Sainsbury Wellcome Centre
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

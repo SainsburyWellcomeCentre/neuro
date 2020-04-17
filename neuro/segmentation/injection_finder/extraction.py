@@ -11,8 +11,10 @@ from imlib.IO.surfaces import marching_cubes_to_obj
 from imlib.image.orient import reorient_image
 from imlib.image.objects import keep_n_largest_objects
 
-from neuro.injection_finder.registration import get_registered_image
-from neuro.injection_finder.parsers import extraction_parser
+from neuro.segmentation.injection_finder.registration import (
+    get_registered_image,
+)
+from neuro.segmentation.injection_finder.parsers import extraction_parser
 
 import neuro as package_for_log
 import logging

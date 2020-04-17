@@ -1,34 +1,20 @@
+import argparse
+
 import napari
 import pathlib
 import numpy as np
 
 from PySide2.QtWidgets import QApplication
-from neuro.visualise.vis_tools import prepare_load_nii
 from brainio import brainio
 
 from neuro.brain_render_tools import volume_to_vector_array_to_obj_file
-from neuro.lesion_and_track_tools.lesion_and_track_estimation import (
+from neuro.segmentation.lesion_and_track_tools.lesion_and_track_estimation import (
     get_fiber_track,
 )
 from neuro.generic_neuro_tools import (
     transform_background_channel_to_standard_space,
 )
-
-
-def display_channel(viewer, reg_dir, channel_fname):
-    """
-    Display downsampled data
-    :param viewer:
-    :param args:
-    :param paths:
-    :return:
-    """
-    reg_dir = pathlib.Path(reg_dir)
-
-    viewer.add_image(
-        prepare_load_nii(reg_dir / channel_fname, memory=False),
-        name="Downsampled filtered_brain_space",
-    )
+from neuro.visualise.vis_tools import display_channel
 
 
 def run_track_viewer(
@@ -88,3 +74,24 @@ def get_fiber_tract_in_standard_space(
     volume_to_vector_array_to_obj_file(
         brain, str(reg_dir / output_name.replace(".nii", ".obj"))
     )
+
+
+def get_parser():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        dest="registration_directory",
+        type=str,
+        help="amap/cellfinder registration output directory",
+    )
+    return parser
+
+
+def main():
+    args = get_parser().parse_args()
+    get_fiber_tract_in_standard_space(args.registration_directory)
+
+
+if __name__ == "__main__":
+    main()

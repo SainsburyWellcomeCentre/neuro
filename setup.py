@@ -13,7 +13,7 @@ requirements = [
 
 setup(
     name="neuro",
-    version="0.0.7",
+    version="0.0.8rc0",
     description="Visualisation and analysis of brain imaging data",
     install_requires=requirements,
     extras_require={
@@ -50,6 +50,10 @@ setup(
             "neuro.points.points_to_brainrender:main",
             "heatmap = neuro.heatmap.heatmap:cli",
             "amap_vis = neuro.visualise.amap_vis:main",
+            "fibre_track = "
+            "neuro.segmentation.lesion_and_track_tools.fiber_tract_viewer:main",
+            "manual_region_seg = "
+            "neuro.segmentation.manual_region_segmentation.segment:main",
         ]
     },
     zip_safe=False,

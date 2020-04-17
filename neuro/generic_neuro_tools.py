@@ -5,12 +5,12 @@ import numpy as np
 from brainio import brainio
 
 import imlib
-from cellfinder.summarise import count_summary as cells_regions
-from imlib.source.source_files import source_custom_config_cellfinder
+from imlib.source.source_files import source_custom_config_amap
 from imlib.general.exceptions import TransformationError
 from imlib.general.system import safe_execute_command, SafeExecuteCommandError
 from imlib.source.niftyreg_binaries import get_binary
 
+from neuro.atlas_tools.misc import get_atlas_pixel_sizes
 
 SOURCE_IMAGE_NAME = "downsampled.nii"
 DEFAULT_CONTROL_POINT_FILE = "inverse_control_point_file.nii"
@@ -20,7 +20,7 @@ PROGRAM_NAME = "reg_resample"
 
 
 def save_brain(image, source_image_path, output_path):
-    registration_config = source_custom_config_cellfinder()
+    registration_config = source_custom_config_amap()
     atlas_scale, transformation_matrix = get_transform_space_params(
         registration_config, source_image_path
     )
@@ -37,9 +37,7 @@ def save_brain(image, source_image_path, output_path):
 def get_transform_space_params(registration_config, destination_image):
     atlas = brainio.load_nii(str(destination_image), as_array=False)
     atlas_scale = atlas.header.get_zooms()
-    atlas_pixel_sizes = cells_regions.get_atlas_pixel_sizes(
-        registration_config
-    )
+    atlas_pixel_sizes = get_atlas_pixel_sizes(registration_config)
     transformation_matrix = np.eye(4)
     for i, axis in enumerate(("x", "y", "z")):
         transformation_matrix[i, i] = atlas_pixel_sizes[axis]
@@ -47,7 +45,7 @@ def get_transform_space_params(registration_config, destination_image):
 
 
 def get_transformation_matrix(self):
-    atlas_pixel_sizes = cells_regions.get_atlas_pixel_sizes(self._atlas_config)
+    atlas_pixel_sizes = get_atlas_pixel_sizes(self._atlas_config)
     transformation_matrix = np.eye(4)
     for i, axis in enumerate(("x", "y", "z")):
         transformation_matrix[i, i] = atlas_pixel_sizes[axis]
@@ -76,6 +74,8 @@ def transform_image_to_standard_space(
     reg_dir,
     image_to_transform_fname="downsampled.nii",
     output_fname="background_channel_reg_to_filtered_brain.nii",
+    log_file_path=None,
+    error_file_path=None,
 ):
 
     reg_dir = Path(reg_dir)
@@ -97,14 +97,17 @@ def transform_image_to_standard_space(
         control_point_file,
     )
 
-    log_file_path = output_path.parent / "roi_transform_log.txt"
-    error_file_path = output_path.parent / "roi_transform_error.txt"
+    if log_file_path is None:
+        log_file_path = output_path.parent / "roi_transform_log.txt"
+
+    if error_file_path is None:
+        error_file_path = output_path.parent / "roi_transform_error.txt"
     safely_execute_amap_registration(error_file_path, log_file_path, reg_cmd)
     print(f"Registered ROI image can be found at {output_path}")
 
 
 def safely_execute_amap_registration(error_file_path, log_file_path, reg_cmd):
-    print("Running ROI registration")
+    print("Running registration")
     try:
         safe_execute_command(reg_cmd, log_file_path, error_file_path)
     except SafeExecuteCommandError as err:
