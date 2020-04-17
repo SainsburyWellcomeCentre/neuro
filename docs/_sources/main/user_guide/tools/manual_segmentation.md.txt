@@ -46,5 +46,6 @@ intermediate files for diagnosis of software issues. (default: False)
 ### napari GUI
 manual_region_seg will transform your image into standard space (this may 
 take a few minutes) and then display the image in a 
-[napari](https://github.com/napari/napari) viewer.
+[napari](https://github.com/napari/napari) viewer:
 
+<img src="https://raw.githubusercontent.com/SainsburyWellcomeCentre/neuro/master/resources/manual_segmentation_window.png" alt="manual_seg_window" width="500"/>
