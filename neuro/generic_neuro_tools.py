@@ -5,7 +5,7 @@ import numpy as np
 from brainio import brainio
 
 import imlib
-from imlib.source.source_files import source_custom_config_cellfinder
+from imlib.source.source_files import source_custom_config_amap
 from imlib.general.exceptions import TransformationError
 from imlib.general.system import safe_execute_command, SafeExecuteCommandError
 from imlib.source.niftyreg_binaries import get_binary
@@ -20,7 +20,7 @@ PROGRAM_NAME = "reg_resample"
 
 
 def save_brain(image, source_image_path, output_path):
-    registration_config = source_custom_config_cellfinder()
+    registration_config = source_custom_config_amap()
     atlas_scale, transformation_matrix = get_transform_space_params(
         registration_config, source_image_path
     )
@@ -107,7 +107,7 @@ def transform_image_to_standard_space(
 
 
 def safely_execute_amap_registration(error_file_path, log_file_path, reg_cmd):
-    print("Running ROI registration")
+    print("Running registration")
     try:
         safe_execute_command(reg_cmd, log_file_path, error_file_path)
     except SafeExecuteCommandError as err:

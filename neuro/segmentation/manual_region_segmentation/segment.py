@@ -108,7 +108,7 @@ def run(
     if preview:
         print("\nPreviewing in brainrender")
         scene = Scene()
-        scene.add_from_file(paths.regions_object_file, c="coral")
+        scene.add_from_file(str(paths.regions_object_file), c="coral")
         scene.render()
 
 
