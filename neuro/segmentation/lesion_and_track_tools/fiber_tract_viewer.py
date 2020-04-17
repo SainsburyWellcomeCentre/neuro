@@ -9,7 +9,7 @@ from neuro.visualise.vis_tools import prepare_load_nii
 from brainio import brainio
 
 from neuro.brain_render_tools import volume_to_vector_array_to_obj_file
-from neuro.lesion_and_track_tools.lesion_and_track_estimation import (
+from neuro.segmentation.lesion_and_track_tools.lesion_and_track_estimation import (
     get_fiber_track,
 )
 from neuro.generic_neuro_tools import (

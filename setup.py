@@ -51,7 +51,7 @@ setup(
             "heatmap = neuro.heatmap.heatmap:cli",
             "amap_vis = neuro.visualise.amap_vis:main",
             "fibre_track = "
-            "neuro.lesion_and_track_tools.fiber_tract_viewer:main",
+            "neuro.segmentation.lesion_and_track_tools.fiber_tract_viewer:main",
         ]
     },
     zip_safe=False,
