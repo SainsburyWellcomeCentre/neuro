@@ -1,6 +1,10 @@
+import numpy as np
+from pathlib import Path
 from brainrender.Utils.image import reorient_image, marching_cubes_to_obj
 from brainrender.scene import Scene
 from skimage import measure
+
+from imlib.general.pathlib import append_to_pathlib_stem
 
 from neuro.atlas_tools.custom_atlas_structures import (
     get_arbitrary_structure_mask_from_custom_atlas,
@@ -44,21 +48,55 @@ def volume_to_vector_array_to_obj_file(
     voxel_size=10,
     orientation="coronal",
     step_size=1,
+    threshold=0,
+    deal_with_regions_separately=False,
 ):
 
     oriented_binary = reorient_image(
         image, invert_axes=invert_axes, orientation=orientation
     )
+    #
+    if deal_with_regions_separately:
+        for label_id in np.unique(oriented_binary):
+            filename = append_to_pathlib_stem(
+                Path(output_path), "_" + str(label_id)
+            )
+            image = oriented_binary == label_id
+            extract_and_save_object(
+                image,
+                filename,
+                voxel_size=voxel_size,
+                threshold=threshold,
+                step_size=step_size,
+            )
+    else:
+        extract_and_save_object(
+            oriented_binary,
+            output_path,
+            voxel_size=voxel_size,
+            threshold=threshold,
+            step_size=step_size,
+        )
 
+
+def extract_and_save_object(
+    image, output_file_name, voxel_size=10, threshold=0, step_size=1
+):
     verts, faces, normals, values = measure.marching_cubes_lewiner(
-        oriented_binary, 0, step_size=step_size
+        image, threshold, step_size=step_size
+    )
+    verts, faces = convert_obj_to_br(verts, faces, voxel_size=voxel_size)
+    marching_cubes_to_obj(
+        (verts, faces, normals, values), str(output_file_name)
     )
 
+
+def convert_obj_to_br(verts, faces, voxel_size=10):
     if voxel_size is not 1:
         verts = verts * voxel_size
 
     faces = faces + 1
-    marching_cubes_to_obj((verts, faces, normals, values), str(output_path))
+    return verts, faces
 
 
 def visualize_obj(obj_path, *args, color="lightcoral", **kwargs):
