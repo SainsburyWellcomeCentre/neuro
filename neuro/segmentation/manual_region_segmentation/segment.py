@@ -8,6 +8,8 @@ from glob import glob
 from PySide2.QtWidgets import QApplication
 from brainrender.scene import Scene
 from imlib.general.system import delete_temp, ensure_directory_exists
+from imlib.plotting.colors import get_random_vtkplotter_color
+
 
 from neuro.generic_neuro_tools import (
     transform_image_to_standard_space,
@@ -121,12 +123,14 @@ def run(
         delete_temp(paths.registration_output_folder, paths)
 
     if preview:
+
         print("\nPreviewing in brainrender")
         scene = Scene()
         obj_files = glob(str(paths.regions_directory) + "/*.obj")
-
         for obj_file in obj_files:
-            scene.add_from_file(obj_file)
+            act = scene.add_from_file(
+                obj_file, c=get_random_vtkplotter_color(), alpha=0.8
+            )
         scene.render()
 
 
