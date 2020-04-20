@@ -3,10 +3,13 @@ import napari
 
 from pathlib import Path
 import numpy as np
+from glob import glob
 
 from PySide2.QtWidgets import QApplication
 from brainrender.scene import Scene
-from imlib.general.system import delete_temp
+from imlib.general.system import delete_temp, ensure_directory_exists
+from imlib.plotting.colors import get_random_vtkplotter_color
+
 
 from neuro.generic_neuro_tools import (
     transform_image_to_standard_space,
@@ -27,8 +30,13 @@ class Paths:
         self.registration_output_folder = Path(registration_output_folder)
         self.downsampled_image = self.join(downsampled_image)
 
-        self.regions_object_file = self.join("regions.obj")
-        self.regions_image_file = self.join("regions.nii")
+        self.regions_directory = self.join("segmented_regions")
+
+        self.regions_object_file_basename = (
+            self.regions_directory / "region.obj"
+        )
+
+        self.regions_image_file = self.regions_directory / "regions.nii"
 
         self.tmp__inverse_transformed_image = self.join(
             "image_standard_space.nii"
@@ -40,8 +48,13 @@ class Paths:
             "inverse_transform_error.txt"
         )
 
+        self.prep()
+
     def join(self, filename):
         return self.registration_output_folder / filename
+
+    def prep(self):
+        ensure_directory_exists(self.regions_directory)
 
 
 def run(
@@ -88,11 +101,15 @@ def run(
 
         @viewer.bind_key("Control-S")
         def add_region(viewer):
-            print(f"\nSaving regions to: {paths.regions_object_file}")
+            print(f"\nSaving regions to: {paths.regions_directory}")
             # return image back to original orientation (reoriented for napari)
             data = np.swapaxes(labels_layer.data, 2, 0)
 
-            volume_to_vector_array_to_obj_file(data, paths.regions_object_file)
+            volume_to_vector_array_to_obj_file(
+                data,
+                paths.regions_object_file_basename,
+                deal_with_regions_separately=True,
+            )
             if save_segmented_image:
                 save_brain(
                     data, paths.downsampled_image, paths.regions_image_file,
@@ -106,9 +123,14 @@ def run(
         delete_temp(paths.registration_output_folder, paths)
 
     if preview:
+
         print("\nPreviewing in brainrender")
         scene = Scene()
-        scene.add_from_file(str(paths.regions_object_file), c="coral")
+        obj_files = glob(str(paths.regions_directory) + "/*.obj")
+        for obj_file in obj_files:
+            act = scene.add_from_file(
+                obj_file, c=get_random_vtkplotter_color(), alpha=0.8
+            )
         scene.render()
 
 
