@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Manual segmentation &mdash; neuro  documentation</title>
+  <title>&lt;no title&gt; &mdash; neuro  documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Contributing" href="../../dev/CONTRIBUTING.html" />
-    <link rel="prev" title="Heatmap generation" href="heatmap.html" /> 
+    <link rel="next" title="&lt;no title&gt;" href="../../dev/CONTRIBUTING.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="heatmap.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -80,29 +80,10 @@
               
             
             
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="cells_to_brainrender.html">Converting cells from cellfinder to brainrender format</a></li>
-<li class="toctree-l1"><a class="reference internal" href="heatmap.html">Heatmap generation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Manual segmentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#command-line">Command line</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#arguments">Arguments</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul class="simple">
 </ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#napari-gui">napari GUI</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#to-segment-regions">To segment regions:</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../dev/CONTRIBUTING.html">Contributing</a></li>
-</ul>
-
+</div>
             
           
         </div>
@@ -146,7 +127,7 @@
     
       <li><a href="../../../index.html">Docs</a> &raquo;</li>
         
-      <li>Manual segmentation</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -163,92 +144,78 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="manual-segmentation">
-<h1>Manual segmentation<a class="headerlink" href="#manual-segmentation" title="Permalink to this headline">¶</a></h1>
+  <p># Manual segmentation</p>
 <p>To manually segment brain regions in standard space that can then be visualised
 along with other samples (e.g. in
-<a class="reference external" href="https://github.com/BrancoLab/BrainRender">BrainRender</a>.)</p>
+[BrainRender](<a class="reference external" href="https://github.com/BrancoLab/BrainRender">https://github.com/BrancoLab/BrainRender</a>).)</p>
 <p><strong>N.B. This tool depends (for now) on
-<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/amap">amap</a>. Please
-run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">amap</span></code> and then <code class="docutils literal notranslate"><span class="pre">amap_download</span></code> before running this tool if
+[amap](https://github.com/SainsburyWellcomeCentre/amap). Please
+run `pip install amap` and then `amap_download` before running this tool if
 you don’t already have cellfinder installed</strong></p>
-<div class="section" id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
-<p>Data must be registered to a standard atlas (currently only the
-<a class="reference external" href="http://mouse.brain-map.org/">Allen Reference Atlas</a> is supported) using
-<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/amap-python">amap</a> (or the amap
+<p>### Prerequisites
+Data must be registered to a standard atlas (currently only the
+[Allen Reference Atlas](<a class="reference external" href="http://mouse.brain-map.org/">http://mouse.brain-map.org/</a>) is supported) using
+[amap](<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/amap-python">https://github.com/SainsburyWellcomeCentre/amap-python</a>) (or the amap
 based registration in
-<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/cellfinder">cellfinder</a>). Please
+[cellfinder](<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/cellfinder">https://github.com/SainsburyWellcomeCentre/cellfinder</a>)). Please
 follow the instructions for these packages, and ensure that the channel that
-you want to segment is downsampled (e.g. using the <code class="docutils literal notranslate"><span class="pre">--downsample</span></code> flag in
+you want to segment is downsampled (e.g. using the <cite>–downsample</cite> flag in
 amap).</p>
-</div>
-<div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="command-line">
-<h3>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>    manual_region_seg <span class="s2">&quot;name_of_downsampled_image.nii&quot;</span> registration_directory
-</pre></div>
-</div>
-<div class="section" id="arguments">
-<h4>Arguments<a class="headerlink" href="#arguments" title="Permalink to this headline">¶</a></h4>
-<p>Run <code class="docutils literal notranslate"><span class="pre">manual_region_seg</span> <span class="pre">-h</span></code> to see all options.</p>
-<div class="section" id="positional-arguments">
-<h5>Positional arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h5>
-<ul class="simple">
-<li><p>Downsampled image to be segmented, as a string (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;downsampled.nii&quot;</span></code>)</p></li>
-<li><p>amap/cellfinder registration directory (e.g.
-<code class="docutils literal notranslate"><span class="pre">/home/analysis/cellfinder_output/registration/</span></code>)</p></li>
-</ul>
-</div>
-<div class="section" id="the-following-options-may-also-need-to-be-used">
-<h5>The following options may also need to be used:<a class="headerlink" href="#the-following-options-may-also-need-to-be-used" title="Permalink to this headline">¶</a></h5>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">--save-image</span></code> Store the resulting segmented region image (e.g. for
-inspecting in 2D. (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--preview</span></code> Preview the segmented regions in brainrender (default:False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--debug</span></code> Debug mode. Will increase verbosity of logging and save all
-intermediate files for diagnosis of software issues. (default: False)</p></li>
-</ul>
-</div>
-</div>
-</div>
-<div class="section" id="napari-gui">
-<h3>napari GUI<a class="headerlink" href="#napari-gui" title="Permalink to this headline">¶</a></h3>
-<p>manual_region_seg will transform your image into standard space (this may
+<p>## Usage
+### Command line
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>bash</p>
+<blockquote>
+<div><p>manual_region_seg “name_of_downsampled_image.nii” registration_directory</p>
+</div></blockquote>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<p>#### Arguments
+Run <cite>manual_region_seg -h</cite> to see all options.</p>
+<p>##### Positional arguments
+* Downsampled image to be segmented, as a string (e.g. <cite>“downsampled.nii”</cite>)
+* amap/cellfinder registration directory (e.g.
+<cite>/home/analysis/cellfinder_output/registration/</cite>)</p>
+<p>##### The following options may also need to be used:
+* <cite>–save-image</cite> Store the resulting segmented region image (e.g. for
+inspecting in 2D. (default: False)
+* <cite>–preview</cite> Preview the segmented regions in brainrender (default:False)
+* <cite>–debug</cite> Debug mode. Will increase verbosity of logging and save all
+intermediate files for diagnosis of software issues. (default: False)</p>
+<p>### napari GUI
+manual_region_seg will transform your image into standard space (this may
 take a few minutes) and then display the image in a
-<a class="reference external" href="https://github.com/napari/napari">napari</a> viewer:</p>
-<img src="https://raw.githubusercontent.com/SainsburyWellcomeCentre/neuro/master/resources/manual_segmentation_window.png" alt="manual_seg_window" width="700"/><div class="section" id="to-segment-regions">
-<h4>To segment regions:<a class="headerlink" href="#to-segment-regions" title="Permalink to this headline">¶</a></h4>
+[napari](<a class="reference external" href="https://github.com/napari/napari">https://github.com/napari/napari</a>) viewer:</p>
+<p>&lt;img src=”<a class="reference external" href="https://raw.githubusercontent.com/SainsburyWellcomeCentre/neuro/master/resources/manual_segmentation_window.png">https://raw.githubusercontent.com/SainsburyWellcomeCentre/neuro/master/resources/manual_segmentation_window.png</a>” alt=”manual_seg_window” width=”700”/&gt;</p>
+<p>##### To segment regions:
+* Ensure that the “Regions” tab is selected (left hand side)
+* Navigate to where you want to draw your region of interest.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Use the scroll bar at the bottom (or left/right keys) to navigate</p></li>
+</ul>
+<p>through the image stack
+* Use the mouse scrollwheel to zoom in or out
+* Drag with the mouse the pan the view</p>
+</div></blockquote>
 <ul class="simple">
-<li><p>Ensure that the “Regions” tab is selected (left hand side)</p></li>
-<li><p>Navigate to where you want to draw your region of interest.</p>
-<ul>
-<li><p>Use the scroll bar at the bottom (or left/right keys) to navigate
-through the image stack</p></li>
-<li><p>Use the mouse scrollwheel to zoom in or out</p></li>
-<li><p>Drag with the mouse the pan the view</p></li>
+<li><p>Select a label ID (by pressing the <cite>+</cite> button in the <cite>label</cite> row, top-left),</p></li>
 </ul>
-</li>
-<li><p>Select a label ID (by pressing the <code class="docutils literal notranslate"><span class="pre">+</span></code> button in the <code class="docutils literal notranslate"><span class="pre">label</span></code> row, top-left),
-the ID is not important, but <code class="docutils literal notranslate"><span class="pre">0</span></code> refers to no label, so you may as well start
-from 1.</p></li>
-<li><p>Choose a brush size (also in top left box)</p></li>
-<li><p>Activate painting mode (by selecting the paintbrush, top left). You can
-go back to the navigation mode by selecting the magnifying glass.</p></li>
-<li><p>Colour in your region that you want to segment, ensuring that you make a
-solid object.</p></li>
-<li><p>Selecting the <code class="docutils literal notranslate"><span class="pre">ndim</span></code> toggle in the top left will extend the brush size in
-three dimensions (so it will colour in multiple layers).</p></li>
+<p>the ID is not important, but <cite>0</cite> refers to no label, so you may as well start
+from 1.
+* Choose a brush size (also in top left box)
+* Activate painting mode (by selecting the paintbrush, top left). You can
+go back to the navigation mode by selecting the magnifying glass.
+* Colour in your region that you want to segment, ensuring that you make a
+solid object.
+* Selecting the <cite>ndim</cite> toggle in the top left will extend the brush size in
+three dimensions (so it will colour in multiple layers).</p>
+<ul class="simple">
 <li><p>Repeat above for each region you wish to segment.</p></li>
-<li><p>Press <code class="docutils literal notranslate"><span class="pre">Control+S</span></code> on your keyboard to save the regions. If you used the
-<code class="docutils literal notranslate"><span class="pre">--preview</span> <span class="pre">flag</span></code>, once they are saved, they will be displayed in a brainrender
-window.</p></li>
+<li><p>Press <cite>Control+S</cite> on your keyboard to save the regions. If you used the</p></li>
 </ul>
-</div>
-</div>
-</div>
-</div>
+<blockquote>
+<div><p><cite>–preview flag</cite>, once they are saved, they will be displayed in a brainrender
+window.</p>
+</div></blockquote>
 
 
            </div>
@@ -258,10 +225,10 @@ window.</p></li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../dev/CONTRIBUTING.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../../dev/CONTRIBUTING.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="heatmap.html" class="btn btn-neutral float-left" title="Heatmap generation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="heatmap.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -131,6 +131,7 @@ def run(
             act = scene.add_from_file(
                 obj_file, c=get_random_vtkplotter_color(), alpha=0.8
             )
+            act.GetProperty().SetInterpolationToFlat()
         scene.render()
 
 
