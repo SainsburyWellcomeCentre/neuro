@@ -58,17 +58,18 @@ def volume_to_vector_array_to_obj_file(
     #
     if deal_with_regions_separately:
         for label_id in np.unique(oriented_binary):
-            filename = append_to_pathlib_stem(
-                Path(output_path), "_" + str(label_id)
-            )
-            image = oriented_binary == label_id
-            extract_and_save_object(
-                image,
-                filename,
-                voxel_size=voxel_size,
-                threshold=threshold,
-                step_size=step_size,
-            )
+            if label_id != 0:
+                filename = append_to_pathlib_stem(
+                    Path(output_path), "_" + str(label_id)
+                )
+                image = oriented_binary == label_id
+                extract_and_save_object(
+                    image,
+                    filename,
+                    voxel_size=voxel_size,
+                    threshold=threshold,
+                    step_size=step_size,
+                )
     else:
         extract_and_save_object(
             oriented_binary,
