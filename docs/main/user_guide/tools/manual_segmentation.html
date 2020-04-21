@@ -175,8 +175,6 @@ Run <cite>manual_region_seg -h</cite> to see all options.</p>
 * amap/cellfinder registration directory (e.g.
 <cite>/home/analysis/cellfinder_output/registration/</cite>)</p>
 <p>##### The following options may also need to be used:
-* <cite>–save-image</cite> Store the resulting segmented region image (e.g. for
-inspecting in 2D. (default: False)
 * <cite>–preview</cite> Preview the segmented regions in brainrender (default:False)
 * <cite>–debug</cite> Debug mode. Will increase verbosity of logging and save all
 intermediate files for diagnosis of software issues. (default: False)</p>
@@ -215,6 +213,13 @@ three dimensions (so it will colour in multiple layers).</p>
 <blockquote>
 <div><p><cite>–preview flag</cite>, once they are saved, they will be displayed in a brainrender
 window.</p>
+</div></blockquote>
+<p>##### Editing regions:
+If you have already run <cite>manual_region_seg</cite>, and run it again, the segmented
+regions will be shown. You can edit them, and press <cite>Control+S</cite> to resave them.
+If you don’t want to save any changes, press <cite>Control+X</cite> to exit. The regions</p>
+<blockquote>
+<div><p>will still be previewed if you have selected that option.</p>
 </div></blockquote>
 
 

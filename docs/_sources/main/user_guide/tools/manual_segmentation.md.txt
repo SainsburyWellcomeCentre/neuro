@@ -36,8 +36,6 @@ Run `manual_region_seg -h` to see all options.
 `/home/analysis/cellfinder_output/registration/`)
 
 ##### The following options may also need to be used:
-* `--save-image` Store the resulting segmented region image (e.g. for
-inspecting in 2D. (default: False)
 * `--preview` Preview the segmented regions in brainrender (default:False)
 * `--debug` Debug mode. Will increase verbosity of logging and save all 
 intermediate files for diagnosis of software issues. (default: False)
@@ -73,3 +71,10 @@ three dimensions (so it will colour in multiple layers).
 * Press `Control+S` on your keyboard to save the regions. If you used the
  `--preview flag`, once they are saved, they will be displayed in a brainrender
  window.
+
+
+##### Editing regions:
+If you have already run `manual_region_seg`, and run it again, the segmented 
+regions will be shown. You can edit them, and press `Control+S` to resave them. 
+If you don't want to save any changes, press `Control+X` to exit. The regions
+ will still be previewed if you have selected that option.

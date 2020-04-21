@@ -7,7 +7,11 @@ from glob import glob
 
 from PySide2.QtWidgets import QApplication
 from brainrender.scene import Scene
-from imlib.general.system import delete_temp, ensure_directory_exists
+from imlib.general.system import (
+    delete_temp,
+    ensure_directory_exists,
+    delete_directory_contents,
+)
 from imlib.plotting.colors import get_random_vtkplotter_color
 
 
@@ -58,11 +62,7 @@ class Paths:
 
 
 def run(
-    image,
-    registration_directory,
-    save_segmented_image=False,
-    preview=False,
-    debug=False,
+    image, registration_directory, preview=False, debug=False,
 ):
     paths = Paths(registration_directory, image)
     registration_directory = Path(registration_directory)
@@ -81,7 +81,12 @@ def run(
     registered_image = prepare_load_nii(
         paths.tmp__inverse_transformed_image, memory=False
     )
-    labels = np.empty_like(registered_image)
+
+    if paths.regions_image_file.exists():
+        labels = prepare_load_nii(paths.regions_image_file)
+    else:
+        labels = np.empty_like(registered_image)
+
     print("\nLoading manual segmentation GUI.\n ")
     print(
         "Please 'colour in' the regions you would like to segment. \n "
@@ -99,24 +104,28 @@ def run(
         )
         labels_layer = viewer.add_labels(labels, num_colors=20, name="Regions")
 
+        @viewer.bind_key("Control-X")
+        def close_viewer(viewer):
+            print("\nClosing viewer")
+            QApplication.closeAllWindows()
+
         @viewer.bind_key("Control-S")
         def add_region(viewer):
             print(f"\nSaving regions to: {paths.regions_directory}")
             # return image back to original orientation (reoriented for napari)
             data = np.swapaxes(labels_layer.data, 2, 0)
 
+            delete_directory_contents(str(paths.regions_directory))
             volume_to_vector_array_to_obj_file(
                 data,
                 paths.regions_object_file_basename,
                 deal_with_regions_separately=True,
             )
-            if save_segmented_image:
-                save_brain(
-                    data, paths.downsampled_image, paths.regions_image_file,
-                )
+            save_brain(
+                data, paths.downsampled_image, paths.regions_image_file,
+            )
 
-            print("\nClosing viewer")
-            QApplication.closeAllWindows()
+            close_viewer(viewer)
 
     if not debug:
         print("Deleting tempory files")
@@ -150,13 +159,6 @@ def get_parser():
         help="amap/cellfinder registration output directory",
     )
     parser.add_argument(
-        "--save-image",
-        dest="save_image",
-        action="store_true",
-        help="Store the resulting segmented region image (e.g. for inspecting "
-        "in 2D.",
-    )
-    parser.add_argument(
         "--preview",
         dest="preview",
         action="store_true",
@@ -177,7 +179,6 @@ def main():
     run(
         args.image,
         args.registration_directory,
-        save_segmented_image=args.save_image,
         preview=args.preview,
         debug=args.debug,
     )
