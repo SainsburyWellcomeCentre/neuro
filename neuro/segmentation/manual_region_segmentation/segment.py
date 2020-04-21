@@ -22,6 +22,9 @@ from neuro.generic_neuro_tools import (
 from neuro.visualise.vis_tools import display_channel, prepare_load_nii
 from neuro.brain_render_tools import volume_to_vector_array_to_obj_file
 
+num_colors = 10
+brush_size = 30
+
 
 class Paths:
     """
@@ -36,12 +39,6 @@ class Paths:
 
         self.regions_directory = self.join("segmented_regions")
 
-        self.regions_object_file_basename = (
-            self.regions_directory / "region.obj"
-        )
-
-        self.regions_image_file = self.regions_directory / "regions.nii"
-
         self.tmp__inverse_transformed_image = self.join(
             "image_standard_space.nii"
         )
@@ -52,13 +49,8 @@ class Paths:
             "inverse_transform_error.txt"
         )
 
-        self.prep()
-
     def join(self, filename):
         return self.registration_output_folder / filename
-
-    def prep(self):
-        ensure_directory_exists(self.regions_directory)
 
 
 def run(
@@ -82,11 +74,6 @@ def run(
         paths.tmp__inverse_transformed_image, memory=False
     )
 
-    if paths.regions_image_file.exists():
-        labels = prepare_load_nii(paths.regions_image_file)
-    else:
-        labels = np.empty_like(registered_image)
-
     print("\nLoading manual segmentation GUI.\n ")
     print(
         "Please 'colour in' the regions you would like to segment. \n "
@@ -102,7 +89,29 @@ def run(
             registration_directory,
             paths.tmp__inverse_transformed_image,
         )
-        labels_layer = viewer.add_labels(labels, num_colors=20, name="Regions")
+
+        global label_layers
+        label_layers = []
+
+        if paths.regions_directory.exists():
+            label_files = glob(str(paths.regions_directory) + "/*.nii")
+            label_layers = []
+            for label_file in label_files:
+                label_file = Path(label_file)
+                labels = prepare_load_nii(label_file)
+                label_layer = viewer.add_labels(
+                    labels, num_colors=num_colors, name=label_file.stem,
+                )
+                label_layer.selected_label = 1
+                label_layer.brush_size = brush_size
+                label_layers.append(label_layer)
+        else:
+            add_new_label_layer(viewer, registered_image, name="region")
+
+        @viewer.bind_key("Control-N")
+        def add_region(viewer):
+            print("\nAdding new region")
+            add_new_label_layer(viewer, registered_image, name="new_region")
 
         @viewer.bind_key("Control-X")
         def close_viewer(viewer):
@@ -110,20 +119,23 @@ def run(
             QApplication.closeAllWindows()
 
         @viewer.bind_key("Control-S")
-        def add_region(viewer):
+        def save_regions(viewer):
             print(f"\nSaving regions to: {paths.regions_directory}")
             # return image back to original orientation (reoriented for napari)
-            data = np.swapaxes(labels_layer.data, 2, 0)
-
+            ensure_directory_exists(paths.regions_directory)
             delete_directory_contents(str(paths.regions_directory))
-            volume_to_vector_array_to_obj_file(
-                data,
-                paths.regions_object_file_basename,
-                deal_with_regions_separately=True,
-            )
-            save_brain(
-                data, paths.downsampled_image, paths.regions_image_file,
-            )
+
+            for label_layer in label_layers:
+                data = np.swapaxes(label_layer.data, 2, 0)
+                name = label_layer.name
+                filename = paths.regions_directory / (name + ".obj")
+                volume_to_vector_array_to_obj_file(
+                    data, filename,
+                )
+                filename = paths.regions_directory / (name + ".nii")
+                save_brain(
+                    data, paths.downsampled_image, filename,
+                )
 
             close_viewer(viewer)
 
@@ -142,6 +154,14 @@ def run(
             )
             act.GetProperty().SetInterpolationToFlat()
         scene.render()
+
+
+def add_new_label_layer(viewer, base_image, name="region"):
+    labels = np.empty_like(base_image)
+    label_layer = viewer.add_labels(labels, num_colors=num_colors, name=name,)
+    label_layer.selected_label = 1
+    label_layer.brush_size = brush_size
+    label_layers.append(label_layer)
 
 
 def get_parser():
