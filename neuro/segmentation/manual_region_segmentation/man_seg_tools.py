@@ -59,7 +59,26 @@ def analyse_and_save_regions_to_file(
     data = np.swapaxes(data, 2, 0)
     name = label_layer.name
 
+    analyse_region_brain_areas(
+        data, name, annotations, hemispheres, structures_reference_df
+    )
     save_regions_to_file(data, name, destination_directory, template_image)
+
+
+def analyse_region_brain_areas(
+    data, name, annotations, hemispheres, structures_reference_df
+):
+    """
+
+    :param np.array data: Region data as numpy array
+    :param str name: Name of the region
+    :param np.array annotations: numpy array of the brain area annotations
+    :param np.array hemispheres: numpy array of hemipshere annotations
+    :param structures_reference_df: Pandas dataframe with "id" column (matching
+    the values in "annotations" and a "name column"
+    :return:
+    """
+    a = 1
 
 
 def save_regions_to_file(
