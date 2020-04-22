@@ -130,7 +130,7 @@ def transform_all_channels_to_standard_space(reg_dir):
 
 def transform_background_channel_to_standard_space(reg_dir):
     p = pathlib.Path(reg_dir)
-    all_channels = list(p.glob("downsampled.nii"))
+    all_channels = list(p.glob("*downsampled.nii"))
     if any("registered" in f.name for f in all_channels):
         return "looks like already processed... skipping..."
 

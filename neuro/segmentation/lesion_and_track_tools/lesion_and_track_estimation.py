@@ -4,7 +4,7 @@ import pathlib
 import numpy as np
 import skimage
 from skimage.segmentation import flood
-from skimage.morphology import binary_erosion, binary_dilation
+from skimage.morphology import binary_erosion, binary_dilation, ball
 from skimage.filters import (
     gaussian,
     threshold_otsu,
@@ -25,12 +25,12 @@ def get_fiber_track(
     seed_point,
     output_path=None,
     normalising_factor=4,
-    erosion_selem=(5, 5, 5),
+    erosion_diameter=5,
 ):
 
     """
-    gets segmentation image of optical fibers using the background channel and a seed-point,
-    tested on 200um and 400um fibers
+    gets segmentation image of optical fibers using the background channel
+    and a seed-point, tested on 200um and 400um fibers
 
     :param erosion_selem:
     :param normalising_factor:
@@ -50,7 +50,7 @@ def get_fiber_track(
     ) * brain_mask
 
     segmentation_eroded = binary_erosion(
-        brain_segmentation, selem=erosion_selem
+        brain_segmentation, selem=ball(erosion_diameter)
     )
     segmentation_eroded_dilated = binary_dilation(segmentation_eroded)
     fiber_track_image = flood(
@@ -83,7 +83,8 @@ def get_lesion(
     :param minimum_object_size: any blobs below this size will be ignored
     :param sigma: sigma for gaussian filtering
     :param lesion_threshold:
-    :param reg_dir: directory containing cellfinder/amap registration output files
+    :param reg_dir: directory containing cellfinder/amap registration output
+    files
     :param allen_structure_id: the id of the structure that contains the lesion
     :param erosion_selem:
     :return:

@@ -6,6 +6,7 @@ import numpy as np
 
 from PySide2.QtWidgets import QApplication
 from brainio import brainio
+from glob import glob
 
 from neuro.visualise.brainrender import volume_to_vector_array_to_obj_file
 from neuro.segmentation.lesion_and_track_tools.lesion_and_track_estimation import (
@@ -64,16 +65,18 @@ def load_arrays(images, names):
             v.add_image(image, name=name)
 
 
-def get_fiber_tract_in_standard_space(
-    reg_dir, output_name="registered_track.nii"
-):
+def get_fiber_tract_in_standard_space(reg_dir):
     transform_background_channel_to_standard_space(reg_dir)
     run_track_viewer(reg_dir)
     reg_dir = pathlib.Path(reg_dir)
-    brain = brainio.load_any(str(reg_dir / output_name))
-    volume_to_vector_array_to_obj_file(
-        brain, str(reg_dir / output_name.replace(".nii", ".obj"))
-    )
+
+    segmented_files = glob(str(reg_dir) + "/registered_track*.nii")
+
+    for segmented_file in segmented_files:
+        brain = brainio.load_any(segmented_file)
+        volume_to_vector_array_to_obj_file(
+            brain, segmented_file.replace(".nii", ".obj")
+        )
 
 
 def get_parser():
