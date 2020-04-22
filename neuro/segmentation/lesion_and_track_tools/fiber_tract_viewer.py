@@ -7,7 +7,7 @@ import numpy as np
 from PySide2.QtWidgets import QApplication
 from brainio import brainio
 
-from neuro.brain_render_tools import volume_to_vector_array_to_obj_file
+from neuro.visualise.brainrender import volume_to_vector_array_to_obj_file
 from neuro.segmentation.lesion_and_track_tools.lesion_and_track_estimation import (
     get_fiber_track,
 )

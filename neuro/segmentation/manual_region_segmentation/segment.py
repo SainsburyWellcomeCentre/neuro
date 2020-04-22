@@ -2,28 +2,23 @@ import argparse
 import napari
 
 from pathlib import Path
-import numpy as np
 from glob import glob
 
 from PySide2.QtWidgets import QApplication
-from brainrender.scene import Scene
 from imlib.general.system import (
     delete_temp,
     ensure_directory_exists,
     delete_directory_contents,
 )
-from imlib.plotting.colors import get_random_vtkplotter_color
 
-
-from neuro.generic_neuro_tools import (
-    transform_image_to_standard_space,
-    save_brain,
-)
+from neuro.generic_neuro_tools import transform_image_to_standard_space
 from neuro.visualise.vis_tools import display_channel, prepare_load_nii
-from neuro.brain_render_tools import volume_to_vector_array_to_obj_file
-
-num_colors = 10
-brush_size = 30
+from neuro.visualise.brainrender import load_regions_into_brainrender
+from neuro.visualise.napari import add_new_label_layer
+from neuro.segmentation.manual_region_segmentation.man_seg_tools import (
+    add_existing_label_layers,
+    save_regions_to_file,
+)
 
 
 class Paths:
@@ -54,7 +49,14 @@ class Paths:
 
 
 def run(
-    image, registration_directory, preview=False, debug=False,
+    image,
+    registration_directory,
+    preview=False,
+    debug=False,
+    num_colors=10,
+    brush_size=30,
+    alpha=0.8,
+    shading="flat",
 ):
     paths = Paths(registration_directory, image)
     registration_directory = Path(registration_directory)
@@ -70,9 +72,7 @@ def run(
     else:
         print("Registered image exists, skipping")
 
-    registered_image = prepare_load_nii(
-        paths.tmp__inverse_transformed_image, memory=False
-    )
+    registered_image = prepare_load_nii(paths.tmp__inverse_transformed_image)
 
     print("\nLoading manual segmentation GUI.\n ")
     print(
@@ -93,25 +93,35 @@ def run(
         global label_layers
         label_layers = []
 
-        if paths.regions_directory.exists():
-            label_files = glob(str(paths.regions_directory) + "/*.nii")
+        label_files = glob(str(paths.regions_directory) + "/*.nii")
+        if paths.regions_directory.exists() and label_files != []:
             label_layers = []
             for label_file in label_files:
-                label_file = Path(label_file)
-                labels = prepare_load_nii(label_file)
-                label_layer = viewer.add_labels(
-                    labels, num_colors=num_colors, name=label_file.stem,
+                label_layers.append(
+                    add_existing_label_layers(viewer, label_file)
                 )
-                label_layer.selected_label = 1
-                label_layer.brush_size = brush_size
-                label_layers.append(label_layer)
         else:
-            add_new_label_layer(viewer, registered_image, name="region")
+            label_layers.append(
+                add_new_label_layer(
+                    viewer,
+                    registered_image,
+                    brush_size=brush_size,
+                    num_colors=num_colors,
+                )
+            )
 
         @viewer.bind_key("Control-N")
         def add_region(viewer):
             print("\nAdding new region")
-            add_new_label_layer(viewer, registered_image, name="new_region")
+            label_layers.append(
+                add_new_label_layer(
+                    viewer,
+                    registered_image,
+                    name="new_region",
+                    brush_size=brush_size,
+                    num_colors=num_colors,
+                )
+            )
 
         @viewer.bind_key("Control-X")
         def close_viewer(viewer):
@@ -121,47 +131,25 @@ def run(
         @viewer.bind_key("Control-S")
         def save_regions(viewer):
             print(f"\nSaving regions to: {paths.regions_directory}")
-            # return image back to original orientation (reoriented for napari)
             ensure_directory_exists(paths.regions_directory)
             delete_directory_contents(str(paths.regions_directory))
 
             for label_layer in label_layers:
-                data = np.swapaxes(label_layer.data, 2, 0)
-                name = label_layer.name
-                filename = paths.regions_directory / (name + ".obj")
-                volume_to_vector_array_to_obj_file(
-                    data, filename,
+                save_regions_to_file(
+                    label_layer,
+                    paths.regions_directory,
+                    paths.downsampled_image,
                 )
-                filename = paths.regions_directory / (name + ".nii")
-                save_brain(
-                    data, paths.downsampled_image, filename,
-                )
-
             close_viewer(viewer)
 
     if not debug:
-        print("Deleting tempory files")
+        print("Deleting temporary files")
         delete_temp(paths.registration_output_folder, paths)
 
     if preview:
-
         print("\nPreviewing in brainrender")
-        scene = Scene()
         obj_files = glob(str(paths.regions_directory) + "/*.obj")
-        for obj_file in obj_files:
-            act = scene.add_from_file(
-                obj_file, c=get_random_vtkplotter_color(), alpha=0.8
-            )
-            act.GetProperty().SetInterpolationToFlat()
-        scene.render()
-
-
-def add_new_label_layer(viewer, base_image, name="region"):
-    labels = np.empty_like(base_image)
-    label_layer = viewer.add_labels(labels, num_colors=num_colors, name=name,)
-    label_layer.selected_label = 1
-    label_layer.brush_size = brush_size
-    label_layers.append(label_layer)
+        load_regions_into_brainrender(obj_files, alpha=alpha, shading=shading)
 
 
 def get_parser():
@@ -191,6 +179,26 @@ def get_parser():
         help="Debug mode. Will increase verbosity of logging and save all "
         "intermediate files for diagnosis of software issues.",
     )
+    parser.add_argument(
+        "--shading",
+        type=str,
+        default="flat",
+        help="Object shading type for brainrender ('flat', 'giroud' or "
+        "'phong').",
+    )
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=0.8,
+        help="Object transparency for brainrender.",
+    )
+    parser.add_argument(
+        "--brush-size",
+        dest="brush_size",
+        type=int,
+        default=30,
+        help="Default size of the label brush.",
+    )
     return parser
 
 
@@ -201,6 +209,9 @@ def main():
         args.registration_directory,
         preview=args.preview,
         debug=args.debug,
+        shading=args.shading,
+        alpha=args.alpha,
+        brush_size=args.brush_size,
     )
 
 

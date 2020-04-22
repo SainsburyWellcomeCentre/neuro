@@ -5,6 +5,7 @@ from brainrender.scene import Scene
 from skimage import measure
 
 from imlib.general.pathlib import append_to_pathlib_stem
+from imlib.plotting.colors import get_random_vtkplotter_color
 
 from neuro.atlas_tools.custom_atlas_structures import (
     get_arbitrary_structure_mask_from_custom_atlas,
@@ -55,7 +56,7 @@ def volume_to_vector_array_to_obj_file(
     oriented_binary = reorient_image(
         image, invert_axes=invert_axes, orientation=orientation
     )
-    #
+
     if deal_with_regions_separately:
         for label_id in np.unique(oriented_binary):
             if label_id != 0:
@@ -111,6 +112,47 @@ def visualize_obj(obj_path, *args, color="lightcoral", **kwargs):
     scene.add_from_file(obj_path, *args, c=color, **kwargs)
 
     return scene
+
+
+def load_regions_into_brainrender(list_of_regions, alpha=0.8, shading="flat"):
+    """
+    Loads a list of .obj files into brainrender
+    :param list_of_regions: List of .obj files to be loaded
+    :param alpha: Object transparency
+    :param shading: Object shading type ("flat", "giroud" or "phong").
+    Defaults to "phong"
+    """
+    scene = Scene()
+    for obj_file in list_of_regions:
+        load_obj_into_brainrender(
+            scene, obj_file, alpha=alpha, shading=shading
+        )
+    scene.render()
+
+
+def load_obj_into_brainrender(
+    scene, obj_file, color=None, alpha=0.8, shading="phong"
+):
+    """
+    Loads a single obj file into brainrender
+    :param scene: brainrender scene
+    :param obj_file: obj filepath
+    :param color: Object color. If None, a random color is chosen
+    :param alpha: Object transparency
+    :param shading: Object shading type ("flat", "giroud" or "phong").
+    Defaults to "phong"
+    """
+    obj_file = str(obj_file)
+    if color is None:
+        color = get_random_vtkplotter_color()
+    act = scene.add_from_file(obj_file, c=color, alpha=alpha)
+
+    if shading == "flat":
+        act.GetProperty().SetInterpolationToFlat()
+    elif shading == "gouraud":
+        act.GetProperty().SetInterpolationToGouraud()
+    else:
+        act.GetProperty().SetInterpolationToPhong()
 
 
 def create_scene(default_structures):
