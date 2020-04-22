@@ -6,14 +6,14 @@ requirements = [
     "pandas<=0.25.3,>=0.25.1",
     "napari",
     "brainrender",
-    "imlib >= 0.0.18",
+    "imlib >= 0.0.20",
     "brainio",
 ]
 
 
 setup(
     name="neuro",
-    version="0.0.8rc1",
+    version="0.0.8",
     description="Visualisation and analysis of brain imaging data",
     install_requires=requirements,
     extras_require={
