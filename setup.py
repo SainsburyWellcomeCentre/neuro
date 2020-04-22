@@ -7,7 +7,7 @@ requirements = [
     "napari",
     "brainrender",
     "imlib >= 0.0.20",
-    "brainio",
+    "brainio => 0.0.12",
 ]
 
 

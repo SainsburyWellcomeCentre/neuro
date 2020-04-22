@@ -11,14 +11,19 @@ from imlib.general.system import (
     delete_directory_contents,
 )
 
+from brainio.brainio import load_any
+from imlib.IO.structures import load_structures_as_df
+from imlib.source.source_files import get_structures_path
+
 from neuro.generic_neuro_tools import transform_image_to_standard_space
 from neuro.visualise.vis_tools import display_channel, prepare_load_nii
 from neuro.visualise.brainrender import load_regions_into_brainrender
 from neuro.visualise.napari import add_new_label_layer
 from neuro.segmentation.manual_region_segmentation.man_seg_tools import (
     add_existing_label_layers,
-    save_regions_to_file,
+    analyse_and_save_regions_to_file,
 )
+from neuro.atlas_tools import paths as reg_paths
 
 
 class Paths:
@@ -43,6 +48,9 @@ class Paths:
         self.tmp__inverse_transform_error_path = self.join(
             "inverse_transform_error.txt"
         )
+
+        self.annotations = self.join(reg_paths.ANNOTATIONS)
+        self.hemispheres = self.join(reg_paths.HEMISPHERES)
 
     def join(self, filename):
         return self.registration_output_folder / filename
@@ -129,16 +137,25 @@ def run(
             QApplication.closeAllWindows()
 
         @viewer.bind_key("Control-S")
-        def save_regions(viewer):
+        def save_analyse_regions(viewer):
             print(f"\nSaving regions to: {paths.regions_directory}")
             ensure_directory_exists(paths.regions_directory)
             delete_directory_contents(str(paths.regions_directory))
 
+            annotations = load_any(paths.annotations)
+            hemispheres = load_any(paths.hemispheres)
+            structures_reference_df = load_structures_as_df(
+                get_structures_path()
+            )
+
             for label_layer in label_layers:
-                save_regions_to_file(
+                analyse_and_save_regions_to_file(
                     label_layer,
                     paths.regions_directory,
                     paths.downsampled_image,
+                    annotations,
+                    hemispheres,
+                    structures_reference_df,
                 )
             close_viewer(viewer)
 

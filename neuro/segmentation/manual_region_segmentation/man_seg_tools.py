@@ -28,22 +28,26 @@ def add_existing_label_layers(
     return label_layer
 
 
-def save_regions_to_file(
+def analyse_and_save_regions_to_file(
     label_layer,
     destination_directory,
     template_image,
-    obj_ext=".obj",
-    image_extension=".nii",
+    annotations,
+    hemispheres,
+    structures_reference_df,
     ignore_empty=True,
 ):
     """
-    Saves the segmented regions to file (both as .obj and .nii)
+    Analysed the regions (to see what brain areas they are in) and saves
+    the segmented regions to file (both as .obj and .nii)
     :param label_layer: napari labels layer (with segmented regions)
     :param destination_directory: Where to save files to
     :param template_image: Existing image of size/shape of the
     destination images
-    :param obj_ext: File extension for the obj files
-    :param image_extension: File extension fo the image files
+    :param np.array annotations: numpy array of the brain area annotations
+    :param np.array hemispheres: numpy array of hemipshere annotations
+    :param structures_reference_df: Pandas dataframe with "id" column (matching
+    the values in "annotations" and a "name column"
     :param ignore_empty: If True, don't attempt to save empty images
     """
     data = label_layer.data
@@ -54,11 +58,39 @@ def save_regions_to_file(
     # swap data back to original orientation from napari orientation
     data = np.swapaxes(data, 2, 0)
     name = label_layer.name
-    filename = destination_directory / (name + obj_ext)
-    volume_to_vector_array_to_obj_file(
-        data, filename,
-    )
-    filename = destination_directory / (name + image_extension)
-    save_brain(
-        data, template_image, filename,
-    )
+
+    save_regions_to_file(data, name, destination_directory, template_image)
+
+
+def save_regions_to_file(
+    data,
+    name,
+    destination_directory,
+    template_image,
+    save_obj=True,
+    save_image=True,
+    obj_ext=".obj",
+    image_extension=".nii",
+):
+    """
+    Saves the segmented regions to file (both as .obj and .nii)
+    :param np.array data: Array to be saved
+    :param str name: Name of the region
+    :param destination_directory: Where to save files to
+    :param template_image: Existing image of size/shape of the
+    destination images
+    :param obj_ext: File extension for the obj files
+    :param image_extension: File extension fo the image files
+    """
+
+    if save_obj:
+        filename = destination_directory / (name + obj_ext)
+        volume_to_vector_array_to_obj_file(
+            data, filename,
+        )
+
+    if save_image:
+        filename = destination_directory / (name + image_extension)
+        save_brain(
+            data, template_image, filename,
+        )

@@ -1,6 +1,10 @@
 import os
 
 
+ANNOTATIONS = "annotations.nii"
+HEMISPHERES = "hemispheres.nii"
+
+
 class Paths:
     """
     A single class to hold all file paths that amap may need. Any paths
@@ -15,9 +19,9 @@ class Paths:
     def make_reg_paths(self):
         self.brain_filtered = self.make_reg_path("brain_filtered.nii")
 
-        self.hemispheres = self.make_reg_path("hemispheres.nii")
+        self.hemispheres = self.make_reg_path(HEMISPHERES)
 
-        self.annotations = self.make_reg_path("annotations.nii")
+        self.annotations = self.make_reg_path(ANNOTATIONS)
 
         self.downsampled_brain_path = self.make_reg_path("downsampled.nii")
         self.tmp__downsampled_filtered = self.make_reg_path(
