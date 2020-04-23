@@ -3,10 +3,8 @@ import logging
 
 from brainio import brainio
 from imlib.register.niftyreg.transform import run_transform
-
-
-DEFAULT_CONTROL_POINT_FILE = "inverse_control_point_file.nii"
-default_atlas_name = "brain_filtered.nii"
+from neuro.atlas_tools.paths import INVERSE_CONTROL_POINT
+from neuro.atlas_tools.paths import BRAIN_FILTERED as default_atlas_name
 
 
 def get_registered_image(nii_path, registration_dir, overwrite=False):
@@ -22,7 +20,7 @@ def get_registered_image(nii_path, registration_dir, overwrite=False):
 
         destination_image = os.path.join(registration_dir, default_atlas_name)
         control_point_file = os.path.join(
-            registration_dir, DEFAULT_CONTROL_POINT_FILE
+            registration_dir, INVERSE_CONTROL_POINT
         )
 
         log_file_path = os.path.join(basedir, "registration_log.txt")

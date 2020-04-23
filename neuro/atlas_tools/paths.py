@@ -3,6 +3,9 @@ import os
 
 ANNOTATIONS = "annotations.nii"
 HEMISPHERES = "hemispheres.nii"
+BRAIN_FILTERED = "brain_filtered.nii"
+
+INVERSE_CONTROL_POINT = "inverse_control_point_file.nii"
 
 
 class Paths:
@@ -17,7 +20,7 @@ class Paths:
         self.make_reg_paths()
 
     def make_reg_paths(self):
-        self.brain_filtered = self.make_reg_path("brain_filtered.nii")
+        self.brain_filtered = self.make_reg_path(BRAIN_FILTERED)
 
         self.hemispheres = self.make_reg_path(HEMISPHERES)
 
@@ -59,7 +62,7 @@ class Paths:
             "control_point_file.nii"
         )
         self.inverse_control_point_file_path = self.make_reg_path(
-            "inverse_control_point_file.nii"
+            INVERSE_CONTROL_POINT
         )
 
         self.boundaries_file_path = self.make_reg_path("boundaries.nii")

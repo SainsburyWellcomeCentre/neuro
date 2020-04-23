@@ -35,12 +35,18 @@ Run `manual_region_seg -h` to see all options.
 * amap/cellfinder registration directory (e.g. 
 `/home/analysis/cellfinder_output/registration/`)
 
-##### The following options may also need to be used:
+##### The following options may also be used:
 * `--preview` Preview the segmented regions in brainrender (default:False)
+* `--volumes` Calculate the volume of each brain area included in the 
+segmented region
 * `--debug` Debug mode. Will increase verbosity of logging and save all 
 intermediate files for diagnosis of software issues. (default: False)
 
-
+* `--shading` Object shading type for brainrender (`flat`, `giroud` or 
+        `phong`). Default: `flat`
+* `--alpha` Object transparency for brainrender
+* `--brush-size` Default size of the label brush.
+        
 ### napari GUI
 manual_region_seg will transform your image into standard space (this may 
 take a few minutes) and then display the image in a 

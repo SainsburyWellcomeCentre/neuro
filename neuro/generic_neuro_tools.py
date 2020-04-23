@@ -12,10 +12,6 @@ from imlib.source.niftyreg_binaries import get_binary
 
 from neuro.atlas_tools.misc import get_atlas_pixel_sizes
 
-SOURCE_IMAGE_NAME = "downsampled.nii"
-DEFAULT_CONTROL_POINT_FILE = "inverse_control_point_file.nii"
-DEFAULT_OUTPUT_FILE_NAME = "roi_transformed.nii"
-DEFAULT_TEMP_FILE_NAME = "ROI_TMP.nii"
 PROGRAM_NAME = "reg_resample"
 
 
@@ -30,8 +26,6 @@ def save_brain(image, source_image_path, output_path):
         scale=atlas_scale,
         affine_transform=transformation_matrix,
     )
-
-    print("finished generating roi image")
 
 
 def get_transform_space_params(registration_config, destination_image):

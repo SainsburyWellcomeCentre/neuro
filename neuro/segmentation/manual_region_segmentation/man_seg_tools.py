@@ -1,9 +1,18 @@
 import numpy as np
 from pathlib import Path
 
+from imlib.pandas.misc import initialise_df
+from imlib.source.source_files import source_custom_config_amap
+from imlib.general.list import unique_elements_lists
 from neuro.visualise.vis_tools import prepare_load_nii
 from neuro.generic_neuro_tools import save_brain
 from neuro.visualise.brainrender import volume_to_vector_array_to_obj_file
+from neuro.atlas_tools.array import lateralise_atlas
+from neuro.atlas_tools.misc import get_voxel_volume
+from neuro.structures.structures_tree import (
+    atlas_value_to_name,
+    UnknownAtlasValue,
+)
 
 
 def add_existing_label_layers(
@@ -28,14 +37,13 @@ def add_existing_label_layers(
     return label_layer
 
 
-def analyse_and_save_regions_to_file(
+def save_regions_to_file(
     label_layer,
     destination_directory,
     template_image,
-    annotations,
-    hemispheres,
-    structures_reference_df,
     ignore_empty=True,
+    obj_ext=".obj",
+    image_extension=".nii",
 ):
     """
     Analysed the regions (to see what brain areas they are in) and saves
@@ -44,11 +52,10 @@ def analyse_and_save_regions_to_file(
     :param destination_directory: Where to save files to
     :param template_image: Existing image of size/shape of the
     destination images
-    :param np.array annotations: numpy array of the brain area annotations
-    :param np.array hemispheres: numpy array of hemipshere annotations
-    :param structures_reference_df: Pandas dataframe with "id" column (matching
     the values in "annotations" and a "name column"
     :param ignore_empty: If True, don't attempt to save empty images
+    :param obj_ext: File extension for the obj files
+    :param image_extension: File extension fo the image files
     """
     data = label_layer.data
     if ignore_empty:
@@ -59,57 +66,179 @@ def analyse_and_save_regions_to_file(
     data = np.swapaxes(data, 2, 0)
     name = label_layer.name
 
-    analyse_region_brain_areas(
-        data, name, annotations, hemispheres, structures_reference_df
+    filename = destination_directory / (name + obj_ext)
+    volume_to_vector_array_to_obj_file(
+        data, filename,
     )
-    save_regions_to_file(data, name, destination_directory, template_image)
+
+    filename = destination_directory / (name + image_extension)
+    save_brain(
+        data, template_image, filename,
+    )
 
 
 def analyse_region_brain_areas(
-    data, name, annotations, hemispheres, structures_reference_df
+    label_layer,
+    destination_directory,
+    annotations,
+    hemispheres,
+    structures_reference_df,
+    extension=".csv",
+    ignore_empty=True,
 ):
     """
 
-    :param np.array data: Region data as numpy array
-    :param str name: Name of the region
+    :param label_layer: napari labels layer (with segmented regions)
     :param np.array annotations: numpy array of the brain area annotations
     :param np.array hemispheres: numpy array of hemipshere annotations
     :param structures_reference_df: Pandas dataframe with "id" column (matching
     the values in "annotations" and a "name column"
-    :return:
+    :param ignore_empty: If True, don't analyse empty regions
     """
-    a = 1
+
+    data = label_layer.data
+    if ignore_empty:
+        if data.sum() == 0:
+            return
+
+    # swap data back to original orientation from napari orientation
+    data = np.swapaxes(data, 2, 0)
+    name = label_layer.name
+
+    masked_annotations = data.astype(bool) * annotations
+
+    # TODO: don't hardcode hemisphere value. Get from atlas config
+    annotations_left, annotations_right = lateralise_atlas(
+        masked_annotations,
+        hemispheres,
+        left_hemisphere_value=2,
+        right_hemisphere_value=1,
+    )
+
+    unique_vals_left, counts_left = np.unique(
+        annotations_left, return_counts=True
+    )
+    unique_vals_right, counts_right = np.unique(
+        annotations_right, return_counts=True
+    )
+
+    voxel_volume = get_voxel_volume(source_custom_config_amap())
+    voxel_volume_in_mm = voxel_volume / (1000 ** 3)
+
+    df = initialise_df(
+        "structure_name",
+        "left_volume_mm3",
+        "left_percentage_of_total",
+        "right_volume_mm3",
+        "right_percentage_of_total",
+        "total_volume_mm3",
+        "percentage_of_total",
+    )
+
+    sampled_structures = unique_elements_lists(
+        list(unique_vals_left) + list(unique_vals_right)
+    )
+    total_volume_region = get_total_volume_regions(
+        unique_vals_left, unique_vals_right, counts_left, counts_right
+    )
+
+    for atlas_value in sampled_structures:
+        if atlas_value != 0:
+            try:
+                df = add_structure_volume_to_df(
+                    df,
+                    atlas_value,
+                    structures_reference_df,
+                    unique_vals_left,
+                    unique_vals_right,
+                    counts_left,
+                    counts_right,
+                    voxel_volume_in_mm,
+                    total_volume_voxels=total_volume_region,
+                )
+
+            except UnknownAtlasValue:
+                print(
+                    "Value: {} is not in the atlas structure reference file. "
+                    "Not calculating the volume".format(atlas_value)
+                )
+    filename = destination_directory / (name + extension)
+    df.to_csv(filename, index=False)
 
 
-def save_regions_to_file(
-    data,
-    name,
-    destination_directory,
-    template_image,
-    save_obj=True,
-    save_image=True,
-    obj_ext=".obj",
-    image_extension=".nii",
+def get_total_volume_regions(
+    unique_vals_left, unique_vals_right, counts_left, counts_right,
 ):
-    """
-    Saves the segmented regions to file (both as .obj and .nii)
-    :param np.array data: Array to be saved
-    :param str name: Name of the region
-    :param destination_directory: Where to save files to
-    :param template_image: Existing image of size/shape of the
-    destination images
-    :param obj_ext: File extension for the obj files
-    :param image_extension: File extension fo the image files
-    """
+    zero_index_left = np.where(unique_vals_left == 0)[0][0]
+    counts_left = list(counts_left)
+    counts_left.pop(zero_index_left)
 
-    if save_obj:
-        filename = destination_directory / (name + obj_ext)
-        volume_to_vector_array_to_obj_file(
-            data, filename,
-        )
+    zero_index_right = np.where(unique_vals_right == 0)[0][0]
+    counts_right = list(counts_right)
+    counts_right.pop(zero_index_right)
 
-    if save_image:
-        filename = destination_directory / (name + image_extension)
-        save_brain(
-            data, template_image, filename,
-        )
+    return sum(counts_left + counts_right)
+
+
+def add_structure_volume_to_df(
+    df,
+    atlas_value,
+    structures_reference_df,
+    unique_vals_left,
+    unique_vals_right,
+    counts_left,
+    counts_right,
+    voxel_volume,
+    total_volume_voxels=None,
+):
+    name = atlas_value_to_name(atlas_value, structures_reference_df)
+
+    left_volume, left_percentage = get_volume_in_hemisphere(
+        atlas_value,
+        unique_vals_left,
+        counts_left,
+        total_volume_voxels,
+        voxel_volume,
+    )
+    right_volume, right_percentage = get_volume_in_hemisphere(
+        atlas_value,
+        unique_vals_right,
+        counts_right,
+        total_volume_voxels,
+        voxel_volume,
+    )
+    if total_volume_voxels is not None:
+        total_percentage = left_percentage + right_percentage
+    else:
+        total_percentage = 0
+
+    df = df.append(
+        {
+            "structure_name": name,
+            "left_volume_mm3": left_volume,
+            "left_percentage_of_total": left_percentage,
+            "right_volume_mm3": right_volume,
+            "right_percentage_of_total": right_percentage,
+            "total_volume_mm3": left_volume + right_volume,
+            "percentage_of_total": total_percentage,
+        },
+        ignore_index=True,
+    )
+    return df
+
+
+def get_volume_in_hemisphere(
+    atlas_value, unique_vals, counts, total_volume_voxels, voxel_volume
+):
+    try:
+        index = np.where(unique_vals == atlas_value)[0][0]
+        volume = counts[index] * voxel_volume
+        if total_volume_voxels is not None:
+            percentage = 100 * (counts[index] / total_volume_voxels)
+        else:
+            percentage = 0
+    except IndexError:
+        volume = 0
+        percentage = 0
+
+    return volume, percentage

@@ -12,7 +12,7 @@ from imlib.general.system import (
 )
 
 from brainio.brainio import load_any
-from imlib.IO.structures import load_structures_as_df
+from neuro.structures.IO import load_structures_as_df
 from imlib.source.source_files import get_structures_path
 
 from neuro.generic_neuro_tools import transform_image_to_standard_space
@@ -21,7 +21,8 @@ from neuro.visualise.brainrender import load_regions_into_brainrender
 from neuro.visualise.napari import add_new_label_layer
 from neuro.segmentation.manual_region_segmentation.man_seg_tools import (
     add_existing_label_layers,
-    analyse_and_save_regions_to_file,
+    save_regions_to_file,
+    analyse_region_brain_areas,
 )
 from neuro.atlas_tools import paths as reg_paths
 
@@ -60,6 +61,7 @@ def run(
     image,
     registration_directory,
     preview=False,
+    volumes=False,
     debug=False,
     num_colors=10,
     brush_size=30,
@@ -138,24 +140,34 @@ def run(
 
         @viewer.bind_key("Control-S")
         def save_analyse_regions(viewer):
-            print(f"\nSaving regions to: {paths.regions_directory}")
             ensure_directory_exists(paths.regions_directory)
             delete_directory_contents(str(paths.regions_directory))
 
-            annotations = load_any(paths.annotations)
-            hemispheres = load_any(paths.hemispheres)
-            structures_reference_df = load_structures_as_df(
-                get_structures_path()
-            )
+            if volumes:
+                annotations = load_any(paths.annotations)
+                hemispheres = load_any(paths.hemispheres)
+                structures_reference_df = load_structures_as_df(
+                    get_structures_path()
+                )
 
+                print(
+                    f"\nSaving summary volumes to: {paths.regions_directory}"
+                )
+                for label_layer in label_layers:
+                    analyse_region_brain_areas(
+                        label_layer,
+                        paths.regions_directory,
+                        annotations,
+                        hemispheres,
+                        structures_reference_df,
+                    )
+
+            print(f"\nSaving regions to: {paths.regions_directory}")
             for label_layer in label_layers:
-                analyse_and_save_regions_to_file(
+                save_regions_to_file(
                     label_layer,
                     paths.regions_directory,
                     paths.downsampled_image,
-                    annotations,
-                    hemispheres,
-                    structures_reference_df,
                 )
             close_viewer(viewer)
 
@@ -163,10 +175,15 @@ def run(
         print("Deleting temporary files")
         delete_temp(paths.registration_output_folder, paths)
 
-    if preview:
-        print("\nPreviewing in brainrender")
-        obj_files = glob(str(paths.regions_directory) + "/*.obj")
-        load_regions_into_brainrender(obj_files, alpha=alpha, shading=shading)
+    obj_files = glob(str(paths.regions_directory) + "/*.obj")
+    if obj_files:
+        if preview:
+            print("\nPreviewing in brainrender")
+            load_regions_into_brainrender(
+                obj_files, alpha=alpha, shading=shading
+            )
+    else:
+        print("\n'--preview' selected, but no regions to display")
 
 
 def get_parser():
@@ -188,6 +205,13 @@ def get_parser():
         dest="preview",
         action="store_true",
         help="Preview the segmented regions in brainrender",
+    )
+    parser.add_argument(
+        "--volumes",
+        dest="volumes",
+        action="store_true",
+        help="Calculate the volume of each brain area included in the "
+        "segmented region",
     )
     parser.add_argument(
         "--debug",
@@ -225,6 +249,7 @@ def main():
         args.image,
         args.registration_directory,
         preview=args.preview,
+        volumes=args.volumes,
         debug=args.debug,
         shading=args.shading,
         alpha=args.alpha,

@@ -1,8 +1,8 @@
 import napari
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pathlib import Path
-from imlib.IO.structures import load_structures_as_df
-from imlib.anatomy.structures.structures_tree import (
+from neuro.structures.IO import load_structures_as_df
+from neuro.structures.structures_tree import (
     atlas_value_to_name,
     UnknownAtlasValue,
 )
