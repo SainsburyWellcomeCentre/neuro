@@ -6,8 +6,8 @@ requirements = [
     "pandas<=0.25.3,>=0.25.1",
     "napari",
     "brainrender",
-    "imlib >= 0.0.20",
-    "brainio >= 0.0.12",
+    "imlib >= 0.0.21",
+    "brainio >= 0.0.13",
 ]
 
 
