@@ -16,7 +16,12 @@ from neuro.structures.structures_tree import (
 
 
 def add_existing_label_layers(
-    viewer, label_file, selected_label=1, num_colors=10, brush_size=30,
+    viewer,
+    label_file,
+    selected_label=1,
+    num_colors=10,
+    brush_size=30,
+    memory=False,
 ):
     """
     Loads an existing (nii) image as a napari labels layer
@@ -28,9 +33,9 @@ def add_existing_label_layers(
     :return label_layer: napari labels layer
     """
     label_file = Path(label_file)
-    labels = prepare_load_nii(label_file)
+    labels = prepare_load_nii(label_file, memory=memory)
     label_layer = viewer.add_labels(
-        labels, num_colors=num_colors, name=label_file.stem,
+        labels, num_colors=num_colors, name=label_file.stem
     )
     label_layer.selected_label = selected_label
     label_layer.brush_size = brush_size

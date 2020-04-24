@@ -26,6 +26,8 @@ from neuro.segmentation.manual_region_segmentation.man_seg_tools import (
 )
 from neuro.atlas_tools import paths as reg_paths
 
+memory = True
+
 
 class Paths:
     """
@@ -82,7 +84,9 @@ def run(
     else:
         print("Registered image exists, skipping")
 
-    registered_image = prepare_load_nii(paths.tmp__inverse_transformed_image)
+    registered_image = prepare_load_nii(
+        paths.tmp__inverse_transformed_image, memory=memory
+    )
 
     print("\nLoading manual segmentation GUI.\n ")
     print(
@@ -98,6 +102,7 @@ def run(
             viewer,
             registration_directory,
             paths.tmp__inverse_transformed_image,
+            memory=memory,
         )
 
         global label_layers
@@ -108,7 +113,9 @@ def run(
             label_layers = []
             for label_file in label_files:
                 label_layers.append(
-                    add_existing_label_layers(viewer, label_file)
+                    add_existing_label_layers(
+                        viewer, label_file, memory=memory
+                    )
                 )
         else:
             label_layers.append(
@@ -142,7 +149,6 @@ def run(
         def save_analyse_regions(viewer):
             ensure_directory_exists(paths.regions_directory)
             delete_directory_contents(str(paths.regions_directory))
-
             if volumes:
                 annotations = load_any(paths.annotations)
                 hemispheres = load_any(paths.hemispheres)
