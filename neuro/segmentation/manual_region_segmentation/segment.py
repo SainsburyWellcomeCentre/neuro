@@ -6,7 +6,6 @@ from glob import glob
 
 from PySide2.QtWidgets import QApplication
 from imlib.general.system import (
-    delete_temp,
     ensure_directory_exists,
     delete_directory_contents,
 )
@@ -64,7 +63,6 @@ def run(
     registration_directory,
     preview=False,
     volumes=False,
-    debug=False,
     num_colors=10,
     brush_size=30,
     alpha=0.8,
@@ -177,10 +175,6 @@ def run(
                 )
             close_viewer(viewer)
 
-    if not debug:
-        print("Deleting temporary files")
-        delete_temp(paths.registration_output_folder, paths)
-
     obj_files = glob(str(paths.regions_directory) + "/*.obj")
     if obj_files:
         if preview:
@@ -220,13 +214,6 @@ def get_parser():
         "segmented region",
     )
     parser.add_argument(
-        "--debug",
-        dest="debug",
-        action="store_true",
-        help="Debug mode. Will increase verbosity of logging and save all "
-        "intermediate files for diagnosis of software issues.",
-    )
-    parser.add_argument(
         "--shading",
         type=str,
         default="flat",
@@ -256,7 +243,6 @@ def main():
         args.registration_directory,
         preview=args.preview,
         volumes=args.volumes,
-        debug=args.debug,
         shading=args.shading,
         alpha=args.alpha,
         brush_size=args.brush_size,
