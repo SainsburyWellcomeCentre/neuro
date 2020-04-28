@@ -39,6 +39,7 @@ Run `manual_region_seg -h` to see all options.
 * `--preview` Preview the segmented regions in brainrender (default:False)
 * `--volumes` Calculate the volume of each brain area included in the 
 segmented region
+* `--summarise` Summarise each region (centers, volumes etc.)
 
 * `--shading` Object shading type for brainrender (`flat`, `giroud` or 
         `phong`). Default: `flat`

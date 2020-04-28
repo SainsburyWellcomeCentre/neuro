@@ -1,5 +1,8 @@
 import numpy as np
+import pandas as pd
+
 from pathlib import Path
+from skimage.measure import regionprops_table
 
 from imlib.pandas.misc import initialise_df
 from imlib.source.source_files import source_custom_config_amap
@@ -8,11 +11,68 @@ from neuro.visualise.vis_tools import prepare_load_nii
 from neuro.generic_neuro_tools import save_brain
 from neuro.visualise.brainrender import volume_to_vector_array_to_obj_file
 from neuro.atlas_tools.array import lateralise_atlas
-from neuro.atlas_tools.misc import get_voxel_volume
+from neuro.atlas_tools.misc import get_voxel_volume, get_atlas_pixel_sizes
 from neuro.structures.structures_tree import (
     atlas_value_to_name,
     UnknownAtlasValue,
 )
+
+
+def summarise_brain_regions(label_layers, filename):
+    summaries = []
+    for label_layer in label_layers:
+        summaries.append(summarise_single_brain_region(label_layer))
+
+    result = pd.concat(summaries)
+
+    volume_header = "volume_mm3"
+    length_columns = [
+        "x_min_um",
+        "y_min_um",
+        "z_min_um",
+        "x_max_um",
+        "y_max_um",
+        "z_max_um",
+        "x_center_um",
+        "y_center_um",
+        "z_center_um",
+    ]
+
+    result.columns = ["region"] + [volume_header] + length_columns
+
+    atlas_pixel_sizes = get_atlas_pixel_sizes(source_custom_config_amap())
+    voxel_volume = get_voxel_volume(source_custom_config_amap()) / (1000 ** 3)
+
+    result[volume_header] = result[volume_header] * voxel_volume
+
+    for header in length_columns:
+        for dim in atlas_pixel_sizes.keys():
+            if header.startswith(dim):
+                scale = float(atlas_pixel_sizes[dim])
+        assert scale > 0
+
+        result[header] = result[header] * scale
+
+    result.to_csv(filename, index=False)
+
+
+def summarise_single_brain_region(
+    label_layer,
+    ignore_empty=True,
+    properties_to_fetch=["area", "bbox", "centroid",],
+):
+    data = label_layer.data
+    if ignore_empty:
+        if data.sum() == 0:
+            return
+
+    # swap data back to original orientation from napari orientation
+    data = np.swapaxes(data, 2, 0)
+
+    regions_table = regionprops_table(data, properties=properties_to_fetch)
+    df = pd.DataFrame.from_dict(regions_table)
+    df.insert(0, "Region", label_layer.name)
+    return df
 
 
 def add_existing_label_layers(

@@ -4,6 +4,8 @@ import napari
 from pathlib import Path
 from glob import glob
 
+import pandas as pd
+
 from PySide2.QtWidgets import QApplication
 from imlib.general.system import (
     ensure_directory_exists,
@@ -22,6 +24,7 @@ from neuro.segmentation.manual_region_segmentation.man_seg_tools import (
     add_existing_label_layers,
     save_regions_to_file,
     analyse_region_brain_areas,
+    summarise_brain_regions,
 )
 from neuro.atlas_tools import paths as reg_paths
 
@@ -51,6 +54,8 @@ class Paths:
             "inverse_transform_error.txt"
         )
 
+        self.summary_csv = self.regions_directory / "summary.csv"
+
         self.annotations = self.join(reg_paths.ANNOTATIONS)
         self.hemispheres = self.join(reg_paths.HEMISPHERES)
 
@@ -63,6 +68,7 @@ def run(
     registration_directory,
     preview=False,
     volumes=False,
+    summarise=False,
     num_colors=10,
     brush_size=30,
     alpha=0.8,
@@ -148,6 +154,7 @@ def run(
             ensure_directory_exists(paths.regions_directory)
             delete_directory_contents(str(paths.regions_directory))
             if volumes:
+                print("Calculating region volume distribution")
                 annotations = load_any(paths.annotations)
                 hemispheres = load_any(paths.hemispheres)
                 structures_reference_df = load_structures_as_df(
@@ -165,6 +172,9 @@ def run(
                         hemispheres,
                         structures_reference_df,
                     )
+            if summarise:
+                print("Summarising regions")
+                summarise_brain_regions(label_layers, paths.summary_csv)
 
             print(f"\nSaving regions to: {paths.regions_directory}")
             for label_layer in label_layers:
@@ -214,6 +224,12 @@ def get_parser():
         "segmented region",
     )
     parser.add_argument(
+        "--summarise",
+        dest="summarise",
+        action="store_true",
+        help="Summarise each region (centers, volumes etc.)",
+    )
+    parser.add_argument(
         "--shading",
         type=str,
         default="flat",
@@ -243,6 +259,7 @@ def main():
         args.registration_directory,
         preview=args.preview,
         volumes=args.volumes,
+        summarise=args.summarise,
         shading=args.shading,
         alpha=args.alpha,
         brush_size=args.brush_size,
