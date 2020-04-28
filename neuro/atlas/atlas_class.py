@@ -3,6 +3,7 @@ from brainio import brainio
 import json
 from pathlib import Path
 
+
 class Atlas(dict):
     def __init__(self, path):
         path = Path(path)
@@ -48,16 +49,17 @@ class Atlas(dict):
         :return: The dictionary of x, y, z pixel sizes
         """
         if self._pix_sizes is None:
-            pixel_sizes = self.get_nii_from_element("atlas_name").header.get_zooms()
+            pixel_sizes = self.get_nii_from_element(
+                "atlas_name"
+            ).header.get_zooms()
             if pixel_sizes != (0, 0, 0):
                 self._pix_sizes = {
                     axis: round(size * 1000, 3)  # convert to um
                     for axis, size in zip(("x", "y", "z"), pixel_sizes)
-                    }
+                }
             else:
                 self._pix_sizes = self["pixel_size"]
         return self._pix_sizes
-
 
     def get_element_path(self, element_name):
         """Get the path to an 'element' of the atlas (i.e. the average brain,
@@ -81,4 +83,3 @@ class Atlas(dict):
         """
         data_full_path = self.base_folder / self[element_name]
         return brainio.load_nii(data_full_path)
-
