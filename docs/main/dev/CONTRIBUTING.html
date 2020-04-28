@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>&lt;no title&gt; &mdash; neuro  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="../user_guide/tools/manual_segmentation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> neuro
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul class="simple">
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">neuro</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>&lt;no title&gt;</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p>### Contributing
+#### Setup
+To set up a development install, please:
+* Fork this repository
+* Clone your fork</p>
+<blockquote>
+<div><p><cite>git clone https://github.com/YOUR_USERNAME/neuro</cite></p>
+<p><cite>cd neuro</cite></p>
+</div></blockquote>
+<ul>
+<li><p>Add this repository as the upstream</p>
+<blockquote>
+<div><p><cite>git remote add upstream https://github.com/SainsburyWellcomeCentre/neuro</cite></p>
+</div></blockquote>
+</li>
+<li><p>Install an editable, development version of <cite>neuro</cite></p>
+<blockquote>
+<div><p><cite>pip install -e .[dev]</cite></p>
+</div></blockquote>
+</li>
+<li><p>To keep your fork up to date:</p>
+<blockquote>
+<div><p><cite>git fetch upstream</cite></p>
+<p><cite>git merge upstream/master</cite></p>
+</div></blockquote>
+</li>
+</ul>
+<p>#### Pull requests
+In all cases, please submit code to the main repository via a pull request.
+Upon approval, please merge via “Squash and Merge” on Github to maintain a
+clean commit history.</p>
+<p>#### Formatting
+<cite>neuro</cite> uses [Black](<a class="reference external" href="https://github.com/python/black">https://github.com/python/black</a>) to ensure a consistent
+code style. Please run <cite>black ./ -l 79 –target-version py37</cite> before making
+any commits. To prevent any errors, it is easier to add a formatting check
+as a [pre-commit hook](<a class="reference external" href="https://www.atlassian.com/git/tutorials/git-hooks">https://www.atlassian.com/git/tutorials/git-hooks</a>).
+E.g. on linux by adding this to your <cite>.git/hooks/pre-commit</cite>:</p>
+<blockquote>
+<div><p>black ./ -l 79 –target-version py37 –check || exit 1</p>
+</div></blockquote>
+<p>#### Testing
+<cite>neuro</cite> uses [pytest](<a class="reference external" href="https://docs.pytest.org/en/latest/">https://docs.pytest.org/en/latest/</a>) for testing. Please
+try to ensure that all functions are tested in <cite>tests/tests/unit_tests</cite> and
+all workflows/command-line tools are tested in <cite>tests/tests/unit_tests</cite>.</p>
+<p>#### Travis
+All commits &amp; pull requests will be build by [Travis](<a class="reference external" href="https://travis-ci.com">https://travis-ci.com</a>).
+To ensure there are no issues, ensure that all tests run (<cite>pytest</cite>) and there
+are no formatting issues (<cite>black ./ -l 79 –target-version py37 –check</cite>)
+before pushing changes.</p>
+<p>#### Releases
+Travis will automatically release any tagged commit on the master branch.
+Hence to release a new version of neuro, use either GitHub, or the git
+CLI to tag the relevant commit and push to master.</p>
+<p>#### Dependencies
+<cite>neuro</cite> is (initially) designed as companion software to
+[cellfinder](<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/cellfinder">https://github.com/SainsburyWellcomeCentre/cellfinder</a>) and</p>
+<blockquote>
+<div><p>[amap](<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/amap-python">https://github.com/SainsburyWellcomeCentre/amap-python</a>). These
+packages may depend on <cite>neuro</cite> and so the inverse should not be true. Any
+functionality in these packages necessary for neuro to work should be
+extracted into another package such as
+[imlib](<a class="reference external" href="https://github.com/adamltyson/imlib">https://github.com/adamltyson/imlib</a>).</p>
+</div></blockquote>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../user_guide/tools/manual_segmentation.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Sainsbury Wellcome Centre
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

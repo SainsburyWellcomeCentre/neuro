@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>&lt;no title&gt; &mdash; neuro  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="../../dev/CONTRIBUTING.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="heatmap.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> neuro
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul class="simple">
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">neuro</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>&lt;no title&gt;</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p># Manual segmentation</p>
+<p>To manually segment brain regions in standard space that can then be visualised
+along with other samples (e.g. in
+[BrainRender](<a class="reference external" href="https://github.com/BrancoLab/BrainRender">https://github.com/BrancoLab/BrainRender</a>).)</p>
+<p><strong>N.B. This tool depends (for now) on
+[amap](https://github.com/SainsburyWellcomeCentre/amap). Please
+run `pip install amap` and then `amap_download` before running this tool if
+you don’t already have cellfinder installed</strong></p>
+<p>### Prerequisites
+Data must be registered to a standard atlas (currently only the
+[Allen Reference Atlas](<a class="reference external" href="http://mouse.brain-map.org/">http://mouse.brain-map.org/</a>) is supported) using
+[amap](<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/amap-python">https://github.com/SainsburyWellcomeCentre/amap-python</a>) (or the amap
+based registration in
+[cellfinder](<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/cellfinder">https://github.com/SainsburyWellcomeCentre/cellfinder</a>)). Please
+follow the instructions for these packages, and ensure that the channel that
+you want to segment is downsampled (e.g. using the <cite>–downsample</cite> flag in
+amap).</p>
+<p>## Usage
+### Command line
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>bash</p>
+<blockquote>
+<div><p>manual_region_seg “name_of_downsampled_image.nii” registration_directory</p>
+</div></blockquote>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<p>#### Arguments
+Run <cite>manual_region_seg -h</cite> to see all options.</p>
+<p>##### Positional arguments
+* Downsampled image to be segmented, as a string (e.g. <cite>“downsampled.nii”</cite>)
+* amap/cellfinder registration directory (e.g.
+<cite>/home/analysis/cellfinder_output/registration/</cite>)</p>
+<p>##### The following options may also be used:
+* <cite>–preview</cite> Preview the segmented regions in brainrender (default:False)
+* <cite>–volumes</cite> Calculate the volume of each brain area included in the
+segmented region
+* <cite>–summarise</cite> Summarise each region (centers, volumes etc.)</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><cite>–shading</cite> Object shading type for brainrender (<cite>flat</cite>, <cite>giroud</cite> or</dt><dd><p><cite>phong</cite>). Default: <cite>flat</cite></p>
+</dd>
+</dl>
+</li>
+<li><p><cite>–alpha</cite> Object transparency for brainrender</p></li>
+<li><p><cite>–brush-size</cite> Default size of the label brush.</p></li>
+</ul>
+<p>### napari GUI
+manual_region_seg will transform your image into standard space (this may
+take a few minutes) and then display the image in a
+[napari](<a class="reference external" href="https://github.com/napari/napari">https://github.com/napari/napari</a>) viewer:</p>
+<p>&lt;img src=”<a class="reference external" href="https://raw.githubusercontent.com/SainsburyWellcomeCentre/neuro/master/resources/manual_segmentation_window.png">https://raw.githubusercontent.com/SainsburyWellcomeCentre/neuro/master/resources/manual_segmentation_window.png</a>” alt=”manual_seg_window” width=”700”/&gt;</p>
+<p>##### To segment regions:
+* Ensure that the “new_region” tab is selected (left hand side)
+* Rename this region (by selecting the “new_region” text)
+* Navigate to where you want to draw your region of interest.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Use the scroll bar at the bottom (or left/right keys) to navigate</p></li>
+</ul>
+<p>through the image stack
+* Use the mouse scrollwheel to zoom in or out
+* Drag with the mouse the pan the view</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Choose a brush size (top left box)</p></li>
+<li><p>Activate painting mode (by selecting the paintbrush, top left). You can</p></li>
+</ul>
+<p>go back to the navigation mode by selecting the magnifying glass.
+* Colour in your region that you want to segment, ensuring that you make a
+solid object.
+* Selecting the <cite>ndim</cite> toggle in the top left will extend the brush size in
+three dimensions (so it will colour in multiple layers).</p>
+<ul class="simple">
+<li><p>To add a new region press <cite>Control+N</cite></p></li>
+<li><p>Repeat above for each region you wish to segment.</p></li>
+<li><p>Press <cite>Control+S</cite> on your keyboard to save the regions. If you used the</p></li>
+</ul>
+<blockquote>
+<div><p><cite>–preview flag</cite>, once they are saved, they will be displayed in a brainrender
+window.</p>
+</div></blockquote>
+<p>##### Editing regions:
+If you have already run <cite>manual_region_seg</cite>, and run it again, the segmented
+regions will be shown. You can edit them, and press <cite>Control+S</cite> to resave them.
+If you don’t want to save any changes, press <cite>Control+X</cite> to exit. The regions</p>
+<blockquote>
+<div><p>will still be previewed if you have selected that option.</p>
+</div></blockquote>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../dev/CONTRIBUTING.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="heatmap.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Sainsbury Wellcome Centre
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

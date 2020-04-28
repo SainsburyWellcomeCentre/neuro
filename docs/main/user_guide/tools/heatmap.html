@@ -1,0 +1,235 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>&lt;no title&gt; &mdash; neuro  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="manual_segmentation.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="cells_to_brainrender.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> neuro
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul class="simple">
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">neuro</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>&lt;no title&gt;</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p># Heatmap generation</p>
+<p>To generate a heatmap of detected cells, which shows cell distributions in a
+more intuitive way that showing individual cell positions:</p>
+<p>&lt;img src=”<a class="reference external" href="https://raw.githubusercontent.com/SainsburyWellcomeCentre/cellfinder/master/resources/heatmap.png">https://raw.githubusercontent.com/SainsburyWellcomeCentre/cellfinder/master/resources/heatmap.png</a>” alt=”heatmap” width=”500”/&gt;</p>
+<p><em>Overlay on raw data and segentation from
+[amap](https://github.com/SainsburyWellcomeCentre) added separately</em></p>
+<p>### Usage
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>bash</p>
+<blockquote>
+<div><p>heatmap cell_classification.xml heatmap.nii raw_data registered_atlas.nii -x 2 -y 2 -z 5</p>
+</div></blockquote>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<p>### Arguments
+Run <cite>heatmap -h</cite> to see all options.</p>
+<p>#### Positional arguments
+* [Cellfinder](<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/cellfinder">https://github.com/SainsburyWellcomeCentre/cellfinder</a>)
+classified cells file (usually <cite>cell_classification.xml</cite>)
+* Output filename. Should end with ‘.nii’. If the containing directory doesn’t
+exist, it will be created.
+* Path to raw data (just a single channel). Used to find the shape of the
+raw image that the detected cell positions are defined in.
+* Registered atlas file from [amap](<a class="reference external" href="https://github.com/SainsburyWellcomeCentre">https://github.com/SainsburyWellcomeCentre</a>)</p>
+<blockquote>
+<div><p>(typically run automatically in
+[Cellfinder](<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/cellfinder">https://github.com/SainsburyWellcomeCentre/cellfinder</a>)). File
+is usually <cite>registered_atlas.nii</cite>.</p>
+</div></blockquote>
+<p>#### Keyword arguments
+* <cite>-x</cite> or <cite>–x-pixel-size</cite> Pixel spacing of the data that the cells are
+defined in, in the first dimension, specified in um.
+* <cite>-y</cite> or <cite>–y-pixel-size</cite> Pixel spacing of the data that the cells are
+defined in, in the second dimension, specified in um.
+* <cite>-z</cite> or <cite>–z-pixel-size</cite> Pixel spacing of the data that the cells are
+defined in, in the third dimension, specified in um.</p>
+<p>#### The following options may also need to be used:
+* <cite>–heatmap-bin</cite> Heatmap bin size (um of each edge of histogram cube)
+* <cite>–heatmap-smoothing</cite> Gaussian smoothing sigma, in um.
+* <cite>–no-mask-figs</cite> Don’t mask the figures (removing any areas outside the
+brain, from e.g. smoothing)</p>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="manual_segmentation.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cells_to_brainrender.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Sainsbury Wellcome Centre
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

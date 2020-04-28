@@ -1,0 +1,230 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>&lt;no title&gt; &mdash; neuro  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="heatmap.html" />
+    <link rel="prev" title="neuro" href="../../../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> neuro
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul class="simple">
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">neuro</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>&lt;no title&gt;</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p># Converting cells from cellfinder to brainrender format</p>
+<p>To convert cell positions (e.g. in <cite>cells_in_standard_space.xml</cite>) to
+a format that can be used in
+[BrainRender](<a class="reference external" href="https://github.com/BrancoLab/BrainRender">https://github.com/BrancoLab/BrainRender</a>).</p>
+<p>### Usage
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>bash</p>
+<blockquote>
+<div><p>points_to_brainrender cells_in_standard_space.xml exported_cells.h5</p>
+</div></blockquote>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<p>### Arguments
+Run <cite>points_to_brainrender -h</cite> to see all options.</p>
+<p>#### Positional
+* [Cellfinder](<a class="reference external" href="https://github.com/SainsburyWellcomeCentre/cellfinder">https://github.com/SainsburyWellcomeCentre/cellfinder</a>)
+cells file to be converted
+* Output filename. Should end with ‘.h5’. If the containing directory doesn’t
+exist, it will be created.</p>
+<p>#### The following options may also need to be used:
+* <cite>-x</cite> or <cite>–x-pixel-size</cite> Pixel spacing of the data that the cells are
+defined in, in the first dimension, specified in um. (Default: 10)
+* <cite>-y</cite> or <cite>–y-pixel-size</cite> Pixel spacing of the data that the cells are
+defined in, in the second dimension, specified in um. (Default: 10)
+* <cite>-z</cite> or <cite>–z-pixel-size</cite> Pixel spacing of the data that the cells are
+defined in, in the third dimension, specified in um. (Default: 10)
+* <cite>–max-z</cite> Maximum z extent of the atlas, specified in um. (Default: 13200)
+* <cite>–hdf-key</cite> HDF identifying key. If this has changed, it must be specified
+in the call to <cite>BrainRender.scene.Scene.add_cells_from_file()</cite></p>
+<p>### To visualise this file in BrainRender
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">from</span> <span class="pre">brainrender.scene</span> <span class="pre">import</span> <span class="pre">Scene</span>
+<span class="pre">scene</span> <span class="pre">=</span> <span class="pre">Scene(jupyter=True)</span>
+<span class="pre">scene.add_cells_from_file(&quot;exported_cells.h5&quot;)</span>
+<span class="pre">scene.render()</span>
+<span class="pre">`</span></code></p>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="heatmap.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../../../index.html" class="btn btn-neutral float-left" title="neuro" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Sainsbury Wellcome Centre
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
