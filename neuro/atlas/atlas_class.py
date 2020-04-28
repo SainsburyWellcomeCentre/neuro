@@ -1,4 +1,5 @@
 from imlib.general.config import get_config_obj
+from brainio import brainio
 import json
 from pathlib import Path
 
@@ -34,4 +35,50 @@ class Atlas(dict):
             with open(self.base_folder / "atlas_metadata.json", "w") as f:
                 json.dump(atlas_metadata, f)
 
+        self._pix_sizes = None
+
         super().__init__(**atlas_metadata)
+
+    @property
+    def pix_sizes(self):
+        # TODO can probably go safely away, or refactored in a more general inference method
+        """ Get the dictionary of x, y, z from the after loading it
+        or if the atlas size is default, use the values from the config file
+
+        :return: The dictionary of x, y, z pixel sizes
+        """
+        if self._pix_sizes is None:
+            pixel_sizes = self.get_nii_from_element("atlas_name").header.get_zooms()
+            if pixel_sizes != (0, 0, 0):
+                self._pix_sizes = {
+                    axis: round(size * 1000, 3)  # convert to um
+                    for axis, size in zip(("x", "y", "z"), pixel_sizes)
+                    }
+            else:
+                self._pix_sizes = self["pixel_size"]
+        return self._pix_sizes
+
+
+    def get_element_path(self, element_name):
+        """Get the path to an 'element' of the atlas (i.e. the average brain,
+        the atlas, or the hemispheres atlas)
+
+        :param str element_name: The name of the item to retrieve
+        :return: The path to that atlas element on the filesystem
+        :rtype: str
+        """
+
+        return self.base_folder / self[element_name]
+
+    def get_left_hemisphere_value(self):
+        return int(self["left_hemisphere_value"])
+
+    def get_right_hemisphere_value(self):
+        return int(self["right_hemisphere_value"])
+
+    def get_nii_from_element(self, element_name):
+        """ This can be easily changed to a different loading API if needed.
+        """
+        data_full_path = self.base_folder / self[element_name]
+        return brainio.load_nii(data_full_path)
+
