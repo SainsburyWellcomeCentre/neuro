@@ -6,7 +6,6 @@ from glob import glob
 
 from PySide2.QtWidgets import QApplication
 from imlib.general.system import (
-    delete_temp,
     ensure_directory_exists,
     delete_directory_contents,
 )
@@ -25,6 +24,8 @@ from neuro.segmentation.manual_region_segmentation.man_seg_tools import (
     analyse_region_brain_areas,
 )
 from neuro.atlas_tools import paths as reg_paths
+
+memory = True
 
 
 class Paths:
@@ -62,7 +63,6 @@ def run(
     registration_directory,
     preview=False,
     volumes=False,
-    debug=False,
     num_colors=10,
     brush_size=30,
     alpha=0.8,
@@ -82,7 +82,9 @@ def run(
     else:
         print("Registered image exists, skipping")
 
-    registered_image = prepare_load_nii(paths.tmp__inverse_transformed_image)
+    registered_image = prepare_load_nii(
+        paths.tmp__inverse_transformed_image, memory=memory
+    )
 
     print("\nLoading manual segmentation GUI.\n ")
     print(
@@ -98,6 +100,7 @@ def run(
             viewer,
             registration_directory,
             paths.tmp__inverse_transformed_image,
+            memory=memory,
         )
 
         global label_layers
@@ -108,7 +111,9 @@ def run(
             label_layers = []
             for label_file in label_files:
                 label_layers.append(
-                    add_existing_label_layers(viewer, label_file)
+                    add_existing_label_layers(
+                        viewer, label_file, memory=memory
+                    )
                 )
         else:
             label_layers.append(
@@ -142,7 +147,6 @@ def run(
         def save_analyse_regions(viewer):
             ensure_directory_exists(paths.regions_directory)
             delete_directory_contents(str(paths.regions_directory))
-
             if volumes:
                 annotations = load_any(paths.annotations)
                 hemispheres = load_any(paths.hemispheres)
@@ -170,10 +174,6 @@ def run(
                     paths.downsampled_image,
                 )
             close_viewer(viewer)
-
-    if not debug:
-        print("Deleting temporary files")
-        delete_temp(paths.registration_output_folder, paths)
 
     obj_files = glob(str(paths.regions_directory) + "/*.obj")
     if obj_files:
@@ -214,13 +214,6 @@ def get_parser():
         "segmented region",
     )
     parser.add_argument(
-        "--debug",
-        dest="debug",
-        action="store_true",
-        help="Debug mode. Will increase verbosity of logging and save all "
-        "intermediate files for diagnosis of software issues.",
-    )
-    parser.add_argument(
         "--shading",
         type=str,
         default="flat",
@@ -250,7 +243,6 @@ def main():
         args.registration_directory,
         preview=args.preview,
         volumes=args.volumes,
-        debug=args.debug,
         shading=args.shading,
         alpha=args.alpha,
         brush_size=args.brush_size,

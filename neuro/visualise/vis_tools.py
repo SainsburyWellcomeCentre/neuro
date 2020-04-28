@@ -13,7 +13,7 @@ from vispy.color import Colormap
 label_red = Colormap([[0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0]])
 
 
-def display_channel(viewer, reg_dir, channel_fname):
+def display_channel(viewer, reg_dir, channel_fname, memory=False):
     """
     Display downsampled data
     :param viewer:
@@ -23,10 +23,11 @@ def display_channel(viewer, reg_dir, channel_fname):
     """
     reg_dir = Path(reg_dir)
 
-    viewer.add_image(
-        prepare_load_nii(reg_dir / channel_fname, memory=False),
+    layer = viewer.add_image(
+        prepare_load_nii(reg_dir / channel_fname, memory=memory),
         name="Downsampled filtered_brain_space",
     )
+    return layer
 
 
 def prepare_load_nii(nii_path, memory=False):
