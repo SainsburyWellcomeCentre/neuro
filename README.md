@@ -15,4 +15,4 @@ Visualisation and analysis of brain imaging data
 `pip install neuro`
 
 
-### [Documentation](https://sainsburywellcomecentre.github.io/neuro/)
+### [Documentation](https://docs.cellfinder.info/neuro/introduction)
