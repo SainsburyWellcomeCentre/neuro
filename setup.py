@@ -9,6 +9,7 @@ requirements = [
     "imlib >= 0.0.23",
     "napari>=0.2.12",
     "brainio >= 0.0.13",
+    "dask >= 2.15.0",
 ]
 
 
