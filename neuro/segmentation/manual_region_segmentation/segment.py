@@ -4,8 +4,6 @@ import napari
 from pathlib import Path
 from glob import glob
 
-import pandas as pd
-
 from PySide2.QtWidgets import QApplication
 from imlib.general.system import (
     ensure_directory_exists,
