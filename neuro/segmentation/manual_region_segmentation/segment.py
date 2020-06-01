@@ -24,41 +24,9 @@ from neuro.segmentation.manual_region_segmentation.man_seg_tools import (
     analyse_region_brain_areas,
     summarise_brain_regions,
 )
-from neuro.atlas_tools import paths as reg_paths
+from neuro.segmentation.paths import Paths
 
 memory = True
-
-
-class Paths:
-    """
-    A single class to hold all file paths that may be used. Any paths
-    prefixed with "tmp__" refer to internal intermediate steps, and will be
-    deleted if "--debug" is not used.
-    """
-
-    def __init__(self, registration_output_folder, downsampled_image):
-        self.registration_output_folder = Path(registration_output_folder)
-        self.downsampled_image = self.join(downsampled_image)
-
-        self.regions_directory = self.join("segmented_regions")
-
-        self.tmp__inverse_transformed_image = self.join(
-            "image_standard_space.nii"
-        )
-        self.tmp__inverse_transform_log_path = self.join(
-            "inverse_transform_log.txt"
-        )
-        self.tmp__inverse_transform_error_path = self.join(
-            "inverse_transform_error.txt"
-        )
-
-        self.summary_csv = self.regions_directory / "summary.csv"
-
-        self.annotations = self.join(reg_paths.ANNOTATIONS)
-        self.hemispheres = self.join(reg_paths.HEMISPHERES)
-
-    def join(self, filename):
-        return self.registration_output_folder / filename
 
 
 def run(
@@ -93,7 +61,7 @@ def run(
     print("\nLoading manual segmentation GUI.\n ")
     print(
         "Please 'colour in' the regions you would like to segment. \n "
-        "When you are done, press Ctrl+S to save and exit. \n If you have "
+        "When you are done, press 'Alt-Q' to save and exit. \n If you have "
         "used the '--preview' flag, \n the region will be shown in 3D in "
         "brainrender\n for you to inspect."
     )
@@ -131,6 +99,9 @@ def run(
 
         @viewer.bind_key("Control-N")
         def add_region(viewer):
+            """
+            Add new region
+            """
             print("\nAdding new region")
             label_layers.append(
                 add_new_label_layer(
@@ -144,11 +115,17 @@ def run(
 
         @viewer.bind_key("Control-X")
         def close_viewer(viewer):
+            """
+            Close viewer
+            """
             print("\nClosing viewer")
             QApplication.closeAllWindows()
 
-        @viewer.bind_key("Control-S")
+        @viewer.bind_key("Alt-Q")
         def save_analyse_regions(viewer):
+            """
+            Save segmented regions and exit
+            """
             ensure_directory_exists(paths.regions_directory)
             delete_directory_contents(str(paths.regions_directory))
             if volumes:

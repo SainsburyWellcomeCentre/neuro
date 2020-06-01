@@ -55,6 +55,8 @@ setup(
             "neuro.segmentation.lesion_and_track_tools.fiber_tract_viewer:main",
             "manual_region_seg = "
             "neuro.segmentation.manual_region_segmentation.segment:main",
+            "track_seg = "
+            "neuro.segmentation.track_segmentation.segment:main",
         ]
     },
     zip_safe=False,
