@@ -1,44 +1,16 @@
-import argparse
 import napari
 
-from pathlib import Path
-from glob import glob
-import pandas as pd
-import numpy as np
 from PySide2.QtWidgets import QApplication
-from imlib.general.system import (
-    ensure_directory_exists,
-    delete_directory_contents,
-)
-
-from brainio.brainio import load_any
-from neuro.structures.IO import load_structures_as_df
-from imlib.source.source_files import get_structures_path
-
 from neuro.generic_neuro_tools import transform_image_to_standard_space
 from neuro.visualise.vis_tools import display_channel, prepare_load_nii
-from neuro.visualise.brainrender import load_regions_into_brainrender
-from neuro.visualise.napari import add_new_label_layer
-from neuro.segmentation.manual_region_segmentation.man_seg_tools import (
-    add_existing_label_layers,
-    save_regions_to_file,
-    analyse_region_brain_areas,
-    summarise_brain_regions,
-)
 from neuro.segmentation.paths import Paths
 import pandas as pd
-from brainrender.scene import Scene
-from vtkplotter.shapes import Cylinder, Line, DashedLine
+from vtkplotter import mesh, Spheres, Spline
 import numpy as np
-
 from brainrender.scene import Scene
-
 import argparse
-import imlib.IO.cells as cells_io
-from imlib.general.numerical import check_positive_float, check_positive_int
-from imlib.general.system import ensure_directory_exists
 from pathlib import Path
-
+from imlib.general.system import ensure_directory_exists
 
 memory = True
 
@@ -46,13 +18,15 @@ memory = True
 def run(
     image,
     registration_directory,
-    preview=False,
-    volumes=False,
-    summarise=False,
-    num_colors=10,
-    brush_size=30,
-    alpha=0.8,
-    shading="flat",
+    visualise=True,
+    add_surface_to_points=True,
+    regions_to_add=["VISp", "MOp1"],
+    probe_sites=1000,
+    fit_degree=2,
+    spline_smoothing=0.05,
+    region_alpha=0.3,
+    point_radius=30,
+    spline_radius=10,
 ):
     paths = Paths(registration_directory, image)
     registration_directory = Path(registration_directory)
@@ -67,10 +41,6 @@ def run(
         )
     else:
         print("Registered image exists, skipping")
-
-    registered_image = prepare_load_nii(
-        paths.tmp__inverse_transformed_image, memory=memory
-    )
 
     print("\nLoading probe segmentation GUI.\n ")
     print(
@@ -90,24 +60,8 @@ def run(
         )
         global points_layers
         points_layers = []
-        points_layers.append(viewer.add_points())
+        points_layers.append(viewer.add_points(n_dimensional=True))
 
-        # # keep for multiple probes
-        # @viewer.bind_key("Control-N")
-        # def add_region(viewer):
-        #     """
-        #     Add new region
-        #     """
-        #     print("\nAdding new region")
-        #     label_layers.append(
-        #         add_new_label_layer(
-        #             viewer,
-        #             registered_image,
-        #             name="new_region",
-        #             brush_size=brush_size,
-        #             num_colors=num_colors,
-        #         )
-        #     )
         @viewer.bind_key("Control-X")
         def close_viewer(viewer):
             """
@@ -123,9 +77,10 @@ def run(
             """
             Save segmented probes and exit
             """
+            ensure_directory_exists(paths.tracks_directory)
+
             cells = viewer.layers[1].data.astype(np.int16)
             # cells = (cells * 10)
-            print(cells)
             cells = pd.DataFrame(cells)
 
             cells.columns = ["x", "y", "z"]
@@ -137,70 +92,119 @@ def run(
             max_z = len(viewer.layers[0].data)
             cells["x"] = (z_scaling * max_z) - cells["x"]
 
-            print(cells)
-            output_filename = "/home/adam/Desktop/track.h5"
-            print(f"Saving to: {output_filename}")
-            cells.to_hdf(output_filename, key="df", mode="w")
+            print(f"Saving to: {paths.track_points_file}")
+            cells.to_hdf(paths.track_points_file, key="df", mode="w")
 
-            print("Finished")
             close_viewer(viewer)
 
-            view_in_br(
-                output_filename, radius=30, points_kwargs={"radius": 100}
+            print("Analysing track")
+            analyse_track(
+                paths.track_points_file,
+                summary_csv_file=paths.probe_summary_csv,
+                add_surface_to_points=add_surface_to_points,
+                regions_to_add=regions_to_add,
+                probe_sites=probe_sites,
+                fit_degree=fit_degree,
+                spline_smoothing=spline_smoothing,
+                region_alpha=region_alpha,
+                point_radius=point_radius,
+                visualise=visualise,
+                spline_radius=spline_radius,
             )
 
 
-def view_in_br(track, points_kwargs={}, **kwargs):
-    # from brainrender.scene.add_probe_from_sharptrack
+def analyse_track(
+    track,
+    summary_csv_file=None,
+    visualise=False,
+    add_surface_to_points=True,
+    probe_sites=1000,
+    fit_degree=2,
+    spline_smoothing=0.05,
+    regions_to_add=[],
+    region_alpha=0.3,
+    point_radius=30,
+    spline_radius=10,
+):
+
     cells = pd.read_hdf(track)
     scene = Scene(add_root=True)
 
-    col_by_region = points_kwargs.pop("color_by_region", True)
-    color = points_kwargs.pop("color", "salmon")
-    radius = points_kwargs.pop("radius", 30)
-    scene.add_cells(
-        cells,
-        color=color,
-        color_by_region=col_by_region,
-        res=12,
-        radius=radius,
-        **points_kwargs,
+    points = np.array(cells)
+
+    if add_surface_to_points:
+        print(
+            "Finding the closest point on the brain surface to the first point"
+        )
+        root_mesh = mesh.Mesh(scene.root)
+        surface_intersection = np.expand_dims(
+            root_mesh.closestPoint(points[0]), axis=0
+        )
+        points = np.concatenate([surface_intersection, points], axis=0)
+        scene.add_vtkactor(
+            Spheres(surface_intersection, r=point_radius).color("n")
+        )
+    far_point = np.expand_dims(points[-1], axis=0)
+
+    print(
+        f"Fitting a spline with {probe_sites} segments, of degree "
+        f"'{fit_degree}' to the points"
+    )
+    spline = (
+        Spline(
+            points, smooth=spline_smoothing, degree=fit_degree, res=probe_sites
+        )
+        .pointSize(spline_radius)
+        .color("n")
     )
 
-    r0 = np.mean(cells.values, axis=0)
-    xyz = cells.values - r0
-    U, S, V = np.linalg.svd(xyz)
-    direction = V.T[:, 0]
+    if summary_csv_file is not None:
+        print("Determining the brain region for each segment of the spline")
+        spline_regions = [
+            scene.atlas.get_structure_from_coordinates(p, just_acronym=False)
+            for p in spline.points().tolist()
+        ]
+        print(f"Saving results to: {summary_csv_file}")
+        df = pd.DataFrame(
+            columns=["Position", "Region ID", "Region acronym", "Region name"]
+        )
+        for idx, spline_region in enumerate(spline_regions):
+            if spline_region is None:
+                df = df.append(
+                    {
+                        "Position": idx,
+                        "Region ID": "Not found in brain",
+                        "Region acronym": "Not found in brain",
+                        "Region name": "Not found in brain",
+                    },
+                    ignore_index=True,
+                )
+            else:
+                df = df.append(
+                    {
+                        "Position": idx,
+                        "Region ID": spline_region["id"],
+                        "Region acronym": spline_region["acronym"],
+                        "Region name": spline_region["name"],
+                    },
+                    ignore_index=True,
+                )
+        df.to_csv(summary_csv_file, index=False)
+    if visualise:
+        print("Visualising 3D data in brainrender")
+        scene.add_cells(
+            cells,
+            color_by_region=True,
+            res=12,
+            radius=point_radius,
+            verbose=False,
+        )
 
-    # Find intersection with brain surface
-    root_mesh = scene.atlas._get_structure_mesh("root")
-    p0 = direction * np.array([-1]) + r0
-    p1 = (
-        direction * np.array([-15000]) + r0
-    )  # end point way outside of brain, on probe trajectory though
-    pts = root_mesh.intersectWithLine(p0, p1)
-
-    # Define top/bottom coordinates to render as a cylinder
-    top_coord = pts[0]
-    length = np.sqrt(np.sum((cells.values[-1] - top_coord) ** 2))
-    bottom_coord = top_coord + direction * length
-
-    # Render probe as a cylinder
-    probe_color = kwargs.pop("color", "blackboard")
-    probe_radius = kwargs.pop("radius", 15)
-    probe_alpha = kwargs.pop("alpha", 1)
-
-    probe = Cylinder(
-        [top_coord, bottom_coord],
-        r=probe_radius,
-        alpha=probe_alpha,
-        c=probe_color,
-    )
-
-    # Add to scene
-    scene.add_vtkactor(probe)
-    scene.add_brain_regions(["VISp"], colors="mediumseagreen", alpha=0.6)
-    scene.render()
+        scene.add_vtkactor(Spheres(far_point, r=point_radius).color("n"))
+        scene.add_vtkactor(spline)
+        scene.add_brain_regions(regions_to_add, alpha=region_alpha)
+        scene.verbose = False
+        scene.render()
 
 
 def get_parser():
@@ -218,43 +222,66 @@ def get_parser():
         help="amap/cellfinder registration output directory",
     )
     parser.add_argument(
-        "--preview",
-        dest="preview",
+        "--no-preview",
+        dest="no_preview",
         action="store_true",
-        help="Preview the segmented regions in brainrender",
+        help="Don't preview the segmented regions in brainrender",
     )
     parser.add_argument(
-        "--volumes",
-        dest="volumes",
+        "--surface-point",
+        dest="add_surface_to_points",
         action="store_true",
-        help="Calculate the volume of each brain area included in the "
-        "segmented region",
+        help="Find the closest part of the brain surface to the first point,"
+        "and include that as a point for the spline fit.",
     )
     parser.add_argument(
-        "--summarise",
-        dest="summarise",
-        action="store_true",
-        help="Summarise each region (centers, volumes etc.)",
+        "--probe-sites",
+        dest="probe_sites",
+        type=int,
+        help="How many segments should the probehave",
     )
     parser.add_argument(
-        "--shading",
-        type=str,
-        default="flat",
-        help="Object shading type for brainrender ('flat', 'giroud' or "
-        "'phong').",
+        "--fit-degree",
+        dest="fit_degree",
+        type=int,
+        default=2,
+        help="Degree of the spline fit (1<degree<5)",
     )
     parser.add_argument(
-        "--alpha",
+        "--fit-smooth",
+        dest="fit_smooth",
         type=float,
-        default=0.8,
-        help="Object transparency for brainrender.",
+        default=0.05,
+        help="Smoothing factor for the spline fit, between 0 (interpolate "
+        "points exactly) and 1 (average point positions).",
     )
     parser.add_argument(
-        "--brush-size",
-        dest="brush_size",
+        "--spline-radius",
+        dest="spline_radius",
+        type=int,
+        default=10,
+        help="Radius of the visualised spline",
+    )
+    parser.add_argument(
+        "--point-radius",
+        dest="point_radius",
         type=int,
         default=30,
-        help="Default size of the label brush.",
+        help="Radius of the visualised points",
+    )
+    parser.add_argument(
+        "--region-alpha",
+        dest="region_alpha",
+        type=float,
+        default=0.4,
+        help="Brain region transparency for brainrender.",
+    )
+    parser.add_argument(
+        "--regions",
+        dest="regions",
+        default=[],
+        nargs="+",
+        help="Brain regions to render, as acronyms. e.g. 'VISp MOp1'",
     )
     return parser
 
@@ -264,12 +291,15 @@ def main():
     run(
         args.image,
         args.registration_directory,
-        preview=args.preview,
-        volumes=args.volumes,
-        summarise=args.summarise,
-        shading=args.shading,
-        alpha=args.alpha,
-        brush_size=args.brush_size,
+        visualise=not (args.no_preview),
+        add_surface_to_points=args.add_surface_to_points,
+        regions_to_add=args.regions,
+        probe_sites=args.probe_sites,
+        fit_degree=args.fit_degree,
+        spline_smoothing=args.fit_smooth,
+        region_alpha=args.region_alpha,
+        point_radius=args.point_radius,
+        spline_radius=args.spline_radius,
     )
 
 

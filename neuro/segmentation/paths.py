@@ -14,9 +14,6 @@ class Paths:
         self.registration_output_folder = Path(registration_output_folder)
         self.downsampled_image = self.join(downsampled_image)
 
-        self.regions_directory = self.join("regions")
-        self.tracks_directory = self.join("tracks")
-
         self.tmp__inverse_transformed_image = self.join(
             "image_standard_space.nii"
         )
@@ -27,10 +24,15 @@ class Paths:
             "inverse_transform_error.txt"
         )
 
-        self.summary_csv = self.regions_directory / "summary.csv"
-
         self.annotations = self.join(reg_paths.ANNOTATIONS)
         self.hemispheres = self.join(reg_paths.HEMISPHERES)
+
+        self.regions_directory = self.join("regions")
+        self.region_summary_csv = self.regions_directory / "summary.csv"
+
+        self.tracks_directory = self.join("tracks")
+        self.track_points_file = self.tracks_directory / "points.h5"
+        self.probe_summary_csv = self.tracks_directory / "summary.csv"
 
     def join(self, filename):
         return self.registration_output_folder / filename

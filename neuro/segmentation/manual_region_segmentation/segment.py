@@ -149,7 +149,7 @@ def run(
                     )
             if summarise:
                 print("Summarising regions")
-                summarise_brain_regions(label_layers, paths.summary_csv)
+                summarise_brain_regions(label_layers, paths.region_summary_csv)
 
             print(f"\nSaving regions to: {paths.regions_directory}")
             for label_layer in label_layers:
