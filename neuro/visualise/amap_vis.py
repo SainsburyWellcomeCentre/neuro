@@ -102,7 +102,7 @@ def main():
             )
 
             @labels.mouse_move_callbacks.append
-            def get_connected_component_shape(layer, event):
+            def display_region_name(layer, event):
                 val = layer.get_value()
                 if val != 0 and val is not None:
                     try:

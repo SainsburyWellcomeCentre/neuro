@@ -57,6 +57,8 @@ setup(
             "neuro.segmentation.manual_region_segmentation.segment:main",
             "track_seg = "
             "neuro.segmentation.track_segmentation.segment:main",
+            "manual_seg = "
+            "neuro.segmentation.manual_segmentation.segment:main",
         ]
     },
     zip_safe=False,

@@ -29,7 +29,7 @@ BRAINRENDER_TO_NAPARI_SCALE = 0.3
 def run(
     image,
     registration_directory,
-    visualise=True,
+    preview=True,
     add_surface_to_points=True,
     regions_to_add=[],
     probe_sites=1000,
@@ -98,7 +98,7 @@ def run(
         )
 
         @labels.mouse_move_callbacks.append
-        def get_connected_component_shape(layer, event):
+        def display_region_name(layer, event):
             val = layer.get_value()
             if val != 0 and val is not None:
                 try:
@@ -161,7 +161,7 @@ def run(
                 name="Spline fit",
             )
 
-    if visualise:
+    if preview:
         view_track_in_brainrender(
             scene,
             spline,
@@ -291,10 +291,10 @@ def get_parser():
         help="amap/cellfinder registration output directory",
     )
     parser.add_argument(
-        "--no-preview",
-        dest="no_preview",
+        "--preview",
+        dest="preview",
         action="store_true",
-        help="Don't preview the segmented regions in brainrender",
+        help="Preview the segmented regions in brainrender",
     )
     parser.add_argument(
         "--surface-point",
@@ -361,7 +361,7 @@ def main():
     run(
         args.image,
         args.registration_directory,
-        visualise=not (args.no_preview),
+        preview=args.preview,
         add_surface_to_points=args.add_surface_to_points,
         regions_to_add=args.regions,
         probe_sites=args.probe_sites,
