@@ -114,20 +114,24 @@ def visualize_obj(obj_path, *args, color="lightcoral", **kwargs):
     return scene
 
 
-def load_regions_into_brainrender(list_of_regions, alpha=0.8, shading="flat"):
+def load_regions_into_brainrender(
+    scene, list_of_regions, alpha=0.8, shading="flat"
+):
     """
     Loads a list of .obj files into brainrender
+    :param scene: brainrender scene
     :param list_of_regions: List of .obj files to be loaded
     :param alpha: Object transparency
     :param shading: Object shading type ("flat", "giroud" or "phong").
     Defaults to "phong"
     """
-    scene = Scene()
+    # scene = Scene()
     for obj_file in list_of_regions:
         load_obj_into_brainrender(
             scene, obj_file, alpha=alpha, shading=shading
         )
-    scene.render()
+    return scene
+    # scene.render()
 
 
 def load_obj_into_brainrender(

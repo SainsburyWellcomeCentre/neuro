@@ -1,11 +1,8 @@
 import napari
 
-import pandas as pd
-import numpy as np
 
 from pathlib import Path
 from glob import glob
-from vtkplotter import mesh, Spheres, Spline
 from PySide2.QtWidgets import QApplication
 
 from brainrender.scene import Scene
@@ -99,6 +96,9 @@ def run(
     )
 
     with napari.gui_qt():
+        global scene
+        scene = Scene(add_root=True)
+
         viewer = napari.Viewer(title="Manual segmentation")
         display_channel(
             viewer,
@@ -203,9 +203,10 @@ def run(
             )
 
             print("Analysing track")
-            global scene
             global spline
+            global scene
             scene, spline = analyse_track(
+                scene,
                 paths.track_points_file,
                 add_surface_to_points=add_surface_to_points,
                 spline_points=probe_sites,
@@ -268,15 +269,20 @@ def run(
                 )
             close_viewer(viewer)
 
-    obj_files = glob(str(paths.regions_directory) + "/*.obj")
-    if obj_files:
-        if preview:
-            print("\nPreviewing in brainrender")
-            load_regions_into_brainrender(
-                obj_files, alpha=alpha, shading=shading
+    if preview:
+        obj_files = glob(str(paths.regions_directory) + "/*.obj")
+        if obj_files:
+            scene = load_regions_into_brainrender(
+                scene, obj_files, alpha=alpha, shading=shading
             )
-    else:
-        print("\n'--preview' selected, but no regions to display")
+
+        scene = display_track_in_brainrender(
+            scene,
+            spline,
+            regions_to_add=regions_to_add,
+            region_alpha=region_alpha,
+        )
+        scene.render()
 
 
 def main():

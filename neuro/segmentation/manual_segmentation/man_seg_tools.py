@@ -375,6 +375,7 @@ def convert_vtk_spline_to_napari_path(
 
 
 def analyse_track(
+    scene,
     points_file,
     add_surface_to_points=True,
     spline_points=100,
@@ -387,6 +388,7 @@ def analyse_track(
     """
     Given a file of points, fit a spline function, and add to a brainrender
      scene.
+    :param scene: brainrender scene object
     :param points_file:
     :param bool add_surface_to_points: Add the closest part of the brain 
     surface to the list of points
@@ -402,7 +404,7 @@ def analyse_track(
         spline: vtkplotter spline object
     """
     points = pd.read_hdf(points_file)
-    scene = Scene(add_root=True)
+    # scene = Scene(add_root=True)
     scene.add_cells(
         points,
         color_by_region=True,
@@ -531,4 +533,5 @@ def display_track_in_brainrender(
     scene.add_vtkactor(spline)
     scene.add_brain_regions(regions_to_add, alpha=region_alpha)
     scene.verbose = False
-    scene.render()
+    return scene
+    # scene.render()
