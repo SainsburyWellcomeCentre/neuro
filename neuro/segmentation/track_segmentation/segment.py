@@ -1,30 +1,23 @@
 import napari
-
-from PySide2.QtWidgets import QApplication
-from neuro.generic_neuro_tools import transform_image_to_standard_space
-from neuro.visualise.vis_tools import display_channel, prepare_load_nii
-from neuro.segmentation.paths import Paths
-import pandas as pd
-from vtkplotter import mesh, Spheres, Spline
-import numpy as np
-from brainrender.scene import Scene
 import argparse
+
+import pandas as pd
+import numpy as np
+
 from pathlib import Path
+from vtkplotter import mesh, Spheres, Spline
+
+from brainrender.scene import Scene
+from imlib.source.source_files import get_structures_path
 from imlib.general.system import ensure_directory_exists
 
-import napari
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from pathlib import Path
+from neuro.segmentation.paths import Paths
+from neuro.generic_neuro_tools import transform_image_to_standard_space
+from neuro.visualise.vis_tools import display_channel, prepare_load_nii
 from neuro.structures.IO import load_structures_as_df
 from neuro.structures.structures_tree import (
     atlas_value_to_name,
     UnknownAtlasValue,
-)
-from imlib.source.source_files import get_structures_path
-from neuro.visualise.vis_tools import (
-    display_raw,
-    display_downsampled,
-    display_registration,
 )
 
 
@@ -65,7 +58,7 @@ def run(
             error_file_path=paths.tmp__inverse_transform_error_path,
         )
     else:
-        print("Registered image exists, skipping")
+        print("Registered image exists, skipping registration")
 
     print("\nLoading probe segmentation GUI.\n ")
     print(
@@ -87,7 +80,7 @@ def run(
         )
         labels = viewer.add_labels(
             prepare_load_nii(paths.annotations, memory=memory),
-            name="Labels",
+            name="Region labels",
             opacity=0.2,
             visible=False,
         )
@@ -98,17 +91,11 @@ def run(
         points_layers = []
         points_layers.append(
             viewer.add_points(
-                n_dimensional=True, size=napari_point_size, name="Track label"
+                n_dimensional=True,
+                size=napari_point_size,
+                name="Track label editor",
             )
         )
-
-        @viewer.bind_key("Control-X")
-        def close_viewer(viewer):
-            """
-            Close viewer
-            """
-            print("\nClosing viewer")
-            QApplication.closeAllWindows()
 
         @labels.mouse_move_callbacks.append
         def get_connected_component_shape(layer, event):
