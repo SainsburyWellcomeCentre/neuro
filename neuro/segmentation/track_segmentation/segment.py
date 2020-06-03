@@ -12,7 +12,25 @@ import argparse
 from pathlib import Path
 from imlib.general.system import ensure_directory_exists
 
-memory = True
+import napari
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from pathlib import Path
+from neuro.structures.IO import load_structures_as_df
+from neuro.structures.structures_tree import (
+    atlas_value_to_name,
+    UnknownAtlasValue,
+)
+from imlib.source.source_files import get_structures_path
+from neuro.visualise.vis_tools import (
+    display_raw,
+    display_downsampled,
+    display_registration,
+)
+
+
+memory = False
+
+BRAINRENDER_TO_NAPARI_SCALE = 0.3
 
 
 def run(
@@ -20,18 +38,25 @@ def run(
     registration_directory,
     visualise=True,
     add_surface_to_points=True,
-    regions_to_add=["VISp", "MOp1"],
+    regions_to_add=[],
     probe_sites=1000,
     fit_degree=2,
     spline_smoothing=0.05,
     region_alpha=0.3,
-    point_radius=30,
-    spline_radius=10,
+    point_size=30,
+    spline_size=10,
 ):
+    napari_point_size = int(BRAINRENDER_TO_NAPARI_SCALE * point_size)
+    napari_spline_size = int(BRAINRENDER_TO_NAPARI_SCALE * spline_size)
+
     paths = Paths(registration_directory, image)
     registration_directory = Path(registration_directory)
 
     if not paths.tmp__inverse_transformed_image.exists():
+        print(
+            f"The image: '{image}' has not been transformed into standard "
+            f"space, and so must be transformed before segmentation."
+        )
         transform_image_to_standard_space(
             registration_directory,
             image_to_transform_fname=image,
@@ -44,10 +69,11 @@ def run(
 
     print("\nLoading probe segmentation GUI.\n ")
     print(
-        "Please 'colour in' the regions you would like to segment. \n "
-        "When you are done, press 'Alt-Q' to save and exit. \n If you have "
-        "used the '--preview' flag, \n the region will be shown in 3D in "
-        "brainrender\n for you to inspect."
+        "Please add points to trace the track you are interested in. \n "
+        "When you are done, press 'Alt-Q' to save and exit. \n "
+        "Unless you have used the '--no-preview' flag "
+        "the region will be shown in 3D in "
+        "brainrender for you to inspect."
     )
 
     with napari.gui_qt():
@@ -57,10 +83,24 @@ def run(
             registration_directory,
             paths.tmp__inverse_transformed_image,
             memory=memory,
+            name="Image",
         )
+        labels = viewer.add_labels(
+            prepare_load_nii(paths.annotations, memory=memory),
+            name="Labels",
+            opacity=0.2,
+            visible=False,
+        )
+        structures_path = get_structures_path()
+        structures_df = load_structures_as_df(structures_path)
+
         global points_layers
         points_layers = []
-        points_layers.append(viewer.add_points(n_dimensional=True))
+        points_layers.append(
+            viewer.add_points(
+                n_dimensional=True, size=napari_point_size, name="Track label"
+            )
+        )
 
         @viewer.bind_key("Control-X")
         def close_viewer(viewer):
@@ -69,6 +109,19 @@ def run(
             """
             print("\nClosing viewer")
             QApplication.closeAllWindows()
+
+        @labels.mouse_move_callbacks.append
+        def get_connected_component_shape(layer, event):
+            val = layer.get_value()
+            if val != 0 and val is not None:
+                try:
+                    region = atlas_value_to_name(val, structures_df)
+                    msg = f"{region}"
+                except UnknownAtlasValue:
+                    msg = "Unknown region"
+            else:
+                msg = "No label here!"
+            layer.help = msg
 
         @viewer.bind_key("Alt-Q")
         def save_analyse_regions(
@@ -79,57 +132,86 @@ def run(
             """
             ensure_directory_exists(paths.tracks_directory)
 
-            cells = viewer.layers[1].data.astype(np.int16)
-            # cells = (cells * 10)
+            cells = points_layers[0].data.astype(np.int16)
             cells = pd.DataFrame(cells)
 
             cells.columns = ["x", "y", "z"]
 
             # this weird scaling is due to the ARA coordinate space
+            max_z = len(viewer.layers[0].data)
+            cells["x"] = max_z - cells["x"]
             cells["x"] = z_scaling * cells["x"]
             cells["z"] = x_scaling * cells["z"]
             cells["y"] = y_scaling * cells["y"]
-            max_z = len(viewer.layers[0].data)
-            cells["x"] = (z_scaling * max_z) - cells["x"]
 
             print(f"Saving to: {paths.track_points_file}")
             cells.to_hdf(paths.track_points_file, key="df", mode="w")
 
-            close_viewer(viewer)
-
             print("Analysing track")
-            analyse_track(
+            global scene
+            global spline
+            scene, spline = analyse_track(
                 paths.track_points_file,
-                summary_csv_file=paths.probe_summary_csv,
                 add_surface_to_points=add_surface_to_points,
-                regions_to_add=regions_to_add,
                 probe_sites=probe_sites,
                 fit_degree=fit_degree,
                 spline_smoothing=spline_smoothing,
-                region_alpha=region_alpha,
-                point_radius=point_radius,
-                visualise=visualise,
-                spline_radius=spline_radius,
+                point_radius=point_size,
+                spline_radius=spline_size,
             )
+            save_results(scene, spline, paths.probe_summary_csv)
+            napari_spline = convert_vtk_spline_to_napari_path(
+                spline, x_scaling, y_scaling, z_scaling, max_z
+            )
+
+            viewer.add_points(
+                napari_spline,
+                size=napari_spline_size,
+                edge_color="cyan",
+                face_color="cyan",
+                blending="additive",
+                opacity=0.7,
+                name="Spline fit",
+            )
+
+    if visualise:
+        view_track_in_brainrender(
+            scene,
+            spline,
+            regions_to_add=regions_to_add,
+            region_alpha=region_alpha,
+        )
+
+
+def convert_vtk_spline_to_napari_path(
+    spline, x_scaling, y_scaling, z_scaling, max_z
+):
+    napari_spline = np.copy(spline.points())
+    napari_spline[:, 0] = (z_scaling * max_z - napari_spline[:, 0]) / z_scaling
+    napari_spline[:, 1] = napari_spline[:, 1] / y_scaling
+    napari_spline[:, 2] = napari_spline[:, 2] / x_scaling
+    return napari_spline.astype(np.int16)
 
 
 def analyse_track(
     track,
-    summary_csv_file=None,
-    visualise=False,
     add_surface_to_points=True,
     probe_sites=1000,
     fit_degree=2,
     spline_smoothing=0.05,
-    regions_to_add=[],
-    region_alpha=0.3,
     point_radius=30,
     spline_radius=10,
 ):
 
     cells = pd.read_hdf(track)
     scene = Scene(add_root=True)
-
+    scene.add_cells(
+        cells,
+        color_by_region=True,
+        res=12,
+        radius=point_radius,
+        verbose=False,
+    )
     points = np.array(cells)
 
     if add_surface_to_points:
@@ -145,6 +227,7 @@ def analyse_track(
             Spheres(surface_intersection, r=point_radius).color("n")
         )
     far_point = np.expand_dims(points[-1], axis=0)
+    scene.add_vtkactor(Spheres(far_point, r=point_radius).color("n"))
 
     print(
         f"Fitting a spline with {probe_sites} segments, of degree "
@@ -158,53 +241,52 @@ def analyse_track(
         .color("n")
     )
 
-    if summary_csv_file is not None:
-        print("Determining the brain region for each segment of the spline")
-        spline_regions = [
-            scene.atlas.get_structure_from_coordinates(p, just_acronym=False)
-            for p in spline.points().tolist()
-        ]
-        print(f"Saving results to: {summary_csv_file}")
-        df = pd.DataFrame(
-            columns=["Position", "Region ID", "Region acronym", "Region name"]
-        )
-        for idx, spline_region in enumerate(spline_regions):
-            if spline_region is None:
-                df = df.append(
-                    {
-                        "Position": idx,
-                        "Region ID": "Not found in brain",
-                        "Region acronym": "Not found in brain",
-                        "Region name": "Not found in brain",
-                    },
-                    ignore_index=True,
-                )
-            else:
-                df = df.append(
-                    {
-                        "Position": idx,
-                        "Region ID": spline_region["id"],
-                        "Region acronym": spline_region["acronym"],
-                        "Region name": spline_region["name"],
-                    },
-                    ignore_index=True,
-                )
-        df.to_csv(summary_csv_file, index=False)
-    if visualise:
-        print("Visualising 3D data in brainrender")
-        scene.add_cells(
-            cells,
-            color_by_region=True,
-            res=12,
-            radius=point_radius,
-            verbose=False,
-        )
+    return scene, spline
 
-        scene.add_vtkactor(Spheres(far_point, r=point_radius).color("n"))
-        scene.add_vtkactor(spline)
-        scene.add_brain_regions(regions_to_add, alpha=region_alpha)
-        scene.verbose = False
-        scene.render()
+
+def save_results(scene, spline, file_path):
+    print("Determining the brain region for each segment of the spline")
+    spline_regions = [
+        scene.atlas.get_structure_from_coordinates(p, just_acronym=False)
+        for p in spline.points().tolist()
+    ]
+    print(f"Saving results to: {file_path}")
+    df = pd.DataFrame(
+        columns=["Position", "Region ID", "Region acronym", "Region name"]
+    )
+    for idx, spline_region in enumerate(spline_regions):
+        if spline_region is None:
+            df = df.append(
+                {
+                    "Position": idx,
+                    "Region ID": "Not found in brain",
+                    "Region acronym": "Not found in brain",
+                    "Region name": "Not found in brain",
+                },
+                ignore_index=True,
+            )
+        else:
+            df = df.append(
+                {
+                    "Position": idx,
+                    "Region ID": spline_region["id"],
+                    "Region acronym": spline_region["acronym"],
+                    "Region name": spline_region["name"],
+                },
+                ignore_index=True,
+            )
+    df.to_csv(file_path, index=False)
+
+
+def view_track_in_brainrender(
+    scene, spline, regions_to_add=[], region_alpha=0.3,
+):
+
+    print("Visualising 3D data in brainrender")
+    scene.add_vtkactor(spline)
+    scene.add_brain_regions(regions_to_add, alpha=region_alpha)
+    scene.verbose = False
+    scene.render()
 
 
 def get_parser():
@@ -238,6 +320,7 @@ def get_parser():
         "--probe-sites",
         dest="probe_sites",
         type=int,
+        default=1000,
         help="How many segments should the probehave",
     )
     parser.add_argument(
@@ -257,14 +340,14 @@ def get_parser():
     )
     parser.add_argument(
         "--spline-radius",
-        dest="spline_radius",
+        dest="spline_size",
         type=int,
         default=10,
         help="Radius of the visualised spline",
     )
     parser.add_argument(
         "--point-radius",
-        dest="point_radius",
+        dest="point_size",
         type=int,
         default=30,
         help="Radius of the visualised points",
@@ -298,8 +381,8 @@ def main():
         fit_degree=args.fit_degree,
         spline_smoothing=args.fit_smooth,
         region_alpha=args.region_alpha,
-        point_radius=args.point_radius,
-        spline_radius=args.spline_radius,
+        point_size=args.point_size,
+        spline_size=args.spline_size,
     )
 
 
