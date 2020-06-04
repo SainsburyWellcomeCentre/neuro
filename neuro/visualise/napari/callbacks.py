@@ -1,3 +1,5 @@
+from glob import glob
+from pathlib import Path
 from napari.qt.threading import thread_worker
 
 from brainio.brainio import load_any
@@ -19,6 +21,7 @@ from neuro.structures.structures_tree import (
     atlas_value_to_name,
     UnknownAtlasValue,
 )
+from neuro.visualise.napari.layers import view_spline
 
 
 def display_brain_region_name(layer, structures_df):
@@ -36,13 +39,14 @@ def display_brain_region_name(layer, structures_df):
 
 def track_analysis(
     viewer,
+    base_layer,
     scene,
-    track_points_file,
+    tracks_directory,
     points_layers,
     x_scaling,
     y_scaling,
     z_scaling,
-    summary_csv_file=None,
+    napari_spline_size,
     add_surface_to_points=True,
     spline_points=100,
     fit_degree=3,
@@ -50,32 +54,52 @@ def track_analysis(
     point_size=30,
     spline_size=10,
     summarise_track=True,
+    track_file_extension=".h5",
 ):
     max_z = len(viewer.layers[0].data)
     convert_and_save_points(
         points_layers,
-        track_points_file,
+        tracks_directory,
         x_scaling,
         y_scaling,
         z_scaling,
         max_z,
+        track_file_extension=track_file_extension,
     )
+    print(
+        f"Fitting splines with {spline_points} segments, of degree "
+        f"'{fit_degree}' to the points"
+    )
+    track_files = glob(str(tracks_directory) + "/*" + track_file_extension)
 
-    scene, spline = analyse_track(
-        scene,
-        track_points_file,
-        add_surface_to_points=add_surface_to_points,
-        spline_points=spline_points,
-        fit_degree=fit_degree,
-        spline_smoothing=spline_smoothing,
-        point_radius=point_size,
-        spline_radius=spline_size,
-    )
-    if summarise_track:
-        if summary_csv_file:
+    splines = []
+    for track_file in track_files:
+        scene, spline = analyse_track(
+            scene,
+            track_file,
+            add_surface_to_points=add_surface_to_points,
+            spline_points=spline_points,
+            fit_degree=fit_degree,
+            spline_smoothing=spline_smoothing,
+            point_radius=point_size,
+            spline_radius=spline_size,
+        )
+        splines.append(spline)
+        if summarise_track:
+            summary_csv_file = Path(track_file).with_suffix(".csv")
             analyse_track_anatomy(scene, spline, summary_csv_file)
+        view_spline(
+            viewer,
+            base_layer,
+            spline,
+            x_scaling,
+            y_scaling,
+            z_scaling,
+            napari_spline_size,
+            name=Path(track_file).stem + "_fit",
+        )
 
-    return scene, spline
+    return scene, splines
 
 
 @thread_worker

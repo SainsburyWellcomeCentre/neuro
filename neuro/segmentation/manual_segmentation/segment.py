@@ -18,7 +18,6 @@ from neuro.segmentation.manual_segmentation.parser import get_parser
 from neuro.visualise.napari.layers import (
     display_channel,
     prepare_load_nii,
-    view_spline,
     add_new_label_layer,
 )
 from neuro.visualise.napari.callbacks import (
@@ -29,6 +28,7 @@ from neuro.visualise.napari.callbacks import (
 
 from neuro.segmentation.manual_segmentation.man_seg_tools import (
     add_existing_label_layers,
+    # add_existing_track_layers,
     view_in_brainrender,
 )
 
@@ -45,6 +45,7 @@ def run(
     regions_to_add=[],
     point_size=30,
     spline_size=10,
+    track_file_extension=".h5",
 ):
     global x_scaling
     global y_scaling
@@ -110,16 +111,23 @@ def run(
 
         label_files = glob(str(paths.regions_directory) + "/*.nii")
         if paths.regions_directory.exists() and label_files != []:
-            label_layers = []
             for label_file in label_files:
                 label_layers.append(
                     add_existing_label_layers(
                         viewer, label_file, memory=memory
                     )
                 )
+        # track_files = glob(str(paths.tracks_directory) + "/*" + track_file_extension)
+        # if paths.tracks_directory.exists() and track_files != []:
+        #     for track_file in track_files:
+        #         track_files.append(
+        #             add_existing_track_layers(
+        #                 viewer, track_file
+        #             )
+        #         )
 
         @magicgui(
-            call_button="Extract track",
+            call_button="Extract tracks",
             layout="form",
             fit_degree={"widget_type": QSpinBox, "minimum": 1, "maximum": 5},
             spline_points={
@@ -143,17 +151,18 @@ def run(
         ):
             print("Running track analysis")
 
-            global spline
+            global splines
             global scene
-            scene, spline = track_analysis(
+            scene, splines = track_analysis(
                 viewer,
+                base_layer,
                 scene,
-                paths.track_points_file,
+                paths.tracks_directory,
                 points_layers,
                 x_scaling,
                 y_scaling,
                 z_scaling,
-                summary_csv_file=paths.probe_summary_csv,
+                napari_spline_size,
                 add_surface_to_points=add_surface_point,
                 spline_points=spline_points,
                 fit_degree=fit_degree,
@@ -161,20 +170,9 @@ def run(
                 point_size=point_size,
                 spline_size=spline_size,
                 summarise_track=summarise_track,
+                track_file_extension=track_file_extension,
             )
             print("Finished!\n")
-
-        @magicgui(call_button="Show spline", layout="vertical")
-        def run_view_spline():
-            view_spline(
-                viewer,
-                base_layer,
-                spline,
-                x_scaling,
-                y_scaling,
-                z_scaling,
-                napari_spline_size,
-            )
 
         @magicgui(call_button="Extract regions", layout="vertical")
         def run_region_analysis(
@@ -246,7 +244,7 @@ def run(
             QApplication.closeAllWindows()
             view_in_brainrender(
                 scene,
-                spline,
+                splines,
                 paths.regions_directory,
                 alpha=region_alpha,
                 shading=shading,
@@ -269,9 +267,6 @@ def run(
 
         viewer.window.add_dock_widget(
             to_brainrender.Gui(), name="Brainrender", area="right"
-        )
-        viewer.window.add_dock_widget(
-            run_view_spline.Gui(), name="View spline", area="right"
         )
 
         @region_labels.mouse_move_callbacks.append

@@ -31,8 +31,6 @@ class Paths:
         self.region_summary_csv = self.regions_directory / "summary.csv"
 
         self.tracks_directory = self.join("tracks")
-        self.track_points_file = self.tracks_directory / "points.h5"
-        self.probe_summary_csv = self.tracks_directory / "summary.csv"
 
     def join(self, filename):
         return self.registration_output_folder / filename

@@ -193,7 +193,14 @@ def add_new_label_layer(
 
 
 def view_spline(
-    viewer, image_layer, spline, x_scaling, y_scaling, z_scaling, spline_size
+    viewer,
+    image_layer,
+    spline,
+    x_scaling,
+    y_scaling,
+    z_scaling,
+    spline_size,
+    name="Spline fit",
 ):
     max_z = len(image_layer.data)
     napari_spline = convert_vtk_spline_to_napari_path(
@@ -207,5 +214,5 @@ def view_spline(
         face_color="cyan",
         blending="additive",
         opacity=0.7,
-        name="Spline fit",
+        name=name,
     )

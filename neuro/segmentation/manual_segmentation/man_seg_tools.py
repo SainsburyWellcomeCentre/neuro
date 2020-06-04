@@ -82,6 +82,9 @@ def summarise_single_brain_region(
     return df
 
 
+# def add_existing_track_layers(viewer, track_file):
+
+
 def add_existing_label_layers(
     viewer,
     label_file,
@@ -318,18 +321,19 @@ def get_volume_in_hemisphere(
 
 def convert_and_save_points(
     points_layers,
-    output_file,
+    output_directory,
     x_scaling,
     y_scaling,
     z_scaling,
     max_z,
     verbose=True,
+    track_file_extension=".h5",
 ):
     """
     Converts the points from the napari format (in image space) to brainrender
     (in atlas space)
     :param points_layers: list of points layers
-    :param output_file: path to save points to
+    :param output_directory: path to save points to
     :param x_scaling: scaling from image space to brainrender scene
     :param y_scaling: scaling from image space to brainrender scene
     :param z_scaling: scaling from image space to brainrender scene
@@ -338,23 +342,45 @@ def convert_and_save_points(
     """
     # TODO: implement for >1 track
 
-    output_file = Path(output_file)
+    output_directory = Path(output_directory)
 
     if verbose:
-        print(f"Saving points to: {output_file}")
-    ensure_directory_exists(output_file.parent)
+        print(f"Saving points to: {output_directory}")
+    ensure_directory_exists(output_directory)
 
-    cells = points_layers[0].data.astype(np.int16)
+    for points_layer in points_layers:
+        save_single_track_layer(
+            points_layer,
+            output_directory,
+            x_scaling,
+            y_scaling,
+            z_scaling,
+            max_z,
+            track_file_extension=track_file_extension,
+        )
+
+
+def save_single_track_layer(
+    layer,
+    output_directory,
+    x_scaling,
+    y_scaling,
+    z_scaling,
+    max_z,
+    track_file_extension=".h5",
+):
+    output_filename = output_directory / (layer.name + track_file_extension)
+    cells = layer.data.astype(np.int16)
     cells = pd.DataFrame(cells)
 
     cells.columns = ["x", "y", "z"]
 
-    # weird scalingdue to the ARA coordinate space
+    # weird scaling due to the ARA coordinate space
     cells["x"] = max_z - cells["x"]
     cells["x"] = z_scaling * cells["x"]
     cells["z"] = x_scaling * cells["z"]
     cells["y"] = y_scaling * cells["y"]
-    cells.to_hdf(output_file, key="df", mode="w")
+    cells.to_hdf(output_filename, key="df", mode="w")
 
 
 def analyse_track(
@@ -387,7 +413,6 @@ def analyse_track(
         spline: vtkplotter spline object
     """
     points = pd.read_hdf(points_file)
-    # scene = Scene(add_root=True)
     scene.add_cells(
         points,
         color_by_region=True,
@@ -405,10 +430,6 @@ def analyse_track(
     far_point = np.expand_dims(points[-1], axis=0)
     scene.add_vtkactor(Spheres(far_point, r=point_radius).color("n"))
 
-    print(
-        f"Fitting a spline with {spline_points} segments, of degree "
-        f"'{fit_degree}' to the points"
-    )
     spline = (
         Spline(
             points,
