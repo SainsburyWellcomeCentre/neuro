@@ -206,13 +206,11 @@ def run(
         @magicgui(call_button="Add track")
         def new_track():
             print("Adding a new track!")
-            points_layers.append(
-                viewer.add_points(
-                    n_dimensional=True,
-                    size=napari_point_size,
-                    name="new_track",
-                )
+            new_points_layer = viewer.add_points(
+                n_dimensional=True, size=napari_point_size, name="new_track",
             )
+            new_points_layer.mode = "ADD"
+            points_layers.append(new_points_layer)
 
         @magicgui(call_button="View in brainrender")
         def to_brainrender():
