@@ -229,7 +229,7 @@ def run(
         @magicgui(
             call_button="View in brainrender",
             layout="vertical",
-            regions_to_add={"choices": available_meshes},
+            region_to_add={"choices": available_meshes},
             region_alpha={
                 "widget_type": QDoubleSpinBox,
                 "minimum": 0,
@@ -248,7 +248,7 @@ def run(
             region_alpha: float = 0.8,
             structure_alpha: float = 0.8,
             shading="flat",
-            regions_to_add="",
+            region_to_add="",
         ):
             print("Closing viewer and viewing in brainrender.")
             QApplication.closeAllWindows()
