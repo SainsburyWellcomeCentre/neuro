@@ -193,15 +193,15 @@ def run(
         @magicgui(call_button="Add region")
         def new_region():
             print("Adding a new region!")
-            label_layers.append(
-                add_new_label_layer(
-                    viewer,
-                    registered_image,
-                    name="new_region",
-                    brush_size=brush_size,
-                    num_colors=num_colors,
-                )
+            new_label_layer = add_new_label_layer(
+                viewer,
+                registered_image,
+                name="new_region",
+                brush_size=brush_size,
+                num_colors=num_colors,
             )
+            new_label_layer.mode = "PAINT"
+            label_layers.append(new_label_layer)
 
         @magicgui(call_button="Add track")
         def new_track():
