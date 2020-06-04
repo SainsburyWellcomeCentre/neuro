@@ -40,14 +40,9 @@ BRAINRENDER_TO_NAPARI_SCALE = 0.3
 def run(
     image,
     registration_directory,
-    volumes=False,
-    summarise=False,
     num_colors=10,
     brush_size=30,
-    alpha=0.8,
-    shading="flat",
     regions_to_add=[],
-    region_alpha=0.3,
     point_size=30,
     spline_size=10,
 ):
@@ -173,8 +168,10 @@ def run(
                 napari_spline_size,
             )
 
-        @magicgui(call_button="Extract regions")
-        def run_region_analysis():
+        @magicgui(call_button="Extract regions", layout="vertical")
+        def run_region_analysis(
+            calculate_volumes=False, summarise_volumes=True
+        ):
             print("Running region analysis!")
             region_analysis(
                 label_layers,
@@ -184,8 +181,8 @@ def run(
                 paths.hemispheres,
                 image_like=paths.downsampled_image,
                 output_csv_file=paths.region_summary_csv,
-                volumes=volumes,
-                summarise=summarise,
+                volumes=calculate_volumes,
+                summarise=summarise_volumes,
             )
             QApplication.closeAllWindows()
 
@@ -211,33 +208,53 @@ def run(
             new_points_layer.mode = "ADD"
             points_layers.append(new_points_layer)
 
-        @magicgui(call_button="View in brainrender")
-        def to_brainrender():
+        @magicgui(
+            call_button="View in brainrender",
+            layout="vertical",
+            region_alpha={
+                "widget_type": QDoubleSpinBox,
+                "minimum": 0,
+                "maximum": 1,
+                "SingleStep": 0.1,
+            },
+            structure_alpha={
+                "widget_type": QDoubleSpinBox,
+                "minimum": 0,
+                "maximum": 1,
+                "SingleStep": 0.1,
+            },
+            shading={"choices": ["flat", "giroud", "phong"]},
+        )
+        def to_brainrender(
+            region_alpha: float = 0.8,
+            structure_alpha: float = 0.8,
+            shading="flat",
+        ):
             print("\nClosing viewer and viewing in brainrender")
             QApplication.closeAllWindows()
             view_in_brainrender(
                 scene,
                 spline,
                 paths.regions_directory,
-                alpha=alpha,
+                alpha=region_alpha,
                 shading=shading,
                 regions_to_add=regions_to_add,
-                region_alpha=region_alpha,
+                region_alpha=structure_alpha,
             )
 
         viewer.window.add_dock_widget(
-            run_track_analysis.Gui(), name="Track analysis"
+            new_track.Gui(), name="Add track", area="right"
         )
-
         viewer.window.add_dock_widget(
-            run_region_analysis.Gui(), name="Region analysis", area="right"
+            run_track_analysis.Gui(), name="Track analysis", area="right"
         )
         viewer.window.add_dock_widget(
             new_region.Gui(), name="Add region", area="right"
         )
         viewer.window.add_dock_widget(
-            new_track.Gui(), name="Add track", area="right"
+            run_region_analysis.Gui(), name="Region analysis", area="right"
         )
+
         viewer.window.add_dock_widget(
             to_brainrender.Gui(), name="Brainrender", area="right"
         )
@@ -252,13 +269,8 @@ def main():
     run(
         args.image,
         args.registration_directory,
-        volumes=args.volumes,
-        summarise=args.summarise,
-        shading=args.shading,
-        alpha=args.alpha,
         brush_size=args.brush_size,
         regions_to_add=args.regions,
-        region_alpha=args.region_alpha,
         point_size=args.point_size,
         spline_size=args.spline_size,
     )

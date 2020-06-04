@@ -18,32 +18,6 @@ def get_parser():
     )
     region_parser = parser.add_argument_group("Region segmentation options")
     region_parser.add_argument(
-        "--volumes",
-        dest="volumes",
-        action="store_true",
-        help="Calculate the volume of each brain area included in the "
-        "segmented region",
-    )
-    region_parser.add_argument(
-        "--summarise",
-        dest="summarise",
-        action="store_true",
-        help="Summarise each region (centers, volumes etc.)",
-    )
-    region_parser.add_argument(
-        "--shading",
-        type=str,
-        default="flat",
-        help="Object shading type for brainrender ('flat', 'giroud' or "
-        "'phong').",
-    )
-    region_parser.add_argument(
-        "--alpha",
-        type=float,
-        default=0.8,
-        help="Object transparency for brainrender.",
-    )
-    region_parser.add_argument(
         "--brush-size",
         dest="brush_size",
         type=int,
@@ -65,13 +39,6 @@ def get_parser():
         type=int,
         default=30,
         help="Radius of the visualised points",
-    )
-    path_parser.add_argument(
-        "--region-alpha",
-        dest="region_alpha",
-        type=float,
-        default=0.4,
-        help="Brain region transparency for brainrender.",
     )
     path_parser.add_argument(
         "--regions",
