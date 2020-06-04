@@ -10,7 +10,7 @@ from imlib.source.source_files import source_custom_config_amap
 from imlib.general.list import unique_elements_lists
 from imlib.general.system import ensure_directory_exists
 
-from neuro.visualise.vis_tools import prepare_load_nii
+from neuro.visualise.napari.layers import prepare_load_nii
 from neuro.generic_neuro_tools import save_brain
 from neuro.visualise.brainrender import volume_to_vector_array_to_obj_file
 from neuro.atlas_tools.array import lateralise_atlas

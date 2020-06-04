@@ -18,9 +18,9 @@ from imlib.general.system import (
 
 from neuro.segmentation.paths import Paths
 from neuro.generic_neuro_tools import transform_image_to_standard_space
-from neuro.visualise.vis_tools import display_channel, prepare_load_nii
+from neuro.visualise.napari.layers import display_channel, prepare_load_nii
 from neuro.visualise.brainrender import load_regions_into_brainrender
-from neuro.visualise.napari import add_new_label_layer
+from neuro.visualise.napari.layers import add_new_label_layer
 from neuro.structures.structures_tree import (
     atlas_value_to_name,
     UnknownAtlasValue,
