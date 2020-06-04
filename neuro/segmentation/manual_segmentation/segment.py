@@ -4,6 +4,8 @@ import napari
 from pathlib import Path
 from glob import glob
 from PySide2.QtWidgets import QApplication
+from qtpy.QtWidgets import QDoubleSpinBox, QSpinBox
+from magicgui import magicgui
 
 from brainrender.scene import Scene
 from brainio.brainio import load_any
@@ -36,19 +38,6 @@ from neuro.segmentation.manual_segmentation.man_seg_tools import (
 )
 from neuro.segmentation.manual_segmentation.parser import get_parser
 
-import enum
-import numpy
-import napari
-from napari.layers import Image
-from magicgui import magicgui
-
-from magicgui import magicgui
-from magicgui._qt import QDoubleSlider
-import napari
-from napari.layers import Image
-import skimage.data
-import skimage.filters
-from qtpy.QtWidgets import QSlider, QDoubleSpinBox, QSpinBox
 
 memory = False
 BRAINRENDER_TO_NAPARI_SCALE = 0.3
@@ -96,16 +85,6 @@ def run(
     )
 
     print("\nLoading manual segmentation GUI.\n ")
-
-    # TODO: change the instructions
-
-    print(
-        "Please 'colour in' the regions you would like to segment. \n "
-        "When you are done, press 'Alt-R' to save and exit. \n If you have "
-        "used the '--preview' flag, \n the region will be shown in 3D in "
-        "brainrender\n for you to inspect."
-    )
-
     with napari.gui_qt():
         global scene
         scene = Scene(add_root=True)
