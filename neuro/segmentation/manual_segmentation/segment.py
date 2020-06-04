@@ -8,29 +8,24 @@ from qtpy.QtWidgets import QDoubleSpinBox, QSpinBox
 from magicgui import magicgui
 
 from brainrender.scene import Scene
-from brainio.brainio import load_any
 from neuro.structures.IO import load_structures_as_df
 from imlib.source.source_files import get_structures_path
-from imlib.general.system import (
-    ensure_directory_exists,
-    delete_directory_contents,
-)
 
 from neuro.segmentation.paths import Paths
 from neuro.generic_neuro_tools import transform_image_to_standard_space
 from neuro.visualise.napari.layers import (
     display_channel,
     prepare_load_nii,
-    add_new_label_layer,
 )
-from neuro.visualise.napari.callbacks import display_brain_region_name
+from neuro.visualise.napari.callbacks import (
+    display_brain_region_name,
+    add_label_layer,
+    region_analysis,
+)
 from neuro.visualise.brainrender import load_regions_into_brainrender
 
 from neuro.segmentation.manual_segmentation.man_seg_tools import (
     add_existing_label_layers,
-    save_regions_to_file,
-    analyse_region_brain_areas,
-    summarise_brain_regions,
     convert_vtk_spline_to_napari_path,
     analyse_track,
     analyse_track_anatomy,
@@ -129,13 +124,12 @@ def run(
                     )
                 )
         else:
-            label_layers.append(
-                add_new_label_layer(
-                    viewer,
-                    registered_image,
-                    brush_size=brush_size,
-                    num_colors=num_colors,
-                )
+            add_label_layer(
+                viewer,
+                label_layers,
+                registered_image,
+                num_colors=num_colors,
+                brush_size=brush_size,
             )
 
         @magicgui(
@@ -202,71 +196,50 @@ def run(
                 name="Spline fit",
             )
 
-        track_gui = run_track_analysis.Gui()
-        viewer.window.add_dock_widget(track_gui)
-
-        @magicgui(call_button="Extract region", layout="vertical")
+        @magicgui(call_button="Extract region")
         def run_region_analysis():
             print("Running region analysis!")
-            ensure_directory_exists(paths.regions_directory)
-            delete_directory_contents(str(paths.regions_directory))
-            if volumes:
-                print("Calculating region volume distribution")
-                annotations = load_any(paths.annotations)
-                hemispheres = load_any(paths.hemispheres)
-
-                print(
-                    f"\nSaving summary volumes to: {paths.regions_directory}"
-                )
-                for label_layer in label_layers:
-                    analyse_region_brain_areas(
-                        label_layer,
-                        paths.regions_directory,
-                        annotations,
-                        hemispheres,
-                        structures_df,
-                    )
-            if summarise:
-                print("Summarising regions")
-                summarise_brain_regions(label_layers, paths.region_summary_csv)
-
-            print(f"\nSaving regions to: {paths.regions_directory}")
-            for label_layer in label_layers:
-                save_regions_to_file(
-                    label_layer,
-                    paths.regions_directory,
-                    paths.downsampled_image,
-                )
+            region_analysis(
+                label_layers,
+                structures_df,
+                paths.regions_directory,
+                paths.annotations,
+                paths.hemispheres,
+                image_like=paths.downsampled_image,
+                output_csv_file=paths.region_summary_csv,
+                volumes=volumes,
+                summarise=summarise,
+            )
             close_viewer(viewer)
 
-        region_gui = run_region_analysis.Gui()
-        viewer.window.add_dock_widget(region_gui)
+        @magicgui(call_button="Add region")
+        def new_region():
+            print("Adding a new region!")
+            add_label_layer(
+                viewer,
+                label_layers,
+                registered_image,
+                num_colors=num_colors,
+                brush_size=brush_size,
+            )
+
+        viewer.window.add_dock_widget(
+            run_track_analysis.Gui(), name="Track analysis"
+        )
+
+        viewer.window.add_dock_widget(
+            run_region_analysis.Gui(), name="Region analysis", area="right"
+        )
+        viewer.window.add_dock_widget(
+            new_region.Gui(), name="Add region", area="right"
+        )
 
         @region_labels.mouse_move_callbacks.append
         def display_region_name(layer, event):
             display_brain_region_name(layer, structures_df)
 
-        @viewer.bind_key("Control-N")
-        def add_region(viewer):
-            """
-            Add new region
-            """
-            print("\nAdding new region")
-            label_layers.append(
-                add_new_label_layer(
-                    viewer,
-                    registered_image,
-                    name="new_region",
-                    brush_size=brush_size,
-                    num_colors=num_colors,
-                )
-            )
-
         @viewer.bind_key("Control-X")
         def close_viewer(viewer):
-            """
-            Close viewer
-            """
             print("\nClosing viewer")
             QApplication.closeAllWindows()
 
