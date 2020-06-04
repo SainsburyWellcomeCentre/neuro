@@ -5,7 +5,6 @@ from pathlib import Path
 from skimage.measure import regionprops_table
 from vtkplotter import mesh, Spheres, Spline
 
-from brainrender.scene import Scene
 from imlib.pandas.misc import initialise_df
 from imlib.source.source_files import source_custom_config_amap
 from imlib.general.list import unique_elements_lists
