@@ -24,11 +24,12 @@ from neuro.visualise.napari.callbacks import (
     display_brain_region_name,
     region_analysis,
     track_analysis,
+    save_all,
 )
 
 from neuro.segmentation.manual_segmentation.man_seg_tools import (
     add_existing_label_layers,
-    # add_existing_track_layers,
+    add_existing_track_layers,
     view_in_brainrender,
 )
 
@@ -42,7 +43,6 @@ def run(
     registration_directory,
     num_colors=10,
     brush_size=30,
-    regions_to_add=[],
     point_size=30,
     spline_size=10,
     track_file_extension=".h5",
@@ -83,8 +83,8 @@ def run(
     with napari.gui_qt():
         global scene
         scene = Scene(add_root=True)
-        global spline
-        spline = None
+        global splines
+        splines = None
 
         viewer = napari.Viewer(title="Manual segmentation")
 
@@ -106,8 +106,8 @@ def run(
         global label_layers
         label_layers = []
 
-        global points_layers
-        points_layers = []
+        global track_layers
+        track_layers = []
 
         label_files = glob(str(paths.regions_directory) + "/*.nii")
         if paths.regions_directory.exists() and label_files != []:
@@ -117,14 +117,21 @@ def run(
                         viewer, label_file, memory=memory
                     )
                 )
-        # track_files = glob(str(paths.tracks_directory) + "/*" + track_file_extension)
-        # if paths.tracks_directory.exists() and track_files != []:
-        #     for track_file in track_files:
-        #         track_files.append(
-        #             add_existing_track_layers(
-        #                 viewer, track_file
-        #             )
-        #         )
+        track_files = glob(
+            str(paths.tracks_directory) + "/*" + track_file_extension
+        )
+        if paths.tracks_directory.exists() and track_files != []:
+            for track_file in track_files:
+                track_layers.append(
+                    add_existing_track_layers(
+                        viewer,
+                        track_file,
+                        napari_point_size,
+                        x_scaling,
+                        y_scaling,
+                        z_scaling,
+                    )
+                )
 
         @magicgui(
             call_button="Extract tracks",
@@ -158,7 +165,6 @@ def run(
                 base_layer,
                 scene,
                 paths.tracks_directory,
-                points_layers,
                 x_scaling,
                 y_scaling,
                 z_scaling,
@@ -174,7 +180,7 @@ def run(
             )
             print("Finished!\n")
 
-        @magicgui(call_button="Extract regions", layout="vertical")
+        @magicgui(call_button="Analyse regions", layout="vertical")
         def run_region_analysis(
             calculate_volumes=False, summarise_volumes=True
         ):
@@ -185,7 +191,6 @@ def run(
                 paths.regions_directory,
                 paths.annotations,
                 paths.hemispheres,
-                image_like=paths.downsampled_image,
                 output_csv_file=paths.region_summary_csv,
                 volumes=calculate_volumes,
                 summarise=summarise_volumes,
@@ -209,18 +214,22 @@ def run(
         @magicgui(call_button="Add track")
         def new_track():
             print("Adding a new track\n")
-            num = len(points_layers)
-            new_points_layer = viewer.add_points(
+            num = len(track_layers)
+            new_track_layers = viewer.add_points(
                 n_dimensional=True,
                 size=napari_point_size,
                 name=f"track_{num}",
             )
-            new_points_layer.mode = "ADD"
-            points_layers.append(new_points_layer)
+            new_track_layers.mode = "ADD"
+            track_layers.append(new_track_layers)
+
+        available_meshes = scene.atlas.all_avaliable_meshes
+        available_meshes.append("")
 
         @magicgui(
             call_button="View in brainrender",
             layout="vertical",
+            regions_to_add={"choices": available_meshes},
             region_alpha={
                 "widget_type": QDoubleSpinBox,
                 "minimum": 0,
@@ -239,6 +248,7 @@ def run(
             region_alpha: float = 0.8,
             structure_alpha: float = 0.8,
             shading="flat",
+            regions_to_add="",
         ):
             print("Closing viewer and viewing in brainrender.")
             QApplication.closeAllWindows()
@@ -251,6 +261,23 @@ def run(
                 regions_to_add=regions_to_add,
                 region_alpha=structure_alpha,
             )
+
+        @magicgui(call_button="Save")
+        def save():
+            print("Saving")
+            worker = save_all(
+                viewer,
+                paths.regions_directory,
+                paths.tracks_directory,
+                label_layers,
+                track_layers,
+                paths.downsampled_image,
+                x_scaling,
+                y_scaling,
+                z_scaling,
+                track_file_extension=track_file_extension,
+            )
+            worker.start()
 
         viewer.window.add_dock_widget(
             new_track.Gui(), name="Add track", area="left"
@@ -268,6 +295,7 @@ def run(
         viewer.window.add_dock_widget(
             to_brainrender.Gui(), name="Brainrender", area="right"
         )
+        viewer.window.add_dock_widget(save.Gui(), name="Saving", area="right")
 
         @region_labels.mouse_move_callbacks.append
         def display_region_name(layer, event):
@@ -280,7 +308,6 @@ def main():
         args.image,
         args.registration_directory,
         brush_size=args.brush_size,
-        regions_to_add=args.regions,
         point_size=args.point_size,
         spline_size=args.spline_size,
     )

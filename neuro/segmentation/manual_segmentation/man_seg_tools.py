@@ -82,7 +82,31 @@ def summarise_single_brain_region(
     return df
 
 
-# def add_existing_track_layers(viewer, track_file):
+def add_existing_track_layers(
+    viewer, track_file, point_size, x_scaling, y_scaling, z_scaling
+):
+    max_z = len(viewer.layers[0].data)
+    data = brainrender_track_to_napari(
+        track_file, x_scaling, y_scaling, z_scaling, max_z
+    )
+    new_points_layer = viewer.add_points(
+        data, n_dimensional=True, size=point_size, name=Path(track_file).stem,
+    )
+    new_points_layer.mode = "ADD"
+    return new_points_layer
+
+
+def brainrender_track_to_napari(
+    track_file, x_scaling, y_scaling, z_scaling, max_z
+):
+    points = pd.read_hdf(track_file)
+    points["x"] = points["x"] / z_scaling
+    points["z"] = points["z"] / x_scaling
+    points["y"] = points["y"] / y_scaling
+
+    points["x"] = max_z - points["x"]
+
+    return points.to_numpy().astype(np.int16)
 
 
 def add_existing_label_layers(
@@ -326,7 +350,6 @@ def convert_and_save_points(
     y_scaling,
     z_scaling,
     max_z,
-    verbose=True,
     track_file_extension=".h5",
 ):
     """
@@ -338,14 +361,9 @@ def convert_and_save_points(
     :param y_scaling: scaling from image space to brainrender scene
     :param z_scaling: scaling from image space to brainrender scene
     :param max_z: Maximum extent of the image in z
-    :param bool verbose: Whether to print the progress
     """
-    # TODO: implement for >1 track
 
     output_directory = Path(output_directory)
-
-    if verbose:
-        print(f"Saving points to: {output_directory}")
     ensure_directory_exists(output_directory)
 
     for points_layer in points_layers:

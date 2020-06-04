@@ -3,10 +3,7 @@ from pathlib import Path
 from napari.qt.threading import thread_worker
 
 from brainio.brainio import load_any
-from imlib.general.system import (
-    ensure_directory_exists,
-    delete_directory_contents,
-)
+from imlib.general.system import ensure_directory_exists
 from neuro.segmentation.manual_segmentation.man_seg_tools import (
     convert_and_save_points,
 )
@@ -42,7 +39,6 @@ def track_analysis(
     base_layer,
     scene,
     tracks_directory,
-    points_layers,
     x_scaling,
     y_scaling,
     z_scaling,
@@ -56,22 +52,12 @@ def track_analysis(
     summarise_track=True,
     track_file_extension=".h5",
 ):
-    max_z = len(viewer.layers[0].data)
-    convert_and_save_points(
-        points_layers,
-        tracks_directory,
-        x_scaling,
-        y_scaling,
-        z_scaling,
-        max_z,
-        track_file_extension=track_file_extension,
-    )
+
     print(
         f"Fitting splines with {spline_points} segments, of degree "
         f"'{fit_degree}' to the points"
     )
     track_files = glob(str(tracks_directory) + "/*" + track_file_extension)
-
     splines = []
     for track_file in track_files:
         scene, spline = analyse_track(
@@ -109,13 +95,10 @@ def region_analysis(
     regions_directory,
     annotations_path,
     hemispheres_path,
-    image_like,
     output_csv_file=None,
     volumes=True,
     summarise=True,
 ):
-    ensure_directory_exists(regions_directory)
-    delete_directory_contents(str(regions_directory))
     if volumes:
         print("Calculating region volume distribution")
         annotations = load_any(annotations_path)
@@ -135,9 +118,63 @@ def region_analysis(
             print("Summarising regions")
             summarise_brain_regions(label_layers, output_csv_file)
 
+    print("Finished!\n")
+
+
+@thread_worker
+def save_all(
+    viewer,
+    regions_directory,
+    tracks_directory,
+    label_layers,
+    points_layers,
+    image_like,
+    x_scaling,
+    y_scaling,
+    z_scaling,
+    track_file_extension=".h5",
+):
+    save_label_layers(regions_directory, label_layers, image_like)
+    save_track_layers(
+        viewer,
+        tracks_directory,
+        points_layers,
+        x_scaling,
+        y_scaling,
+        z_scaling,
+        track_file_extension=track_file_extension,
+    )
+    print("Finished!\n")
+
+
+def save_label_layers(
+    regions_directory, label_layers, image_like,
+):
     print(f"Saving regions to: {regions_directory}")
+    ensure_directory_exists(regions_directory)
     for label_layer in label_layers:
         save_regions_to_file(
             label_layer, regions_directory, image_like,
         )
-    print("Finished!\n")
+
+
+def save_track_layers(
+    viewer,
+    tracks_directory,
+    points_layers,
+    x_scaling,
+    y_scaling,
+    z_scaling,
+    track_file_extension=".h5",
+):
+    print(f"Saving tracks to: {tracks_directory}")
+    max_z = len(viewer.layers[0].data)
+    convert_and_save_points(
+        points_layers,
+        tracks_directory,
+        x_scaling,
+        y_scaling,
+        z_scaling,
+        max_z,
+        track_file_extension=track_file_extension,
+    )

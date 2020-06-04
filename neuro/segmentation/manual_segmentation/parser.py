@@ -40,12 +40,4 @@ def get_parser():
         default=30,
         help="Radius of the visualised points",
     )
-    path_parser.add_argument(
-        "--regions",
-        dest="regions",
-        default=[],
-        nargs="+",
-        help="Brain regions to render, as acronyms. e.g. 'VISp MOp1'",
-    )
-
     return parser
