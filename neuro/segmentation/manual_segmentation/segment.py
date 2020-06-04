@@ -62,7 +62,7 @@ def run(
     if not paths.tmp__inverse_transformed_image.exists():
         print(
             f"The image: '{image}' has not been transformed into standard "
-            f"space, and so must be transformed before segmentation."
+            f"space, and so must be transformed before segmentation.\n"
         )
         transform_image_to_standard_space(
             registration_directory,
@@ -72,13 +72,13 @@ def run(
             error_file_path=paths.tmp__inverse_transform_error_path,
         )
     else:
-        print("Registered image exists, skipping registration")
+        print("Registered image exists, skipping registration\n")
 
     registered_image = prepare_load_nii(
         paths.tmp__inverse_transformed_image, memory=memory
     )
 
-    print("\nLoading manual segmentation GUI.\n ")
+    print("Loading manual segmentation GUI.\n ")
     with napari.gui_qt():
         global scene
         scene = Scene(add_root=True)
@@ -86,6 +86,7 @@ def run(
         spline = None
 
         viewer = napari.Viewer(title="Manual segmentation")
+
         base_layer = display_channel(
             viewer,
             registration_directory,
@@ -161,6 +162,7 @@ def run(
                 spline_size=spline_size,
                 summarise_track=summarise_track,
             )
+            print("Finished!\n")
 
         @magicgui(call_button="Show spline", layout="vertical")
         def run_view_spline():
@@ -178,8 +180,8 @@ def run(
         def run_region_analysis(
             calculate_volumes=False, summarise_volumes=True
         ):
-            print("Running region analysis!")
-            region_analysis(
+            print("Running region analysis")
+            worker = region_analysis(
                 label_layers,
                 structures_df,
                 paths.regions_directory,
@@ -190,15 +192,16 @@ def run(
                 volumes=calculate_volumes,
                 summarise=summarise_volumes,
             )
-            QApplication.closeAllWindows()
+            worker.start()
 
         @magicgui(call_button="Add region")
         def new_region():
-            print("Adding a new region!")
+            print("Adding a new region\n")
+            num = len(label_layers)
             new_label_layer = add_new_label_layer(
                 viewer,
                 registered_image,
-                name="new_region",
+                name=f"region_{num}",
                 brush_size=brush_size,
                 num_colors=num_colors,
             )
@@ -207,9 +210,12 @@ def run(
 
         @magicgui(call_button="Add track")
         def new_track():
-            print("Adding a new track!")
+            print("Adding a new track\n")
+            num = len(points_layers)
             new_points_layer = viewer.add_points(
-                n_dimensional=True, size=napari_point_size, name="new_track",
+                n_dimensional=True,
+                size=napari_point_size,
+                name=f"track_{num}",
             )
             new_points_layer.mode = "ADD"
             points_layers.append(new_points_layer)
@@ -236,7 +242,7 @@ def run(
             structure_alpha: float = 0.8,
             shading="flat",
         ):
-            print("\nClosing viewer and viewing in brainrender")
+            print("Closing viewer and viewing in brainrender.")
             QApplication.closeAllWindows()
             view_in_brainrender(
                 scene,

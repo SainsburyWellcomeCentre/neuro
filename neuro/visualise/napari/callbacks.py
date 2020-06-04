@@ -1,3 +1,5 @@
+from napari.qt.threading import thread_worker
+
 from brainio.brainio import load_any
 from imlib.general.system import (
     ensure_directory_exists,
@@ -76,6 +78,7 @@ def track_analysis(
     return scene, spline
 
 
+@thread_worker
 def region_analysis(
     label_layers,
     structures_df,
@@ -94,7 +97,7 @@ def region_analysis(
         annotations = load_any(annotations_path)
         hemispheres = load_any(hemispheres_path)
 
-        print(f"\nSaving summary volumes to: {regions_directory}")
+        print(f"Saving summary volumes to: {regions_directory}")
         for label_layer in label_layers:
             analyse_region_brain_areas(
                 label_layer,
@@ -108,8 +111,9 @@ def region_analysis(
             print("Summarising regions")
             summarise_brain_regions(label_layers, output_csv_file)
 
-    print(f"\nSaving regions to: {regions_directory}")
+    print(f"Saving regions to: {regions_directory}")
     for label_layer in label_layers:
         save_regions_to_file(
             label_layer, regions_directory, image_like,
         )
+    print("Finished!\n")
