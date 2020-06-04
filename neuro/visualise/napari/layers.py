@@ -12,6 +12,7 @@ from neuro.visualise.vis_tools import (
     get_most_recent_log,
     read_log_file,
 )
+from neuro.visualise.napari.utils import convert_vtk_spline_to_napari_path
 
 
 label_red = Colormap([[0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0]])
@@ -189,3 +190,22 @@ def add_new_label_layer(
     label_layer.selected_label = selected_label
     label_layer.brush_size = brush_size
     return label_layer
+
+
+def view_spline(
+    viewer, image_layer, spline, x_scaling, y_scaling, z_scaling, spline_size
+):
+    max_z = len(image_layer.data)
+    napari_spline = convert_vtk_spline_to_napari_path(
+        spline, x_scaling, y_scaling, z_scaling, max_z
+    )
+
+    viewer.add_points(
+        napari_spline,
+        size=spline_size,
+        edge_color="cyan",
+        face_color="cyan",
+        blending="additive",
+        opacity=0.7,
+        name="Spline fit",
+    )

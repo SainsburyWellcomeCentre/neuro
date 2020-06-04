@@ -353,26 +353,6 @@ def convert_and_save_points(
     cells.to_hdf(output_file, key="df", mode="w")
 
 
-def convert_vtk_spline_to_napari_path(
-    spline, x_scaling, y_scaling, z_scaling, max_z
-):
-    """
-    Converts a vtkplotter spline object to points that can be rendered in
-    napari
-    :param spline: vtkplotter spline object
-    :param x_scaling: scaling from image space to brainrender scene
-    :param y_scaling: scaling from image space to brainrender scene
-    :param z_scaling: scaling from image space to brainrender scene
-    :param max_z: Maximum extent of the image in z
-    :return: np.array of spline points
-    """
-    napari_spline = np.copy(spline.points())
-    napari_spline[:, 0] = (z_scaling * max_z - napari_spline[:, 0]) / z_scaling
-    napari_spline[:, 1] = napari_spline[:, 1] / y_scaling
-    napari_spline[:, 2] = napari_spline[:, 2] / x_scaling
-    return napari_spline.astype(np.int16)
-
-
 def analyse_track(
     scene,
     points_file,
@@ -533,4 +513,3 @@ def display_track_in_brainrender(
     scene.add_brain_regions(regions_to_add, alpha=region_alpha)
     scene.verbose = False
     return scene
-    # scene.render()

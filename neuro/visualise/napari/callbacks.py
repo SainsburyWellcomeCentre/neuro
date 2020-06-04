@@ -1,18 +1,22 @@
-from neuro.structures.structures_tree import (
-    atlas_value_to_name,
-    UnknownAtlasValue,
-)
-from neuro.visualise.napari.layers import add_new_label_layer
-
 from brainio.brainio import load_any
 from imlib.general.system import (
     ensure_directory_exists,
     delete_directory_contents,
 )
+from neuro.visualise.napari.layers import add_new_label_layer
+from neuro.segmentation.manual_segmentation.man_seg_tools import (
+    convert_and_save_points,
+)
 from neuro.segmentation.manual_segmentation.man_seg_tools import (
     save_regions_to_file,
     analyse_region_brain_areas,
     summarise_brain_regions,
+    analyse_track,
+    analyse_track_anatomy,
+)
+from neuro.structures.structures_tree import (
+    atlas_value_to_name,
+    UnknownAtlasValue,
 )
 
 
@@ -41,6 +45,50 @@ def add_label_layer(
             num_colors=num_colors,
         )
     )
+
+
+def track_analysis(
+    viewer,
+    scene,
+    track_points_file,
+    points_layers,
+    x_scaling,
+    y_scaling,
+    z_scaling,
+    summary_csv_file=None,
+    add_surface_to_points=True,
+    spline_points=100,
+    fit_degree=3,
+    spline_smoothing=0.05,
+    point_size=30,
+    spline_size=10,
+    summarise_track=True,
+):
+    max_z = len(viewer.layers[0].data)
+    convert_and_save_points(
+        points_layers,
+        track_points_file,
+        x_scaling,
+        y_scaling,
+        z_scaling,
+        max_z,
+    )
+
+    scene, spline = analyse_track(
+        scene,
+        track_points_file,
+        add_surface_to_points=add_surface_to_points,
+        spline_points=spline_points,
+        fit_degree=fit_degree,
+        spline_smoothing=spline_smoothing,
+        point_radius=point_size,
+        spline_radius=spline_size,
+    )
+    if summarise_track:
+        if summary_csv_file:
+            analyse_track_anatomy(scene, spline, summary_csv_file)
+
+    return scene, spline
 
 
 def region_analysis(

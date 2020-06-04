@@ -13,26 +13,25 @@ from imlib.source.source_files import get_structures_path
 
 from neuro.segmentation.paths import Paths
 from neuro.generic_neuro_tools import transform_image_to_standard_space
+from neuro.segmentation.manual_segmentation.parser import get_parser
+from neuro.visualise.brainrender import load_regions_into_brainrender
+
 from neuro.visualise.napari.layers import (
     display_channel,
     prepare_load_nii,
+    view_spline,
 )
 from neuro.visualise.napari.callbacks import (
     display_brain_region_name,
     add_label_layer,
     region_analysis,
+    track_analysis,
 )
-from neuro.visualise.brainrender import load_regions_into_brainrender
 
 from neuro.segmentation.manual_segmentation.man_seg_tools import (
     add_existing_label_layers,
-    convert_vtk_spline_to_napari_path,
-    analyse_track,
-    analyse_track_anatomy,
     display_track_in_brainrender,
-    convert_and_save_points,
 )
-from neuro.segmentation.manual_segmentation.parser import get_parser
 
 
 memory = False
@@ -86,7 +85,7 @@ def run(
         scene = Scene(add_root=True)
 
         viewer = napari.Viewer(title="Manual segmentation")
-        display_channel(
+        base_layer = display_channel(
             viewer,
             registration_directory,
             paths.tmp__inverse_transformed_image,
@@ -139,7 +138,7 @@ def run(
             spline_points={
                 "widget_type": QSpinBox,
                 "minimum": 1,
-                "maximum": 1000,
+                "maximum": 10000,
             },
             spline_smoothing={
                 "widget_type": QDoubleSpinBox,
@@ -150,7 +149,7 @@ def run(
         )
         def run_track_analysis(
             fit_degree: int = 3,
-            spline_points: int = 100,
+            spline_points: int = 1000,
             spline_smoothing: float = 0.1,
             x_scaling: float = 10,
             y_scaling: float = 10,
@@ -158,42 +157,36 @@ def run(
             summarise_track=True,
         ):
             print("Running track analysis")
-            max_z = len(viewer.layers[0].data)
-            convert_and_save_points(
-                points_layers,
-                paths.track_points_file,
-                x_scaling,
-                y_scaling,
-                z_scaling,
-                max_z,
-            )
 
             global spline
             global scene
-            scene, spline = analyse_track(
+
+            scene, spline = track_analysis(
+                viewer,
                 scene,
                 paths.track_points_file,
+                points_layers,
+                x_scaling,
+                y_scaling,
+                z_scaling,
+                summary_csv_file=paths.probe_summary_csv,
                 add_surface_to_points=add_surface_to_points,
                 spline_points=spline_points,
                 fit_degree=fit_degree,
                 spline_smoothing=spline_smoothing,
-                point_radius=point_size,
-                spline_radius=spline_size,
-            )
-            if summarise_track:
-                analyse_track_anatomy(scene, spline, paths.probe_summary_csv)
-            napari_spline = convert_vtk_spline_to_napari_path(
-                spline, x_scaling, y_scaling, z_scaling, max_z
+                point_size=point_size,
+                spline_size=spline_size,
+                summarise_track=summarise_track,
             )
 
-            viewer.add_points(
-                napari_spline,
-                size=napari_spline_size,
-                edge_color="cyan",
-                face_color="cyan",
-                blending="additive",
-                opacity=0.7,
-                name="Spline fit",
+            view_spline(
+                viewer,
+                base_layer,
+                spline,
+                x_scaling,
+                y_scaling,
+                z_scaling,
+                napari_spline_size,
             )
 
         @magicgui(call_button="Extract region")
