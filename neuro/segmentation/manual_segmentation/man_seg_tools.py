@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from glob import glob
 from pathlib import Path
 from skimage.measure import regionprops_table
 from vtkplotter import mesh, Spheres, Spline
@@ -12,7 +13,10 @@ from imlib.general.system import ensure_directory_exists
 
 from neuro.visualise.napari.layers import prepare_load_nii
 from neuro.generic_neuro_tools import save_brain
-from neuro.visualise.brainrender import volume_to_vector_array_to_obj_file
+from neuro.visualise.brainrender import (
+    volume_to_vector_array_to_obj_file,
+    load_regions_into_brainrender,
+)
 from neuro.atlas_tools.array import lateralise_atlas
 from neuro.atlas_tools.misc import get_voxel_volume, get_atlas_pixel_sizes
 from neuro.structures.structures_tree import (
@@ -513,3 +517,29 @@ def display_track_in_brainrender(
     scene.add_brain_regions(regions_to_add, alpha=region_alpha)
     scene.verbose = False
     return scene
+
+
+def view_in_brainrender(
+    scene,
+    spline,
+    regions_directory,
+    alpha=0.8,
+    shading="flat",
+    regions_to_add=[],
+    region_alpha=0.3,
+):
+    obj_files = glob(str(regions_directory) + "/*.obj")
+    if obj_files:
+        scene = load_regions_into_brainrender(
+            scene, obj_files, alpha=alpha, shading=shading
+        )
+    try:
+        scene = display_track_in_brainrender(
+            scene,
+            spline,
+            regions_to_add=regions_to_add,
+            region_alpha=region_alpha,
+        )
+    except:
+        pass
+    scene.render()

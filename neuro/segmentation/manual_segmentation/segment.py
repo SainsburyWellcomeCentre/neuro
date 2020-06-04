@@ -14,7 +14,6 @@ from imlib.source.source_files import get_structures_path
 from neuro.segmentation.paths import Paths
 from neuro.generic_neuro_tools import transform_image_to_standard_space
 from neuro.segmentation.manual_segmentation.parser import get_parser
-from neuro.visualise.brainrender import load_regions_into_brainrender
 
 from neuro.visualise.napari.layers import (
     display_channel,
@@ -30,10 +29,9 @@ from neuro.visualise.napari.callbacks import (
 
 from neuro.segmentation.manual_segmentation.man_seg_tools import (
     add_existing_label_layers,
-    display_track_in_brainrender,
+    view_in_brainrender,
 )
 
-from napari.qt.threading import thread_worker
 
 memory = False
 BRAINRENDER_TO_NAPARI_SCALE = 0.3
@@ -82,6 +80,8 @@ def run(
     with napari.gui_qt():
         global scene
         scene = Scene(add_root=True)
+        global spline
+        spline = None
 
         viewer = napari.Viewer(title="Manual segmentation")
         base_layer = display_channel(
@@ -145,7 +145,6 @@ def run(
 
             global spline
             global scene
-
             scene, spline = track_analysis(
                 viewer,
                 scene,
@@ -218,6 +217,7 @@ def run(
             QApplication.closeAllWindows()
             view_in_brainrender(
                 scene,
+                spline,
                 paths.regions_directory,
                 alpha=alpha,
                 shading=shading,
@@ -245,44 +245,6 @@ def run(
         @region_labels.mouse_move_callbacks.append
         def display_region_name(layer, event):
             display_brain_region_name(layer, structures_df)
-
-        # @viewer.bind_key("Alt-X")
-        # def preview(viewer):
-        #     print("\nClosing viewer and viewing in brainrender")
-        #     QApplication.closeAllWindows()
-        #     view_in_brainrender(
-        #         scene,
-        #         paths.regions_directory,
-        #         alpha=alpha,
-        #         shading=shading,
-        #         regions_to_add=regions_to_add,
-        #         region_alpha=region_alpha,
-        #     )
-
-
-def view_in_brainrender(
-    scene,
-    regions_directory,
-    alpha=0.8,
-    shading="flat",
-    regions_to_add=[],
-    region_alpha=0.3,
-):
-    obj_files = glob(str(regions_directory) + "/*.obj")
-    if obj_files:
-        scene = load_regions_into_brainrender(
-            scene, obj_files, alpha=alpha, shading=shading
-        )
-    try:
-        scene = display_track_in_brainrender(
-            scene,
-            spline,
-            regions_to_add=regions_to_add,
-            region_alpha=region_alpha,
-        )
-    except:
-        pass
-    scene.render()
 
 
 def main():
