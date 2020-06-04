@@ -3,7 +3,6 @@ from imlib.general.system import (
     ensure_directory_exists,
     delete_directory_contents,
 )
-from neuro.visualise.napari.layers import add_new_label_layer
 from neuro.segmentation.manual_segmentation.man_seg_tools import (
     convert_and_save_points,
 )
@@ -31,20 +30,6 @@ def display_brain_region_name(layer, structures_df):
     else:
         msg = "No label here!"
     layer.help = msg
-
-
-def add_label_layer(
-    viewer, label_layers, image_like, num_colors=10, brush_size=30
-):
-    label_layers.append(
-        add_new_label_layer(
-            viewer,
-            image_like,
-            name="new_region",
-            brush_size=brush_size,
-            num_colors=num_colors,
-        )
-    )
 
 
 def track_analysis(

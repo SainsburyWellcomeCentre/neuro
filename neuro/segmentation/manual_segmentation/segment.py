@@ -20,10 +20,10 @@ from neuro.visualise.napari.layers import (
     display_channel,
     prepare_load_nii,
     view_spline,
+    add_new_label_layer,
 )
 from neuro.visualise.napari.callbacks import (
     display_brain_region_name,
-    add_label_layer,
     region_analysis,
     track_analysis,
 )
@@ -48,7 +48,6 @@ def run(
     brush_size=30,
     alpha=0.8,
     shading="flat",
-    add_surface_to_points=True,
     regions_to_add=[],
     region_alpha=0.3,
     point_size=30,
@@ -115,14 +114,6 @@ def run(
                         viewer, label_file, memory=memory
                     )
                 )
-        else:
-            add_label_layer(
-                viewer,
-                label_layers,
-                registered_image,
-                num_colors=num_colors,
-                brush_size=brush_size,
-            )
 
         @magicgui(
             call_button="Extract track",
@@ -148,6 +139,7 @@ def run(
             y_scaling: float = 10,
             z_scaling: float = 10,
             summarise_track=True,
+            add_surface_point=False,
         ):
             print("Running track analysis")
 
@@ -163,7 +155,7 @@ def run(
                 y_scaling,
                 z_scaling,
                 summary_csv_file=paths.probe_summary_csv,
-                add_surface_to_points=add_surface_to_points,
+                add_surface_to_points=add_surface_point,
                 spline_points=spline_points,
                 fit_degree=fit_degree,
                 spline_smoothing=spline_smoothing,
@@ -182,7 +174,7 @@ def run(
                 napari_spline_size,
             )
 
-        @magicgui(call_button="Extract region")
+        @magicgui(call_button="Extract regions")
         def run_region_analysis():
             print("Running region analysis!")
             region_analysis(
@@ -201,12 +193,14 @@ def run(
         @magicgui(call_button="Add region")
         def new_region():
             print("Adding a new region!")
-            add_label_layer(
-                viewer,
-                label_layers,
-                registered_image,
-                num_colors=num_colors,
-                brush_size=brush_size,
+            label_layers.append(
+                add_new_label_layer(
+                    viewer,
+                    registered_image,
+                    name="new_region",
+                    brush_size=brush_size,
+                    num_colors=num_colors,
+                )
             )
 
         @magicgui(call_button="Add track")
@@ -272,7 +266,6 @@ def main():
         shading=args.shading,
         alpha=args.alpha,
         brush_size=args.brush_size,
-        add_surface_to_points=args.add_surface_to_points,
         regions_to_add=args.regions,
         region_alpha=args.region_alpha,
         point_size=args.point_size,

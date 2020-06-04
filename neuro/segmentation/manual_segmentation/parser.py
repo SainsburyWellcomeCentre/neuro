@@ -59,13 +59,6 @@ def get_parser():
     )
 
     path_parser = parser.add_argument_group("Path segmentation options")
-    path_parser.add_argument(
-        "--surface-point",
-        dest="add_surface_to_points",
-        action="store_true",
-        help="Find the closest part of the brain surface to the first point,"
-        "and include that as a point for the spline fit.",
-    )
     parser.add_argument(
         "--spline-radius",
         dest="spline_size",
