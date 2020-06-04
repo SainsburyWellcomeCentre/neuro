@@ -46,6 +46,13 @@ def run(
     point_size=30,
     spline_size=10,
 ):
+    global x_scaling
+    global y_scaling
+    global z_scaling
+    x_scaling = 10
+    y_scaling = 10
+    z_scaling = 10
+
     napari_point_size = int(BRAINRENDER_TO_NAPARI_SCALE * point_size)
     napari_spline_size = int(BRAINRENDER_TO_NAPARI_SCALE * spline_size)
 
@@ -130,9 +137,6 @@ def run(
             fit_degree: int = 3,
             spline_points: int = 1000,
             spline_smoothing: float = 0.1,
-            x_scaling: float = 10,
-            y_scaling: float = 10,
-            z_scaling: float = 10,
             summarise_track=True,
             add_surface_point=False,
         ):
@@ -158,6 +162,8 @@ def run(
                 summarise_track=summarise_track,
             )
 
+        @magicgui(call_button="Show spline", layout="vertical")
+        def run_view_spline():
             view_spline(
                 viewer,
                 base_layer,
@@ -243,13 +249,13 @@ def run(
             )
 
         viewer.window.add_dock_widget(
-            new_track.Gui(), name="Add track", area="right"
+            new_track.Gui(), name="Add track", area="left"
         )
         viewer.window.add_dock_widget(
             run_track_analysis.Gui(), name="Track analysis", area="right"
         )
         viewer.window.add_dock_widget(
-            new_region.Gui(), name="Add region", area="right"
+            new_region.Gui(), name="Add region", area="left"
         )
         viewer.window.add_dock_widget(
             run_region_analysis.Gui(), name="Region analysis", area="right"
@@ -257,6 +263,9 @@ def run(
 
         viewer.window.add_dock_widget(
             to_brainrender.Gui(), name="Brainrender", area="right"
+        )
+        viewer.window.add_dock_widget(
+            run_view_spline.Gui(), name="View spline", area="right"
         )
 
         @region_labels.mouse_move_callbacks.append
