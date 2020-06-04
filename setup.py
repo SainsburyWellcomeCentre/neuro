@@ -54,10 +54,6 @@ setup(
             "amap_vis = neuro.visualise.amap_vis:main",
             "fibre_track = "
             "neuro.segmentation.lesion_and_track_tools.fiber_tract_viewer:main",
-            "manual_region_seg = "
-            "neuro.segmentation.manual_region_segmentation.segment:main",
-            "track_seg = "
-            "neuro.segmentation.track_segmentation.segment:main",
             "manual_seg = "
             "neuro.segmentation.manual_segmentation.segment:main",
         ]
