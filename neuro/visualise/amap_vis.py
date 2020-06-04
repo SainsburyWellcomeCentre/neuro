@@ -8,6 +8,8 @@ from neuro.structures.structures_tree import (
 )
 from neuro.atlas_tools.paths import Paths
 from imlib.source.source_files import get_structures_path
+from neuro.visualise.napari.callbacks import display_brain_region_name
+
 from neuro.visualise.napari.layers import (
     display_raw,
     display_downsampled,
@@ -60,8 +62,7 @@ def main():
     print("Starting amap viewer")
     args = parser().parse_args()
 
-    structures_path = get_structures_path()
-    structures_df = load_structures_as_df(structures_path)
+    structures_df = load_structures_as_df(get_structures_path())
 
     if not args.memory:
         print(
@@ -93,7 +94,7 @@ def main():
                         f"directory and that amap has completed. "
                     )
 
-            labels = display_registration(
+            region_labels = display_registration(
                 v,
                 paths.registered_atlas_path,
                 paths.boundaries_file_path,
@@ -101,18 +102,9 @@ def main():
                 memory=args.memory,
             )
 
-            @labels.mouse_move_callbacks.append
+            @region_labels.mouse_move_callbacks.append
             def display_region_name(layer, event):
-                val = layer.get_value()
-                if val != 0 and val is not None:
-                    try:
-                        region = atlas_value_to_name(val, structures_df)
-                        msg = f"{region}"
-                    except UnknownAtlasValue:
-                        msg = "Unknown region"
-                else:
-                    msg = "No label here!"
-                layer.help = msg
+                display_brain_region_name(layer, structures_df)
 
         else:
             raise FileNotFoundError(

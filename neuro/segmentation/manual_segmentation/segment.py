@@ -18,13 +18,14 @@ from imlib.general.system import (
 
 from neuro.segmentation.paths import Paths
 from neuro.generic_neuro_tools import transform_image_to_standard_space
-from neuro.visualise.napari.layers import display_channel, prepare_load_nii
-from neuro.visualise.brainrender import load_regions_into_brainrender
-from neuro.visualise.napari.layers import add_new_label_layer
-from neuro.structures.structures_tree import (
-    atlas_value_to_name,
-    UnknownAtlasValue,
+from neuro.visualise.napari.layers import (
+    display_channel,
+    prepare_load_nii,
+    add_new_label_layer,
 )
+from neuro.visualise.napari.callbacks import display_brain_region_name
+from neuro.visualise.brainrender import load_regions_into_brainrender
+
 from neuro.segmentation.manual_segmentation.man_seg_tools import (
     add_existing_label_layers,
     save_regions_to_file,
@@ -103,8 +104,7 @@ def run(
             opacity=0.2,
             visible=False,
         )
-        structures_path = get_structures_path()
-        structures_df = load_structures_as_df(structures_path)
+        structures_df = load_structures_as_df(get_structures_path())
 
         global label_layers
         label_layers = []
@@ -214,9 +214,6 @@ def run(
                 print("Calculating region volume distribution")
                 annotations = load_any(paths.annotations)
                 hemispheres = load_any(paths.hemispheres)
-                structures_reference_df = load_structures_as_df(
-                    get_structures_path()
-                )
 
                 print(
                     f"\nSaving summary volumes to: {paths.regions_directory}"
@@ -227,7 +224,7 @@ def run(
                         paths.regions_directory,
                         annotations,
                         hemispheres,
-                        structures_reference_df,
+                        structures_df,
                     )
             if summarise:
                 print("Summarising regions")
@@ -247,16 +244,7 @@ def run(
 
         @region_labels.mouse_move_callbacks.append
         def display_region_name(layer, event):
-            val = layer.get_value()
-            if val != 0 and val is not None:
-                try:
-                    region = atlas_value_to_name(val, structures_df)
-                    msg = f"{region}"
-                except UnknownAtlasValue:
-                    msg = "Unknown region"
-            else:
-                msg = "No label here!"
-            layer.help = msg
+            display_brain_region_name(layer, structures_df)
 
         @viewer.bind_key("Control-N")
         def add_region(viewer):
