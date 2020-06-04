@@ -66,28 +66,6 @@ def get_parser():
         help="Find the closest part of the brain surface to the first point,"
         "and include that as a point for the spline fit.",
     )
-    # path_parser.add_argument(
-    #     "--probe-sites",
-    #     dest="probe_sites",
-    #     type=int,
-    #     default=1000,
-    #     help="How many segments should the probehave",
-    # )
-    # path_parser.add_argument(
-    #     "--fit-degree",
-    #     dest="fit_degree",
-    #     type=int,
-    #     default=2,
-    #     help="Degree of the spline fit (1<degree<5)",
-    # )
-    # path_parser.add_argument(
-    #     "--fit-smooth",
-    #     dest="fit_smooth",
-    #     type=float,
-    #     default=0.05,
-    #     help="Smoothing factor for the spline fit, between 0 (interpolate "
-    #     "points exactly) and 1 (average point positions).",
-    # )
     parser.add_argument(
         "--spline-radius",
         dest="spline_size",

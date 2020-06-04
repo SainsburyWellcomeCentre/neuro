@@ -66,9 +66,6 @@ def run(
     shading="flat",
     add_surface_to_points=True,
     regions_to_add=[],
-    # probe_sites=1000,
-    # fit_degree=2,
-    # spline_smoothing=0.05,
     region_alpha=0.3,
     point_size=30,
     spline_size=10,
@@ -164,7 +161,7 @@ def run(
 
         @magicgui(
             call_button="Extract track",
-            name={"fixedWidth": 500},
+            layout="form",
             fit_degree={"widget_type": QSpinBox, "minimum": 1, "maximum": 5},
             spline_points={
                 "widget_type": QSpinBox,
@@ -182,16 +179,12 @@ def run(
             fit_degree: int = 3,
             spline_points: int = 100,
             spline_smoothing: float = 0.1,
+            x_scaling: float = 10,
+            y_scaling: float = 10,
+            z_scaling: float = 10,
+            summarise_track=True,
         ):
-            print(
-                f"Running track analysis with fit degree: {fit_degree},"
-                f"spline points: {spline_points} and spline_smoothing: "
-                f"{spline_smoothing}"
-            )
-            x_scaling = 10
-            y_scaling = 10
-            z_scaling = 10
-
+            print("Running track analysis")
             max_z = len(viewer.layers[0].data)
             convert_and_save_points(
                 points_layers,
@@ -214,7 +207,8 @@ def run(
                 point_radius=point_size,
                 spline_radius=spline_size,
             )
-            analyse_track_anatomy(scene, spline, paths.probe_summary_csv)
+            if summarise_track:
+                analyse_track_anatomy(scene, spline, paths.probe_summary_csv)
             napari_spline = convert_vtk_spline_to_napari_path(
                 spline, x_scaling, y_scaling, z_scaling, max_z
             )
@@ -235,6 +229,39 @@ def run(
         @magicgui(call_button="Extract region", layout="vertical")
         def run_region_analysis():
             print("Running region analysis!")
+            ensure_directory_exists(paths.regions_directory)
+            delete_directory_contents(str(paths.regions_directory))
+            if volumes:
+                print("Calculating region volume distribution")
+                annotations = load_any(paths.annotations)
+                hemispheres = load_any(paths.hemispheres)
+                structures_reference_df = load_structures_as_df(
+                    get_structures_path()
+                )
+
+                print(
+                    f"\nSaving summary volumes to: {paths.regions_directory}"
+                )
+                for label_layer in label_layers:
+                    analyse_region_brain_areas(
+                        label_layer,
+                        paths.regions_directory,
+                        annotations,
+                        hemispheres,
+                        structures_reference_df,
+                    )
+            if summarise:
+                print("Summarising regions")
+                summarise_brain_regions(label_layers, paths.region_summary_csv)
+
+            print(f"\nSaving regions to: {paths.regions_directory}")
+            for label_layer in label_layers:
+                save_regions_to_file(
+                    label_layer,
+                    paths.regions_directory,
+                    paths.downsampled_image,
+                )
+            close_viewer(viewer)
 
         region_gui = run_region_analysis.Gui()
         viewer.window.add_dock_widget(region_gui)
@@ -276,58 +303,21 @@ def run(
             print("\nClosing viewer")
             QApplication.closeAllWindows()
 
-        @viewer.bind_key("Alt-R")
-        def save_analyse_regions(viewer):
-            """
-            Save segmented regions and exit
-            """
-            ensure_directory_exists(paths.regions_directory)
-            delete_directory_contents(str(paths.regions_directory))
-            if volumes:
-                print("Calculating region volume distribution")
-                annotations = load_any(paths.annotations)
-                hemispheres = load_any(paths.hemispheres)
-                structures_reference_df = load_structures_as_df(
-                    get_structures_path()
-                )
-
-                print(
-                    f"\nSaving summary volumes to: {paths.regions_directory}"
-                )
-                for label_layer in label_layers:
-                    analyse_region_brain_areas(
-                        label_layer,
-                        paths.regions_directory,
-                        annotations,
-                        hemispheres,
-                        structures_reference_df,
-                    )
-            if summarise:
-                print("Summarising regions")
-                summarise_brain_regions(label_layers, paths.region_summary_csv)
-
-            print(f"\nSaving regions to: {paths.regions_directory}")
-            for label_layer in label_layers:
-                save_regions_to_file(
-                    label_layer,
-                    paths.regions_directory,
-                    paths.downsampled_image,
-                )
-            close_viewer(viewer)
-
     if preview:
         obj_files = glob(str(paths.regions_directory) + "/*.obj")
         if obj_files:
             scene = load_regions_into_brainrender(
                 scene, obj_files, alpha=alpha, shading=shading
             )
-
-        scene = display_track_in_brainrender(
-            scene,
-            spline,
-            regions_to_add=regions_to_add,
-            region_alpha=region_alpha,
-        )
+        try:
+            scene = display_track_in_brainrender(
+                scene,
+                spline,
+                regions_to_add=regions_to_add,
+                region_alpha=region_alpha,
+            )
+        except:
+            pass
         scene.render()
 
 
@@ -344,9 +334,6 @@ def main():
         brush_size=args.brush_size,
         add_surface_to_points=args.add_surface_to_points,
         regions_to_add=args.regions,
-        # probe_sites=args.probe_sites,
-        # fit_degree=args.fit_degree,
-        # spline_smoothing=args.fit_smooth,
         region_alpha=args.region_alpha,
         point_size=args.point_size,
         spline_size=args.spline_size,
