@@ -105,13 +105,6 @@ def run(
 
         global points_layers
         points_layers = []
-        points_layers.append(
-            viewer.add_points(
-                n_dimensional=True,
-                size=napari_point_size,
-                name="Track label editor",
-            )
-        )
 
         label_files = glob(str(paths.regions_directory) + "/*.nii")
         if paths.regions_directory.exists() and label_files != []:
@@ -216,6 +209,17 @@ def run(
                 brush_size=brush_size,
             )
 
+        @magicgui(call_button="Add track")
+        def new_track():
+            print("Adding a new track!")
+            points_layers.append(
+                viewer.add_points(
+                    n_dimensional=True,
+                    size=napari_point_size,
+                    name="new_track",
+                )
+            )
+
         viewer.window.add_dock_widget(
             run_track_analysis.Gui(), name="Track analysis"
         )
@@ -225,6 +229,9 @@ def run(
         )
         viewer.window.add_dock_widget(
             new_region.Gui(), name="Add region", area="right"
+        )
+        viewer.window.add_dock_widget(
+            new_track.Gui(), name="Add track", area="right"
         )
 
         @region_labels.mouse_move_callbacks.append
