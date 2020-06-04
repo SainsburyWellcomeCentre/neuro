@@ -16,13 +16,6 @@ def get_parser():
         type=str,
         help="amap/cellfinder registration output directory",
     )
-    main_parser.add_argument(
-        "--preview",
-        dest="preview",
-        action="store_true",
-        help="Preview the segmented regions in brainrender",
-    )
-
     region_parser = parser.add_argument_group("Region segmentation options")
     region_parser.add_argument(
         "--volumes",

@@ -33,6 +33,7 @@ from neuro.segmentation.manual_segmentation.man_seg_tools import (
     display_track_in_brainrender,
 )
 
+from napari.qt.threading import thread_worker
 
 memory = False
 BRAINRENDER_TO_NAPARI_SCALE = 0.3
@@ -41,7 +42,6 @@ BRAINRENDER_TO_NAPARI_SCALE = 0.3
 def run(
     image,
     registration_directory,
-    preview=False,
     volumes=False,
     summarise=False,
     num_colors=10,
@@ -188,7 +188,7 @@ def run(
                 volumes=volumes,
                 summarise=summarise,
             )
-            close_viewer(viewer)
+            QApplication.closeAllWindows()
 
         @magicgui(call_button="Add region")
         def new_region():
@@ -214,6 +214,19 @@ def run(
                 )
             )
 
+        @magicgui(call_button="View in brainrender")
+        def to_brainrender():
+            print("\nClosing viewer and viewing in brainrender")
+            QApplication.closeAllWindows()
+            view_in_brainrender(
+                scene,
+                paths.regions_directory,
+                alpha=alpha,
+                shading=shading,
+                regions_to_add=regions_to_add,
+                region_alpha=region_alpha,
+            )
+
         viewer.window.add_dock_widget(
             run_track_analysis.Gui(), name="Track analysis"
         )
@@ -227,32 +240,51 @@ def run(
         viewer.window.add_dock_widget(
             new_track.Gui(), name="Add track", area="right"
         )
+        viewer.window.add_dock_widget(
+            to_brainrender.Gui(), name="Brainrender", area="right"
+        )
 
         @region_labels.mouse_move_callbacks.append
         def display_region_name(layer, event):
             display_brain_region_name(layer, structures_df)
 
-        @viewer.bind_key("Control-X")
-        def close_viewer(viewer):
-            print("\nClosing viewer")
-            QApplication.closeAllWindows()
+        # @viewer.bind_key("Alt-X")
+        # def preview(viewer):
+        #     print("\nClosing viewer and viewing in brainrender")
+        #     QApplication.closeAllWindows()
+        #     view_in_brainrender(
+        #         scene,
+        #         paths.regions_directory,
+        #         alpha=alpha,
+        #         shading=shading,
+        #         regions_to_add=regions_to_add,
+        #         region_alpha=region_alpha,
+        #     )
 
-    if preview:
-        obj_files = glob(str(paths.regions_directory) + "/*.obj")
-        if obj_files:
-            scene = load_regions_into_brainrender(
-                scene, obj_files, alpha=alpha, shading=shading
-            )
-        try:
-            scene = display_track_in_brainrender(
-                scene,
-                spline,
-                regions_to_add=regions_to_add,
-                region_alpha=region_alpha,
-            )
-        except:
-            pass
-        scene.render()
+
+def view_in_brainrender(
+    scene,
+    regions_directory,
+    alpha=0.8,
+    shading="flat",
+    regions_to_add=[],
+    region_alpha=0.3,
+):
+    obj_files = glob(str(regions_directory) + "/*.obj")
+    if obj_files:
+        scene = load_regions_into_brainrender(
+            scene, obj_files, alpha=alpha, shading=shading
+        )
+    try:
+        scene = display_track_in_brainrender(
+            scene,
+            spline,
+            regions_to_add=regions_to_add,
+            region_alpha=region_alpha,
+        )
+    except:
+        pass
+    scene.render()
 
 
 def main():
@@ -260,7 +292,6 @@ def main():
     run(
         args.image,
         args.registration_directory,
-        preview=args.preview,
         volumes=args.volumes,
         summarise=args.summarise,
         shading=args.shading,
