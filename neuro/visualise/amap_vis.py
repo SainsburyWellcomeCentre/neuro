@@ -2,10 +2,7 @@ import napari
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pathlib import Path
 from neuro.structures.IO import load_structures_as_df
-from neuro.structures.structures_tree import (
-    atlas_value_to_name,
-    UnknownAtlasValue,
-)
+
 from neuro.atlas_tools.paths import Paths
 from imlib.source.source_files import get_structures_path
 from neuro.visualise.napari.callbacks import display_brain_region_name
