@@ -258,7 +258,7 @@ def run(
                 paths.regions_directory,
                 alpha=region_alpha,
                 shading=shading,
-                regions_to_add=regions_to_add,
+                region_to_add=region_to_add,
                 region_alpha=structure_alpha,
             )
 

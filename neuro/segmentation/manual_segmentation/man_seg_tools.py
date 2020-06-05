@@ -564,7 +564,7 @@ def view_in_brainrender(
     regions_directory,
     alpha=0.8,
     shading="flat",
-    regions_to_add=[],
+    region_to_add=[],
     region_alpha=0.3,
 ):
     obj_files = glob(str(regions_directory) + "/*.obj")
@@ -576,7 +576,7 @@ def view_in_brainrender(
         scene = display_track_in_brainrender(
             scene,
             spline,
-            regions_to_add=regions_to_add,
+            regions_to_add=region_to_add,
             region_alpha=region_alpha,
         )
     except:
