@@ -183,10 +183,11 @@ class General(QWidget):
         self.load_atlas_button = QPushButton("Load atlas", self)
         self.load_atlas_button.setVisible(False)
         self.status_label = QLabel()
+        self.status_label.setText(f"Ready")
+
         layout.addWidget(self.load_button, 0, 0)
         layout.addWidget(self.load_atlas_button, 0, 1)
 
-        layout.addWidget(QLabel("Status:"), 7, 0, 1, 2)
         layout.addWidget(self.status_label, 7, 1, 1, 2)
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
@@ -203,7 +204,7 @@ class General(QWidget):
         self.summarise_checkbox.setChecked(True)
 
         self.tracks_label = QLabel()
-        self.status_label = QLabel()
+        # self.status_label = QLabel()
 
         # track panel
         self.track_panel = QGroupBox("Track tracing")
