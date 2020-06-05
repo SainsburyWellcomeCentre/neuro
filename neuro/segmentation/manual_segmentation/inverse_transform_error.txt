@@ -1,0 +1,2 @@
+** ERROR (nifti_image_read): failed to find header file for 'brain_filtered.nii'
+Segmentation fault (core dumped)
