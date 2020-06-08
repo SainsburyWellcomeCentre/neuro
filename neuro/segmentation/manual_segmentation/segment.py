@@ -4,7 +4,7 @@ import napari
 from pathlib import Path
 from glob import glob
 
-# from PySide2.QtWidgets import QApplication
+from PySide2.QtWidgets import QApplication
 from qtpy.QtWidgets import QDoubleSpinBox, QSpinBox
 from magicgui import magicgui
 

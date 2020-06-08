@@ -1,10 +1,13 @@
+import numpy as np
+
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import napari
 from napari.utils.io import magic_imread
 from imlib.general.system import get_sorted_file_paths
 
-from imlib.IO.cells import cells_xml_to_df
+from imlib.IO.cells import cells_xml_to_df, cells_to_xml
 from imlib.cells.cells import Cell
+from magicgui import magicgui
 
 
 def parser():
@@ -23,6 +26,22 @@ def parser():
         "--opacity", type=float, default=0.6, help="Opacity of the markers."
     )
     return parser
+
+
+def napari_array_to_cell_list(cell_array, type=-1):
+    cell_list = []
+    for row in range(0, len(cell_array)):
+        cell_list.append(Cell(np.flip(cell_array[row]), type))
+
+    return cell_list
+
+
+def napari_cells_to_xml(cells, non_cells, xml_file_path):
+    cell_list = napari_array_to_cell_list(cells, type=Cell.CELL)
+    non_cell_list = napari_array_to_cell_list(non_cells, type=Cell.UNKNOWN)
+
+    all_cells = cell_list + non_cell_list
+    cells_to_xml(all_cells, xml_file_path)
 
 
 def cells_df_as_np(cells_df, new_order=[2, 1, 0], type_column="type"):
@@ -53,7 +72,7 @@ def main():
         images = magic_imread(img_paths, use_dask=True, stack=True)
         v.add_image(images)
 
-        v.add_points(
+        non_cell_layer = v.add_points(
             non_cells,
             size=args.marker_size,
             n_dimensional=True,
@@ -62,7 +81,7 @@ def main():
             face_color="lightskyblue",
             name="Non-Cells",
         )
-        v.add_points(
+        cell_layer = v.add_points(
             cells,
             size=args.marker_size,
             n_dimensional=True,
@@ -70,6 +89,18 @@ def main():
             symbol=args.symbol,
             face_color="lightgoldenrodyellow",
             name="Cells",
+        )
+
+        @magicgui(call_button="Save_cells")
+        def save_cells():
+            print("Saving cells")
+            napari_cells_to_xml(
+                cell_layer.data, non_cell_layer.data, args.cells_xml
+            )
+            print("Finished!")
+
+        v.window.add_dock_widget(
+            save_cells.Gui(), name="Save Cells", area="bottom"
         )
 
 
