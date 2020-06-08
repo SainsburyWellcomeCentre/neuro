@@ -204,7 +204,6 @@ class General(QWidget):
         self.summarise_checkbox.setChecked(True)
 
         self.tracks_label = QLabel()
-        # self.status_label = QLabel()
 
         # track panel
         self.track_panel = QGroupBox("Track tracing")
