@@ -3,7 +3,7 @@ import numpy as np
 from brainio import brainio
 from skimage.filters import gaussian
 
-from neuro.visualise import brainrender
+from neuro.visualise import brainrender_tools
 
 
 def load_atlas_structures_csv(path_to_structures_csv):
@@ -106,7 +106,7 @@ def render_all_subregions(
         smoothed_region = smooth_structure(
             region_mask, threshold=smooth_threshold, sigma=smooth_sigma
         )
-        brainrender.volume_to_vector_array_to_obj_file(
+        brainrender_tools.volume_to_vector_array_to_obj_file(
             smoothed_region, f"{out_dir}/{idx}.obj"
         )
 

@@ -4,7 +4,7 @@ requirements = [
     "numpy",
     "scikit-image",
     "pandas<=0.25.3,>=0.25.1",
-    "napari[all]",
+    "napari[pyqt5]",
     "magicgui",
     "brainrender",
     "imlib >= 0.0.23",
@@ -52,6 +52,7 @@ setup(
             "neuro.points.points_to_brainrender:main",
             "heatmap = neuro.heatmap.heatmap:cli",
             "amap_vis = neuro.visualise.amap_vis:main",
+            "cellfinder_view = neuro.visualise.cellfinder_view:main",
             "fibre_track = "
             "neuro.segmentation.lesion_and_track_tools.fiber_tract_viewer:main",
             "manual_seg = "

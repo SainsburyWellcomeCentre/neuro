@@ -3,7 +3,8 @@ import napari
 
 from pathlib import Path
 from glob import glob
-from PySide2.QtWidgets import QApplication
+
+# from PySide2.QtWidgets import QApplication
 from qtpy.QtWidgets import QDoubleSpinBox, QSpinBox
 from magicgui import magicgui
 
@@ -15,12 +16,12 @@ from neuro.segmentation.paths import Paths
 from neuro.generic_neuro_tools import transform_image_to_standard_space
 from neuro.segmentation.manual_segmentation.parser import get_parser
 
-from neuro.visualise.napari.layers import (
+from neuro.visualise.napari_tools.layers import (
     display_channel,
     prepare_load_nii,
     add_new_label_layer,
 )
-from neuro.visualise.napari.callbacks import (
+from neuro.visualise.napari_tools.callbacks import (
     display_brain_region_name,
     region_analysis,
     track_analysis,

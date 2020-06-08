@@ -18,7 +18,7 @@ from neuro.structures.structures_tree import (
     atlas_value_to_name,
     UnknownAtlasValue,
 )
-from neuro.visualise.napari.layers import view_spline
+from neuro.visualise.napari_tools.layers import view_spline
 
 
 def display_brain_region_name(layer, structures_df):
