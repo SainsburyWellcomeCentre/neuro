@@ -4,13 +4,14 @@ requirements = [
     "numpy",
     "scikit-image",
     "pandas<=0.25.3,>=0.25.1",
-    "napari[all]",
+    "napari[pyside2]",
     "magicgui",
     "brainrender",
     "imlib >= 0.0.23",
     "napari>=0.2.12",
     "brainio >= 0.0.13",
     "dask >= 2.15.0",
+    "scikit-image==0.16.2",
 ]
 
 
