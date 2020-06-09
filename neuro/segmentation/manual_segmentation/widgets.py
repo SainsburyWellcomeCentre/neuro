@@ -163,21 +163,25 @@ class General(QWidget):
         self.brainrender_panel = QGroupBox("brainrender")
         brainrender_layout = QGridLayout()
 
-        self.region_alpha = QDoubleSpinBox()
-        self.region_alpha.setValue(self.region_alpha_default)
-        self.region_alpha.setMinimum(0)
-        self.region_alpha.setMaximum(1)
-        self.region_alpha.setSingleStep(0.1)
-        brainrender_layout.addWidget(QLabel("Segmented region alpha"), 0, 0)
-        brainrender_layout.addWidget(self.region_alpha, 0, 1)
+        self.region_alpha = add_float_box(
+            brainrender_layout,
+            self.region_alpha_default,
+            0,
+            1,
+            "Segmented region alpha",
+            0.1,
+            0,
+        )
 
-        self.structure_alpha = QDoubleSpinBox()
-        self.structure_alpha.setValue(self.structure_alpha_default)
-        self.structure_alpha.setMinimum(0)
-        self.structure_alpha.setMaximum(1)
-        self.structure_alpha.setSingleStep(0.1)
-        brainrender_layout.addWidget(QLabel("Atlas region alpha"), 1, 0)
-        brainrender_layout.addWidget(self.structure_alpha, 1, 1)
+        self.structure_alpha = add_float_box(
+            brainrender_layout,
+            self.structure_alpha_default,
+            0,
+            1,
+            "Atlas region alpha",
+            0.1,
+            1,
+        )
 
         self.shading = QComboBox()
         self.shading.addItems(["flat", "giroud", "phong"])
@@ -261,13 +265,15 @@ class General(QWidget):
         track_layout.addWidget(QLabel("Fit degree"), 2, 0)
         track_layout.addWidget(self.fit_degree, 2, 1)
 
-        self.spline_smoothing = QDoubleSpinBox()
-        self.spline_smoothing.setValue(self.spline_smoothing_default)
-        self.spline_smoothing.setMinimum(0)
-        self.spline_smoothing.setMaximum(1)
-        self.spline_smoothing.setSingleStep(0.1)
-        track_layout.addWidget(QLabel("Spline smoothing"), 3, 0)
-        track_layout.addWidget(self.spline_smoothing, 3, 1)
+        self.spline_smoothing = add_float_box(
+            track_layout,
+            self.spline_smoothing_default,
+            0,
+            1,
+            "Spline smoothing",
+            0.1,
+            3,
+        )
 
         self.spline_points = QSpinBox()
         self.spline_points.setMinimum(1)
@@ -493,3 +499,14 @@ class General(QWidget):
             track_file_extension=self.track_file_extension,
         )
         worker.start()
+
+
+def add_float_box(layout, default, minimum, maximum, label, step, row):
+    box = QDoubleSpinBox()
+    box.setValue(default)
+    box.setMinimum(minimum)
+    box.setMaximum(maximum)
+    box.setSingleStep(step)
+    layout.addWidget(QLabel(label), row, 0)
+    layout.addWidget(box, row, 1)
+    return box
