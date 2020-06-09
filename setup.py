@@ -8,7 +8,6 @@ requirements = [
     "magicgui",
     "brainrender",
     "imlib >= 0.0.23",
-    "napari>=0.2.12",
     "brainio >= 0.0.13",
     "dask >= 2.15.0",
     "scikit-image==0.16.2",
@@ -17,7 +16,7 @@ requirements = [
 
 setup(
     name="neuro",
-    version="0.0.13rc4",
+    version="0.0.13rc6",
     description="Visualisation and analysis of brain imaging data",
     install_requires=requirements,
     extras_require={
