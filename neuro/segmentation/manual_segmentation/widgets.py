@@ -53,8 +53,8 @@ BRAINRENDER_TO_NAPARI_SCALE = 0.3
 
 
 class General(QWidget):
-    def __init__(self, viewer, point_size, spline_size, *args, **kwargs):
-        super(General, self).__init__(*args, **kwargs)
+    def __init__(self, viewer, point_size, spline_size):
+        super(General, self).__init__()
         self.point_size = point_size
         self.spline_size = spline_size
 
@@ -101,11 +101,14 @@ class General(QWidget):
         self.status_label = QLabel()
         self.status_label.setText(f"Ready")
 
-        layout.addWidget(self.load_button, 0, 0)
+        self.load_button.setMinimumWidth(200)
+        layout.addWidget(
+            self.load_button, 0, 0,
+        )
         layout.addWidget(self.load_atlas_button, 0, 1)
         layout.addWidget(self.save_button, 7, 1)
 
-        layout.addWidget(self.status_label, 8, 0, 1, 2)
+        layout.addWidget(self.status_label, 8, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
         self.setLayout(layout)
@@ -315,6 +318,7 @@ class General(QWidget):
 
         self.structures_df = load_structures_as_df(get_structures_path())
 
+        self.load_button.setMinimumWidth(0)
         self.load_atlas_button.setVisible(True)
         self.save_button.setVisible(True)
         self.initialise_region_segmentation()
