@@ -113,7 +113,7 @@ class General(QWidget):
         self.region_alpha_default = region_alpha_default
         self.structure_alpha_default = structure_alpha_default
         self.shading_default = shading_default
-        self.region_to_add_default = region_alpha_default
+        self.region_to_add_default = region_to_add_default
 
         self.instantiated = False
         layout = QGridLayout()
