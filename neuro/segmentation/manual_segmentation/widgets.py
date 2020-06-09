@@ -227,38 +227,35 @@ class General(QWidget):
         self.load_atlas_button.clicked.connect(self.load_atlas)
         self.save_button.clicked.connect(self.save)
 
-        ################
-        self.add_track_button = QPushButton("Add track", self)
-        self.trace_track_button = QPushButton("Trace tracks", self)
+        self.add_track_panel(layout)
+        self.setLayout(layout)
+
+        self.filename = None
+        self.region_labels = []
+
+    def add_track_panel(self, layout):
+        add_track_button = QPushButton("Add track", self)
+        trace_track_button = QPushButton("Trace tracks", self)
 
         self.summarise_checkbox = QCheckBox()
         self.summarise_checkbox.setChecked(True)
 
-        self.tracks_label = QLabel()
-
-        # track panel
         self.track_panel = QGroupBox("Track tracing")
         track_layout = QGridLayout()
         track_layout.addWidget(QLabel("Summarise"), 0, 0)
         track_layout.addWidget(self.summarise_checkbox, 0, 1)
-        track_layout.addWidget(self.add_track_button, 1, 0)
-        track_layout.addWidget(self.trace_track_button, 1, 1)
+        track_layout.addWidget(add_track_button, 1, 0)
+        track_layout.addWidget(trace_track_button, 1, 1)
 
-        track_layout.addWidget(self.tracks_label, 4, 3)
         track_layout.setColumnMinimumWidth(1, 150)
         self.track_panel.setLayout(track_layout)
         layout.addWidget(self.track_panel, 1, 0, 1, 2)
 
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
-        self.setLayout(layout)
-        self.add_track_button.clicked.connect(self.add_new_track)
-        self.trace_track_button.clicked.connect(self.run_track_analysis)
-
+        add_track_button.clicked.connect(self.add_new_track)
+        trace_track_button.clicked.connect(self.run_track_analysis)
         self.track_panel.setVisible(False)
-
-        self.filename = None
-        self.region_labels = []
 
     def load_atlas(self):
         if not self.region_labels:
