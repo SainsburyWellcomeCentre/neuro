@@ -12,7 +12,9 @@ from neuro.visualise.vis_tools import (
     get_most_recent_log,
     read_log_file,
 )
-from neuro.visualise.napari.utils import convert_vtk_spline_to_napari_path
+from neuro.visualise.napari_tools.utils import (
+    convert_vtk_spline_to_napari_path,
+)
 
 
 label_red = Colormap([[0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0]])
