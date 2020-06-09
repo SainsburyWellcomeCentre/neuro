@@ -84,8 +84,8 @@ def run(
     # napari_point_size = int(BRAINRENDER_TO_NAPARI_SCALE * point_size)
     # napari_spline_size = int(BRAINRENDER_TO_NAPARI_SCALE * spline_size)
 
-    paths = Paths(registration_directory, image)
-    registration_directory = Path(registration_directory)
+    # paths = Paths(registration_directory, image)
+    # registration_directory = Path(registration_directory)
 
     print("Loading manual segmentation GUI.\n ")
     with napari.gui_qt():
@@ -98,52 +98,6 @@ def run(
         general = General(viewer, point_size, spline_size)
         viewer.window.add_dock_widget(general, name="General", area="right")
 
-        # @magicgui(
-        #     call_button="Extract tracks",
-        #     layout="form",
-        #     fit_degree={"widget_type": QSpinBox, "minimum": 1, "maximum": 5},
-        #     spline_points={
-        #         "widget_type": QSpinBox,
-        #         "minimum": 1,
-        #         "maximum": 10000,
-        #     },
-        #     spline_smoothing={
-        #         "widget_type": QDoubleSpinBox,
-        #         "minimum": 0,
-        #         "maximum": 1,
-        #         "SingleStep": 0.1,
-        #     },
-        # )
-        # def run_track_analysis(
-        #     fit_degree: int = 3,
-        #     spline_points: int = 1000,
-        #     spline_smoothing: float = 0.1,
-        #     summarise_track=True,
-        #     add_surface_point=False,
-        # ):
-        #     print("Running track analysis")
-        #
-        #     global splines
-        #     global scene
-        #     scene, splines = track_analysis(
-        #         viewer,
-        #         base_layer,
-        #         scene,
-        #         paths.tracks_directory,
-        #         x_scaling,
-        #         y_scaling,
-        #         z_scaling,
-        #         napari_spline_size,
-        #         add_surface_to_points=add_surface_point,
-        #         spline_points=spline_points,
-        #         fit_degree=fit_degree,
-        #         spline_smoothing=spline_smoothing,
-        #         point_size=point_size,
-        #         spline_size=spline_size,
-        #         summarise_track=summarise_track,
-        #         track_file_extension=track_file_extension,
-        #     )
-        #     print("Finished!\n")
         #
         # @magicgui(call_button="Analyse regions", layout="vertical")
         # def run_region_analysis(
@@ -216,29 +170,7 @@ def run(
         #         region_alpha=structure_alpha,
         #     )
         #
-        # @magicgui(call_button="Save")
-        # def save():
-        #     print("Saving")
-        #     worker = save_all(
-        #         viewer,
-        #         paths.regions_directory,
-        #         paths.tracks_directory,
-        #         label_layers,
-        #         track_layers,
-        #         paths.downsampled_image,
-        #         x_scaling,
-        #         y_scaling,
-        #         z_scaling,
-        #         track_file_extension=track_file_extension,
-        #     )
-        #     worker.start()
-        #
-        # viewer.window.add_dock_widget(
-        #     new_track.Gui(), name="Add track", area="left"
-        # )
-        # viewer.window.add_dock_widget(
-        #     run_track_analysis.Gui(), name="Track analysis", area="right"
-        # )
+
         # viewer.window.add_dock_widget(
         #     new_region.Gui(), name="Add region", area="left"
         # )
@@ -249,11 +181,6 @@ def run(
         # viewer.window.add_dock_widget(
         #     to_brainrender.Gui(), name="Brainrender", area="right"
         # )
-        # viewer.window.add_dock_widget(save.Gui(), name="Saving", area="right")
-        #
-        # @region_labels.mouse_move_callbacks.append
-        # def display_region_name(layer, event):
-        #     display_brain_region_name(layer, structures_df)
 
 
 def main():
