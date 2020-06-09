@@ -14,12 +14,12 @@ from neuro.segmentation.paths import Paths
 from neuro.generic_neuro_tools import transform_image_to_standard_space
 from neuro.segmentation.manual_segmentation.parser import get_parser
 
-from neuro.visualise.napari.layers import (
+from neuro.visualise.napari_tools.layers import (
     display_channel,
     prepare_load_nii,
     add_new_label_layer,
 )
-from neuro.visualise.napari.callbacks import (
+from neuro.visualise.napari_tools.callbacks import (
     display_brain_region_name,
     region_analysis,
     track_analysis,
@@ -126,12 +126,12 @@ from neuro.segmentation.paths import Paths
 from neuro.generic_neuro_tools import transform_image_to_standard_space
 from neuro.segmentation.manual_segmentation.parser import get_parser
 
-from neuro.visualise.napari.layers import (
+from neuro.visualise.napari_tools.layers import (
     display_channel,
     prepare_load_nii,
     add_new_label_layer,
 )
-from neuro.visualise.napari.callbacks import (
+from neuro.visualise.napari_tools.callbacks import (
     display_brain_region_name,
     region_analysis,
     track_analysis,
@@ -171,12 +171,32 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QIcon
 
 memory = False
+BRAINRENDER_TO_NAPARI_SCALE = 0.3
 
 
 class General(QWidget):
-    def __init__(self, viewer, *args, **kwargs):
+    def __init__(self, viewer, point_size, spline_size, *args, **kwargs):
         super(General, self).__init__(*args, **kwargs)
+        self.point_size = point_size
+        self.spline_size = spline_size
+
+        self.napari_point_size = int(
+            BRAINRENDER_TO_NAPARI_SCALE * self.point_size
+        )
+        self.napari_spline_size = int(
+            BRAINRENDER_TO_NAPARI_SCALE * self.spline_size
+        )
+
+        self.x_scaling = 10
+        self.y_scaling = 10
+        self.z_scaling = 10
+        self.track_file_extension = ".h5"
+        self.image_file_extension = ".nii"
+
         self.viewer = viewer
+        self.track_layers = []
+        self.label_layers = []
+
         self.instantiated = False
         layout = QGridLayout()
         self.load_button = QPushButton("Load project", self)
@@ -221,6 +241,7 @@ class General(QWidget):
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
         self.setLayout(layout)
+        self.add_track_button.clicked.connect(self.add_new_track)
 
         self.track_panel.setVisible(False)
 
@@ -249,14 +270,7 @@ class General(QWidget):
         midpoint = int(round(len(self.base_layer.data) / 2))
         self.viewer.dims.set_point(0, midpoint)
 
-    def load_amap_directory(
-        self,
-        napari_point_size=10,
-        x_scaling=10,
-        y_scaling=10,
-        z_scaling=10,
-        track_file_extension=".h5",
-    ):
+    def load_amap_directory(self):
         self.select_nii_file()
         self.registration_directory = self.downsampled_file.parent
         self.status_label.setText(f"Loading ...")
@@ -292,38 +306,18 @@ class General(QWidget):
 
         self.structures_df = load_structures_as_df(get_structures_path())
 
-        global label_layers
-        label_layers = []
+        # label_files = glob(str(self.paths.regions_directory) + "/*.nii")
+        # if self.paths.regions_directory.exists() and label_files != []:
+        #     for label_file in label_files:
+        #         self.label_layers.append(
+        #             add_existing_label_layers(
+        #                 self.viewer, label_file, memory=memory
+        #             )
+        #         )
 
-        global track_layers
-        track_layers = []
-
-        label_files = glob(str(self.paths.regions_directory) + "/*.nii")
-        if self.paths.regions_directory.exists() and label_files != []:
-            for label_file in label_files:
-                label_layers.append(
-                    add_existing_label_layers(
-                        self.viewer, label_file, memory=memory
-                    )
-                )
-        track_files = glob(
-            str(self.paths.tracks_directory) + "/*" + track_file_extension
-        )
-        if self.paths.tracks_directory.exists() and track_files != []:
-            for track_file in track_files:
-                track_layers.append(
-                    add_existing_track_layers(
-                        self.viewer,
-                        track_file,
-                        napari_point_size,
-                        x_scaling,
-                        y_scaling,
-                        z_scaling,
-                    )
-                )
         self.load_atlas_button.setVisible(True)
-        self.track_panel.setVisible(True)
-
+        self.initialise_region_segmentation()
+        self.initialise_track_tracing()
         self.status_label.setText(f"Ready")
 
     def select_nii_file(self):
@@ -337,3 +331,46 @@ class General(QWidget):
             options=options,
         )
         self.downsampled_file = Path(file)
+
+    def initialise_region_segmentation(self):
+        label_files = glob(
+            str(self.paths.regions_directory)
+            + "/*"
+            + self.image_file_extension
+        )
+        if self.paths.regions_directory.exists() and label_files != []:
+            for label_file in label_files:
+                self.label_layers.append(
+                    add_existing_label_layers(
+                        self.viewer, label_file, memory=memory
+                    )
+                )
+
+    def initialise_track_tracing(self):
+        track_files = glob(
+            str(self.paths.tracks_directory) + "/*" + self.track_file_extension
+        )
+        if self.paths.tracks_directory.exists() and track_files != []:
+            for track_file in track_files:
+                self.track_layers.append(
+                    add_existing_track_layers(
+                        self.viewer,
+                        track_file,
+                        self.napari_point_size,
+                        self.x_scaling,
+                        self.y_scaling,
+                        self.z_scaling,
+                    )
+                )
+        self.track_panel.setVisible(True)
+
+    def add_new_track(self):
+        print("Adding a new track\n")
+        num = len(self.track_layers)
+        new_track_layers = self.viewer.add_points(
+            n_dimensional=True,
+            size=self.napari_point_size,
+            name=f"track_{num}",
+        )
+        new_track_layers.mode = "ADD"
+        self.track_layers.append(new_track_layers)

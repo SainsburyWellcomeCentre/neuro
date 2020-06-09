@@ -81,8 +81,8 @@ def run(
     y_scaling = 10
     z_scaling = 10
 
-    napari_point_size = int(BRAINRENDER_TO_NAPARI_SCALE * point_size)
-    napari_spline_size = int(BRAINRENDER_TO_NAPARI_SCALE * spline_size)
+    # napari_point_size = int(BRAINRENDER_TO_NAPARI_SCALE * point_size)
+    # napari_spline_size = int(BRAINRENDER_TO_NAPARI_SCALE * spline_size)
 
     paths = Paths(registration_directory, image)
     registration_directory = Path(registration_directory)
@@ -95,7 +95,7 @@ def run(
         splines = None
 
         viewer = napari.Viewer(title="Manual segmentation")
-        general = General(viewer)
+        general = General(viewer, point_size, spline_size)
         viewer.window.add_dock_widget(general, name="General", area="right")
 
         # @magicgui(
@@ -175,18 +175,7 @@ def run(
         #     )
         #     new_label_layer.mode = "PAINT"
         #     label_layers.append(new_label_layer)
-        #
-        # @magicgui(call_button="Add track")
-        # def new_track():
-        #     print("Adding a new track\n")
-        #     num = len(track_layers)
-        #     new_track_layers = viewer.add_points(
-        #         n_dimensional=True,
-        #         size=napari_point_size,
-        #         name=f"track_{num}",
-        #     )
-        #     new_track_layers.mode = "ADD"
-        #     track_layers.append(new_track_layers)
+
         #
         # available_meshes = scene.atlas.all_avaliable_meshes
         # available_meshes.append("")
