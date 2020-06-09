@@ -1,116 +1,7 @@
-import napari
-
-
-from pathlib import Path
-from glob import glob
-from qtpy.QtWidgets import QDoubleSpinBox, QSpinBox
-from magicgui import magicgui
-
-from brainrender.scene import Scene
-from neuro.structures.IO import load_structures_as_df
-from imlib.source.source_files import get_structures_path
-
-from neuro.segmentation.paths import Paths
-from neuro.generic_neuro_tools import transform_image_to_standard_space
-from neuro.segmentation.manual_segmentation.parser import get_parser
-
-from neuro.visualise.napari_tools.layers import (
-    display_channel,
-    prepare_load_nii,
-    add_new_label_layer,
-)
-from neuro.visualise.napari_tools.callbacks import (
-    display_brain_region_name,
-    region_analysis,
-    track_analysis,
-    save_all,
-)
-
-from neuro.segmentation.manual_segmentation.man_seg_tools import (
-    add_existing_label_layers,
-    add_existing_track_layers,
-    view_in_brainrender,
-)
-
-import os
-import enum
-import heapq
-
-import numpy as np
-
-# import pyqtgraph as pg
-
-from qtpy.QtWidgets import (
-    QButtonGroup,
-    QWidget,
-    QPushButton,
-    QSlider,
-    QCheckBox,
-    QLabel,
-    QSpinBox,
-    QHBoxLayout,
-    QVBoxLayout,
-    QFileDialog,
-    QComboBox,
-    QGridLayout,
-    QGroupBox,
-    QAction,
-)
-
-from qtpy import QtGui
 from qtpy import QtCore
 
-
-import matplotlib.pyplot as plt
-
-from typing import Union
-from napari.layers import Labels
-from napari._qt.qt_range_slider import QHRangeSlider
-
-import sys
-from PyQt5.QtWidgets import (
-    QApplication,
-    QWidget,
-    QInputDialog,
-    QLineEdit,
-    QFileDialog,
-)
-from PyQt5.QtGui import QIcon
-
-import napari
-from qtpy.QtWidgets import (
-    QButtonGroup,
-    QWidget,
-    QPushButton,
-    QSlider,
-    QCheckBox,
-    QLabel,
-    QSpinBox,
-    QHBoxLayout,
-    QVBoxLayout,
-    QFileDialog,
-    QComboBox,
-    QGridLayout,
-    QGroupBox,
-)
-
-import sys
-from PyQt5.QtWidgets import (
-    QApplication,
-    QWidget,
-    QInputDialog,
-    QLineEdit,
-    QFileDialog,
-)
-from PyQt5.QtGui import QIcon
-
-import napari
-
-
 from pathlib import Path
 from glob import glob
-from qtpy.QtWidgets import QDoubleSpinBox, QSpinBox
-from magicgui import magicgui
 
 from brainrender.scene import Scene
 from neuro.structures.IO import load_structures_as_df
@@ -118,7 +9,6 @@ from imlib.source.source_files import get_structures_path
 
 from neuro.segmentation.paths import Paths
 from neuro.generic_neuro_tools import transform_image_to_standard_space
-from neuro.segmentation.manual_segmentation.parser import get_parser
 
 from neuro.visualise.napari_tools.layers import (
     display_channel,
@@ -139,22 +29,17 @@ from neuro.segmentation.manual_segmentation.man_seg_tools import (
 )
 
 from qtpy.QtWidgets import (
-    QButtonGroup,
-    QWidget,
+    QDoubleSpinBox,
     QPushButton,
-    QSlider,
     QCheckBox,
     QLabel,
     QSpinBox,
-    QHBoxLayout,
-    QVBoxLayout,
     QFileDialog,
     QComboBox,
     QGridLayout,
     QGroupBox,
 )
 
-import sys
 from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
@@ -162,7 +47,6 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QFileDialog,
 )
-from PyQt5.QtGui import QIcon
 
 memory = False
 BRAINRENDER_TO_NAPARI_SCALE = 0.3
@@ -218,10 +102,10 @@ class General(QWidget):
         self.status_label.setText(f"Ready")
 
         layout.addWidget(self.load_button, 0, 0)
-        layout.addWidget(self.load_atlas_button, 1, 0)
-        layout.addWidget(self.save_button, 2, 0)
+        layout.addWidget(self.load_atlas_button, 0, 1)
+        layout.addWidget(self.save_button, 7, 1)
 
-        layout.addWidget(self.status_label, 7, 1, 1, 2)
+        layout.addWidget(self.status_label, 8, 0, 1, 2)
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
         self.setLayout(layout)
@@ -273,7 +157,7 @@ class General(QWidget):
         brainrender_layout.addWidget(QLabel("Region to render"), 3, 0)
         brainrender_layout.addWidget(self.region_to_render, 3, 1)
 
-        brainrender_layout.addWidget(view_brainrender_button, 4, 0)
+        brainrender_layout.addWidget(view_brainrender_button, 4, 1)
 
         brainrender_layout.setColumnMinimumWidth(1, 150)
         self.brainrender_panel.setLayout(brainrender_layout)
@@ -306,7 +190,7 @@ class General(QWidget):
         region_layout.addWidget(self.summarise_volumes_checkbox, 1, 1)
 
         region_layout.addWidget(add_region_button, 2, 0)
-        region_layout.addWidget(analyse_regions_button, 3, 0)
+        region_layout.addWidget(analyse_regions_button, 2, 1)
 
         region_layout.setColumnMinimumWidth(1, 150)
         self.region_panel.setLayout(region_layout)
@@ -361,7 +245,7 @@ class General(QWidget):
         track_layout.addWidget(self.spline_points, 4, 1)
 
         track_layout.addWidget(add_track_button, 5, 0)
-        track_layout.addWidget(trace_track_button, 6, 0)
+        track_layout.addWidget(trace_track_button, 5, 1)
 
         track_layout.setColumnMinimumWidth(1, 150)
         self.track_panel.setLayout(track_layout)
