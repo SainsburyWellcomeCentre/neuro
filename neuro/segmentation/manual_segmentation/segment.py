@@ -98,89 +98,41 @@ def run(
         general = General(viewer, point_size, spline_size)
         viewer.window.add_dock_widget(general, name="General", area="right")
 
-        #
-        # @magicgui(call_button="Analyse regions", layout="vertical")
-        # def run_region_analysis(
-        #     calculate_volumes=False, summarise_volumes=True
-        # ):
-        #     print("Running region analysis")
-        #     worker = region_analysis(
-        #         label_layers,
-        #         structures_df,
-        #         paths.regions_directory,
-        #         paths.annotations,
-        #         paths.hemispheres,
-        #         output_csv_file=paths.region_summary_csv,
-        #         volumes=calculate_volumes,
-        #         summarise=summarise_volumes,
-        #     )
-        #     worker.start()
-        #
-        # @magicgui(call_button="Add region")
-        # def new_region():
-        #     print("Adding a new region\n")
-        #     num = len(label_layers)
-        #     new_label_layer = add_new_label_layer(
-        #         viewer,
-        #         registered_image,
-        #         name=f"region_{num}",
-        #         brush_size=brush_size,
-        #         num_colors=num_colors,
-        #     )
-        #     new_label_layer.mode = "PAINT"
-        #     label_layers.append(new_label_layer)
-
-        #
         # available_meshes = scene.atlas.all_avaliable_meshes
         # available_meshes.append("")
-        #
-        # @magicgui(
-        #     call_button="View in brainrender",
-        #     layout="vertical",
-        #     region_to_add={"choices": available_meshes},
-        #     region_alpha={
-        #         "widget_type": QDoubleSpinBox,
-        #         "minimum": 0,
-        #         "maximum": 1,
-        #         "SingleStep": 0.1,
-        #     },
-        #     structure_alpha={
-        #         "widget_type": QDoubleSpinBox,
-        #         "minimum": 0,
-        #         "maximum": 1,
-        #         "SingleStep": 0.1,
-        #     },
-        #     shading={"choices": ["flat", "giroud", "phong"]},
-        # )
-        # def to_brainrender(
-        #     region_alpha: float = 0.8,
-        #     structure_alpha: float = 0.8,
-        #     shading="flat",
-        #     region_to_add="",
-        # ):
-        #     print("Closing viewer and viewing in brainrender.")
-        #     QApplication.closeAllWindows()
-        #     view_in_brainrender(
-        #         scene,
-        #         splines,
-        #         paths.regions_directory,
-        #         alpha=region_alpha,
-        #         shading=shading,
-        #         region_to_add=region_to_add,
-        #         region_alpha=structure_alpha,
-        #     )
-        #
 
-        # viewer.window.add_dock_widget(
-        #     new_region.Gui(), name="Add region", area="left"
-        # )
-        # viewer.window.add_dock_widget(
-        #     run_region_analysis.Gui(), name="Region analysis", area="right"
-        # )
-        #
-        # viewer.window.add_dock_widget(
-        #     to_brainrender.Gui(), name="Brainrender", area="right"
-        # )
+    # )
+    # def run_track_analysis(
+    #         fit_degree: int = 3,
+    #         spline_points: int = 1000,
+    #         spline_smoothing: float = 0.1,
+    #         summarise_track=True,
+    #         add_surface_point=False,
+    # ):
+    #     print("Running track analysis")
+    #
+    #     global splines
+    #     global scene
+    #     scene, splines = track_analysis(
+    #         viewer,
+    #         base_layer,
+    #         scene,
+    #         paths.tracks_directory,
+    #         x_scaling,
+    #         y_scaling,
+    #         z_scaling,
+    #         napari_spline_size,
+    #         add_surface_to_points=add_surface_point,
+    #         spline_points=spline_points,
+    #         fit_degree=fit_degree,
+    #         spline_smoothing=spline_smoothing,
+    #         point_size=point_size,
+    #         spline_size=spline_size,
+    #         summarise_track=summarise_track,
+    #         track_file_extension=track_file_extension,
+    #     )
+    #     print("Finished!\n")
+    #
 
 
 def main():
