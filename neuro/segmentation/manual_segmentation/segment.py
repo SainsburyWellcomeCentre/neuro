@@ -81,12 +81,6 @@ def run(
     y_scaling = 10
     z_scaling = 10
 
-    # napari_point_size = int(BRAINRENDER_TO_NAPARI_SCALE * point_size)
-    # napari_spline_size = int(BRAINRENDER_TO_NAPARI_SCALE * spline_size)
-
-    # paths = Paths(registration_directory, image)
-    # registration_directory = Path(registration_directory)
-
     print("Loading manual segmentation GUI.\n ")
     with napari.gui_qt():
         global scene
@@ -97,42 +91,6 @@ def run(
         viewer = napari.Viewer(title="Manual segmentation")
         general = General(viewer, point_size, spline_size)
         viewer.window.add_dock_widget(general, name="General", area="right")
-
-        # available_meshes = scene.atlas.all_avaliable_meshes
-        # available_meshes.append("")
-
-    # )
-    # def run_track_analysis(
-    #         fit_degree: int = 3,
-    #         spline_points: int = 1000,
-    #         spline_smoothing: float = 0.1,
-    #         summarise_track=True,
-    #         add_surface_point=False,
-    # ):
-    #     print("Running track analysis")
-    #
-    #     global splines
-    #     global scene
-    #     scene, splines = track_analysis(
-    #         viewer,
-    #         base_layer,
-    #         scene,
-    #         paths.tracks_directory,
-    #         x_scaling,
-    #         y_scaling,
-    #         z_scaling,
-    #         napari_spline_size,
-    #         add_surface_to_points=add_surface_point,
-    #         spline_points=spline_points,
-    #         fit_degree=fit_degree,
-    #         spline_smoothing=spline_smoothing,
-    #         point_size=point_size,
-    #         spline_size=spline_size,
-    #         summarise_track=summarise_track,
-    #         track_file_extension=track_file_extension,
-    #     )
-    #     print("Finished!\n")
-    #
 
 
 def main():

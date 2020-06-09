@@ -354,9 +354,9 @@ class General(QWidget):
         track_layout.addWidget(self.spline_smoothing, 3, 1)
 
         self.spline_points = QSpinBox()
-        self.spline_points.setValue(self.spline_points_default)
         self.spline_points.setMinimum(1)
         self.spline_points.setMaximum(10000)
+        self.spline_points.setValue(self.spline_points_default)
         track_layout.addWidget(QLabel("Spline points"), 4, 0)
         track_layout.addWidget(self.spline_points, 4, 1)
 
