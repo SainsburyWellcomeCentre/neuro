@@ -1,107 +1,58 @@
 import napari
-
-
-from pathlib import Path
-from glob import glob
-
-from qtpy.QtWidgets import QDoubleSpinBox, QSpinBox
-from magicgui import magicgui
-
-from brainrender.scene import Scene
-from neuro.structures.IO import load_structures_as_df
-from imlib.source.source_files import get_structures_path
-
-from neuro.segmentation.paths import Paths
-from neuro.generic_neuro_tools import transform_image_to_standard_space
-from neuro.segmentation.manual_segmentation.parser import get_parser
-
-from neuro.visualise.napari_tools.layers import (
-    display_channel,
-    prepare_load_nii,
-    add_new_label_layer,
-)
-from neuro.visualise.napari_tools.callbacks import (
-    display_brain_region_name,
-    region_analysis,
-    track_analysis,
-    save_all,
-)
-
-from neuro.segmentation.manual_segmentation.man_seg_tools import (
-    add_existing_label_layers,
-    add_existing_track_layers,
-    view_in_brainrender,
-)
-
 from neuro.segmentation.manual_segmentation.widgets import General
-from qtpy.QtWidgets import (
-    QButtonGroup,
-    QWidget,
-    QPushButton,
-    QSlider,
-    QCheckBox,
-    QLabel,
-    QSpinBox,
-    QHBoxLayout,
-    QVBoxLayout,
-    QFileDialog,
-    QComboBox,
-    QGridLayout,
-    QGroupBox,
-)
-
-import sys
-from PyQt5.QtWidgets import (
-    QApplication,
-    QWidget,
-    QInputDialog,
-    QLineEdit,
-    QFileDialog,
-)
-from PyQt5.QtGui import QIcon
 
 
-memory = False
-BRAINRENDER_TO_NAPARI_SCALE = 0.3
-
-
-def run(
-    image,
-    registration_directory,
+def main(
     num_colors=10,
     brush_size=30,
     point_size=30,
     spline_size=10,
     track_file_extension=".h5",
+    image_file_extension=".nii",
+    x_scaling=10,
+    y_scaling=10,
+    z_scaling=10,
+    spline_points_default=1000,
+    spline_smoothing_default=0.1,
+    fit_degree_default=3,
+    summarise_track_default=True,
+    add_surface_point_default=False,
+    calculate_volumes_default=True,
+    summarise_volumes_default=True,
+    region_alpha_default=0.8,
+    structure_alpha_default=0.8,
+    shading_default="flat",
+    region_to_add_default="",
 ):
-    global x_scaling
-    global y_scaling
-    global z_scaling
-    x_scaling = 10
-    y_scaling = 10
-    z_scaling = 10
 
     print("Loading manual segmentation GUI.\n ")
     with napari.gui_qt():
-        global scene
-        scene = Scene(add_root=True)
-        global splines
-        splines = None
 
         viewer = napari.Viewer(title="Manual segmentation")
-        general = General(viewer, point_size, spline_size)
+        general = General(
+            viewer,
+            point_size=point_size,
+            spline_size=spline_size,
+            x_scaling=x_scaling,
+            y_scaling=y_scaling,
+            z_scaling=z_scaling,
+            track_file_extension=track_file_extension,
+            image_file_extension=image_file_extension,
+            brush_size=brush_size,
+            num_colors=num_colors,
+            spline_points_default=spline_points_default,
+            spline_smoothing_default=spline_smoothing_default,
+            fit_degree_default=fit_degree_default,
+            summarise_track_default=summarise_track_default,
+            add_surface_point_default=add_surface_point_default,
+            calculate_volumes_default=calculate_volumes_default,
+            summarise_volumes_default=summarise_volumes_default,
+            region_alpha_default=region_alpha_default,
+            structure_alpha_default=structure_alpha_default,
+            shading_default=shading_default,
+            region_to_add_default=region_to_add_default,
+        )
         viewer.window.add_dock_widget(general, name="General", area="right")
-
-
-def main():
-    args = get_parser().parse_args()
-    run(
-        args.image,
-        args.registration_directory,
-        brush_size=args.brush_size,
-        point_size=args.point_size,
-        spline_size=args.spline_size,
-    )
 
 
 if __name__ == "__main__":

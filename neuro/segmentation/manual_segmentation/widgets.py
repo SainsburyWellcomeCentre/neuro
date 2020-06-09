@@ -53,7 +53,30 @@ BRAINRENDER_TO_NAPARI_SCALE = 0.3
 
 
 class General(QWidget):
-    def __init__(self, viewer, point_size, spline_size):
+    def __init__(
+        self,
+        viewer,
+        point_size=30,
+        spline_size=10,
+        track_file_extension=".h5",
+        image_file_extension=".nii",
+        x_scaling=10,
+        y_scaling=10,
+        z_scaling=10,
+        num_colors=10,
+        brush_size=30,
+        spline_points_default=1000,
+        spline_smoothing_default=0.1,
+        fit_degree_default=3,
+        summarise_track_default=True,
+        add_surface_point_default=False,
+        calculate_volumes_default=True,
+        summarise_volumes_default=True,
+        region_alpha_default=0.8,
+        structure_alpha_default=0.8,
+        shading_default="flat",
+        region_to_add_default="",
+    ):
         super(General, self).__init__()
         self.point_size = point_size
         self.spline_size = spline_size
@@ -65,31 +88,32 @@ class General(QWidget):
             BRAINRENDER_TO_NAPARI_SCALE * self.spline_size
         )
 
-        self.x_scaling = 10
-        self.y_scaling = 10
-        self.z_scaling = 10
-        self.track_file_extension = ".h5"
-        self.image_file_extension = ".nii"
-        self.spline_points_default = 1000
-        self.spline_smoothing_default = 0.1
-        self.summarise_track_default = True
-        self.add_surface_point_default = False
-        self.fit_degree_default = 3
+        self.x_scaling = x_scaling
+        self.y_scaling = y_scaling
+        self.z_scaling = z_scaling
+        self.track_file_extension = track_file_extension
+        self.image_file_extension = image_file_extension
 
-        self.brush_size = 30
-        self.num_colors = 10
+        self.spline_points_default = spline_points_default
+        self.spline_smoothing_default = spline_smoothing_default
+        self.summarise_track_default = summarise_track_default
+        self.add_surface_point_default = add_surface_point_default
+        self.fit_degree_default = fit_degree_default
 
-        self.calculate_volumes_default = True
-        self.summarise_volumes_default = True
+        self.brush_size = brush_size
+        self.num_colors = num_colors
+
+        self.calculate_volumes_default = calculate_volumes_default
+        self.summarise_volumes_default = summarise_volumes_default
 
         self.viewer = viewer
         self.track_layers = []
         self.label_layers = []
 
-        self.region_alpha_default = 0.8
-        self.structure_alpha_default = 0.8
-        self.shading_default = "flat"
-        self.region_to_add_default = ""
+        self.region_alpha_default = region_alpha_default
+        self.structure_alpha_default = structure_alpha_default
+        self.shading_default = shading_default
+        self.region_to_add_default = region_alpha_default
 
         self.instantiated = False
         layout = QGridLayout()
