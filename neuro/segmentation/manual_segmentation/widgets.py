@@ -81,6 +81,21 @@ class General(QWidget):
         self.point_size = point_size
         self.spline_size = spline_size
 
+        # general variables
+        self.viewer = viewer
+
+        self.x_scaling = x_scaling
+        self.y_scaling = y_scaling
+        self.z_scaling = z_scaling
+
+        # track variables
+        self.track_layers = []
+        self.track_file_extension = track_file_extension
+        self.spline_points_default = spline_points_default
+        self.spline_smoothing_default = spline_smoothing_default
+        self.summarise_track_default = summarise_track_default
+        self.add_surface_point_default = add_surface_point_default
+        self.fit_degree_default = fit_degree_default
         self.napari_point_size = int(
             BRAINRENDER_TO_NAPARI_SCALE * self.point_size
         )
@@ -88,33 +103,26 @@ class General(QWidget):
             BRAINRENDER_TO_NAPARI_SCALE * self.spline_size
         )
 
-        self.x_scaling = x_scaling
-        self.y_scaling = y_scaling
-        self.z_scaling = z_scaling
-        self.track_file_extension = track_file_extension
+        # region variables
+        self.label_layers = []
         self.image_file_extension = image_file_extension
-
-        self.spline_points_default = spline_points_default
-        self.spline_smoothing_default = spline_smoothing_default
-        self.summarise_track_default = summarise_track_default
-        self.add_surface_point_default = add_surface_point_default
-        self.fit_degree_default = fit_degree_default
-
         self.brush_size = brush_size
         self.num_colors = num_colors
-
         self.calculate_volumes_default = calculate_volumes_default
         self.summarise_volumes_default = summarise_volumes_default
 
-        self.viewer = viewer
-        self.track_layers = []
-        self.label_layers = []
+        # atlas variables
+        self.region_labels = []
 
+        # brainrender variables
         self.region_alpha_default = region_alpha_default
         self.structure_alpha_default = structure_alpha_default
         self.shading_default = shading_default
         self.region_to_add_default = region_to_add_default
 
+        self.setup_layout()
+
+    def setup_layout(self):
         self.instantiated = False
         layout = QGridLayout()
         self.load_button = QPushButton("Load project", self)
@@ -146,9 +154,6 @@ class General(QWidget):
         self.add_brainrender_panel(layout)
 
         self.setLayout(layout)
-
-        self.filename = None
-        self.region_labels = []
 
     def add_brainrender_panel(self, layout):
         self.initialise_brainrender()
