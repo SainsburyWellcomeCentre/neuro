@@ -211,19 +211,19 @@ class General(QWidget):
         self.region_panel = QGroupBox("Region analysis")
         region_layout = QGridLayout()
 
-        self.calculate_volumes_checkbox = QCheckBox()
-        self.calculate_volumes_checkbox.setChecked(
-            self.calculate_volumes_default
+        self.calculate_volumes_checkbox = add_checkbox(
+            region_layout,
+            self.calculate_volumes_default,
+            "Calculate volumes",
+            0,
         )
-        region_layout.addWidget(QLabel("Calculate volumes"), 0, 0)
-        region_layout.addWidget(self.calculate_volumes_checkbox, 0, 1)
 
-        self.summarise_volumes_checkbox = QCheckBox()
-        self.summarise_volumes_checkbox.setChecked(
-            self.summarise_volumes_default
+        self.summarise_volumes_checkbox = add_checkbox(
+            region_layout,
+            self.summarise_volumes_default,
+            "Summarise volumes",
+            1,
         )
-        region_layout.addWidget(QLabel("Summarise volumes"), 1, 0)
-        region_layout.addWidget(self.summarise_volumes_checkbox, 1, 1)
 
         region_layout.addWidget(add_region_button, 2, 0)
         region_layout.addWidget(analyse_regions_button, 2, 1)
@@ -246,24 +246,20 @@ class General(QWidget):
         self.track_panel = QGroupBox("Track tracing")
         track_layout = QGridLayout()
 
-        self.summarise_track_checkbox = QCheckBox()
-        self.summarise_track_checkbox.setChecked(self.summarise_track_default)
-        track_layout.addWidget(QLabel("Summarise"), 0, 0)
-        track_layout.addWidget(self.summarise_track_checkbox, 0, 1)
-
-        self.add_surface_point_checkbox = QCheckBox()
-        self.add_surface_point_checkbox.setChecked(
-            self.add_surface_point_default
+        self.summarise_track_checkbox = add_checkbox(
+            track_layout, self.summarise_track_default, "Summarise", 0,
         )
-        track_layout.addWidget(QLabel("Add surface point"), 1, 0)
-        track_layout.addWidget(self.add_surface_point_checkbox, 1, 1)
 
-        self.fit_degree = QSpinBox()
-        self.fit_degree.setValue(self.fit_degree_default)
-        self.fit_degree.setMinimum(1)
-        self.fit_degree.setMaximum(5)
-        track_layout.addWidget(QLabel("Fit degree"), 2, 0)
-        track_layout.addWidget(self.fit_degree, 2, 1)
+        self.add_surface_point_checkbox = add_checkbox(
+            track_layout,
+            self.add_surface_point_default,
+            "Add surface point",
+            1,
+        )
+
+        self.fit_degree = add_int_box(
+            track_layout, self.fit_degree_default, 1, 5, "Fit degree", 2,
+        )
 
         self.spline_smoothing = add_float_box(
             track_layout,
@@ -275,12 +271,14 @@ class General(QWidget):
             3,
         )
 
-        self.spline_points = QSpinBox()
-        self.spline_points.setMinimum(1)
-        self.spline_points.setMaximum(10000)
-        self.spline_points.setValue(self.spline_points_default)
-        track_layout.addWidget(QLabel("Spline points"), 4, 0)
-        track_layout.addWidget(self.spline_points, 4, 1)
+        self.spline_points = add_int_box(
+            track_layout,
+            self.spline_points_default,
+            1,
+            10000,
+            "Spline points",
+            4,
+        )
 
         track_layout.addWidget(add_track_button, 5, 0)
         track_layout.addWidget(trace_track_button, 5, 1)
@@ -501,12 +499,33 @@ class General(QWidget):
         worker.start()
 
 
-def add_float_box(layout, default, minimum, maximum, label, step, row):
+def add_checkbox(layout, default, label, row, column=0):
+    box = QCheckBox()
+    box.setChecked(default)
+    layout.addWidget(QLabel(label), row, column)
+    layout.addWidget(box, row, column + 1)
+    return box
+
+
+def add_float_box(
+    layout, default, minimum, maximum, label, step, row, column=0
+):
     box = QDoubleSpinBox()
-    box.setValue(default)
     box.setMinimum(minimum)
     box.setMaximum(maximum)
+    box.setValue(default)
     box.setSingleStep(step)
-    layout.addWidget(QLabel(label), row, 0)
-    layout.addWidget(box, row, 1)
+    layout.addWidget(QLabel(label), row, column)
+    layout.addWidget(box, row, column + 1)
+    return box
+
+
+def add_int_box(layout, default, minimum, maximum, label, row, column=0):
+    box = QSpinBox()
+    box.setMinimum(minimum)
+    box.setMaximum(maximum)
+    # Not always set if not after min & max
+    box.setValue(default)
+    layout.addWidget(QLabel(label), row, column)
+    layout.addWidget(box, row, column + 1)
     return box
