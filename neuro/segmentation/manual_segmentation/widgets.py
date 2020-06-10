@@ -13,7 +13,6 @@ from neuro.generic_neuro_tools import transform_image_to_standard_space
 from neuro.visualise.napari_tools.layers import (
     display_channel,
     prepare_load_nii,
-    add_new_label_layer,
 )
 from neuro.visualise.napari_tools.callbacks import (
     display_brain_region_name,

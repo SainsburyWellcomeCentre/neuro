@@ -17,7 +17,7 @@ from neuro.segmentation.lesion_and_track_tools.lesion_and_track_estimation impor
 from neuro.generic_neuro_tools import (
     transform_background_channel_to_standard_space,
 )
-from neuro.visualise.napari.layers import display_channel
+from neuro.visualise.napari_tools.layers import display_channel
 
 
 def run_track_viewer(
