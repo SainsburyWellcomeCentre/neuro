@@ -37,7 +37,7 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pathlib import Path
 from neuro.structures.IO import load_structures_as_df
 
-from neuro.atlas_tools.paths import Paths
+from neuro.atlas_tools.paths import Paths as registration_paths
 from imlib.source.source_files import get_structures_path
 from neuro.visualise.napari_tools.callbacks import display_brain_region_name
 
@@ -56,7 +56,11 @@ from imlib.general.system import get_sorted_file_paths
 from imlib.IO.cells import cells_xml_to_df, cells_to_xml
 from imlib.cells.cells import Cell
 from magicgui import magicgui
-
+from neuro.visualise.vis_tools import (
+    get_image_scales,
+    get_most_recent_log,
+    read_log_file,
+)
 
 from neuro.gui.elements import *
 
@@ -149,6 +153,10 @@ class ViewerWidget(QWidget):
     def initialise_paths(self):
         self.cells = self.directory / "cells.xml"
         self.classified_cells = self.directory / "cell_classification.xml"
+        self.registration_directory = self.directory / "registration"
+        self.registration_paths = registration_paths(
+            self.registration_directory
+        )
 
     def load_raw_data_directory(self):
         options = QFileDialog.Options()
@@ -165,7 +173,39 @@ class ViewerWidget(QWidget):
         pass
 
     def load_registration(self):
-        pass
+        log_entries = []
+        try:
+            log_entries = read_log_file(
+                get_most_recent_log(self.registration_directory)
+            )
+        except:
+            try:
+                log_entries = read_log_file(
+                    get_most_recent_log(
+                        self.directory, log_pattern="cellfinder*.log"
+                    )
+                )
+            except:
+                pass
+        if log_entries:
+            config_file = Path(self.registration_directory, "config.conf")
+            self.image_scales = get_image_scales(log_entries, config_file)
+            print(self.image_scales)
+            self.region_labels = display_registration(
+                self.viewer,
+                self.registration_paths.registered_atlas_path,
+                self.registration_paths.boundaries_file_path,
+                self.image_scales,
+                memory=memory,
+            )
+            self.structures_df = load_structures_as_df(get_structures_path())
+
+            @self.region_labels.mouse_move_callbacks.append
+            def display_region_name(layer, event):
+                display_brain_region_name(layer, self.structures_df)
+
+        else:
+            print("No log could be found, so cannot load registration results")
 
     def load_cells(self):
         print("Loading cells")

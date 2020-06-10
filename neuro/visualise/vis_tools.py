@@ -57,7 +57,7 @@ def read_log_file(
     entries = {}
     for line in lines:
         for entry in log_entries_to_get:
-            if line.startswith(entry):
+            if line.startswith(entry + ":"):
                 entries[entry] = line.strip(entry + separator)
 
     return entries
