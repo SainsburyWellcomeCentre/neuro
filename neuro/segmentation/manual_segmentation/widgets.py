@@ -125,29 +125,30 @@ class General(QWidget):
     def setup_layout(self):
         self.instantiated = False
         layout = QGridLayout()
-        self.load_button = QPushButton("Load project", self)
-        self.load_atlas_button = QPushButton("Load atlas", self)
-        self.load_atlas_button.setVisible(False)
-        self.save_button = QPushButton("Save", self)
-        self.save_button.setVisible(False)
+
+        self.load_button = add_button(
+            "Load project",
+            layout,
+            self.load_amap_directory,
+            0,
+            0,
+            minimum_width=200,
+        )
+
+        self.load_atlas_button = add_button(
+            "Load atlas", layout, self.load_atlas, 0, 1, visibility=False
+        )
+        self.save_button = add_button(
+            "Save", layout, self.save, 7, 1, visibility=False
+        )
+
         self.status_label = QLabel()
         self.status_label.setText(f"Ready")
-
-        self.load_button.setMinimumWidth(200)
-        layout.addWidget(
-            self.load_button, 0, 0,
-        )
-        layout.addWidget(self.load_atlas_button, 0, 1)
-        layout.addWidget(self.save_button, 7, 1)
 
         layout.addWidget(self.status_label, 8, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
         self.setLayout(layout)
-
-        self.load_button.clicked.connect(self.load_amap_directory)
-        self.load_atlas_button.clicked.connect(self.load_atlas)
-        self.save_button.clicked.connect(self.save)
 
         self.add_track_panel(layout)
         self.add_region_panel(layout)
@@ -158,10 +159,16 @@ class General(QWidget):
     def add_brainrender_panel(self, layout):
         self.initialise_brainrender()
 
-        view_brainrender_button = QPushButton("View in Brainrender", self)
-
         self.brainrender_panel = QGroupBox("brainrender")
         brainrender_layout = QGridLayout()
+
+        add_button(
+            "View in Brainrender",
+            brainrender_layout,
+            self.to_brainrender,
+            4,
+            1,
+        )
 
         self.region_alpha = add_float_box(
             brainrender_layout,
@@ -193,23 +200,24 @@ class General(QWidget):
         brainrender_layout.addWidget(QLabel("Region to render"), 3, 0)
         brainrender_layout.addWidget(self.region_to_render, 3, 1)
 
-        brainrender_layout.addWidget(view_brainrender_button, 4, 1)
-
         brainrender_layout.setColumnMinimumWidth(1, 150)
         self.brainrender_panel.setLayout(brainrender_layout)
         layout.addWidget(self.brainrender_panel, 6, 0, 1, 2)
 
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
-        view_brainrender_button.clicked.connect(self.to_brainrender)
         self.brainrender_panel.setVisible(False)
 
     def add_region_panel(self, layout):
-        add_region_button = QPushButton("Add region", self)
-        analyse_regions_button = QPushButton("Analyse regions", self)
-
         self.region_panel = QGroupBox("Region analysis")
         region_layout = QGridLayout()
+
+        add_button(
+            "Add region", region_layout, self.add_new_region, 2, 0,
+        )
+        add_button(
+            "Analyse regions", region_layout, self.run_region_analysis, 2, 1,
+        )
 
         self.calculate_volumes_checkbox = add_checkbox(
             region_layout,
@@ -225,26 +233,24 @@ class General(QWidget):
             1,
         )
 
-        region_layout.addWidget(add_region_button, 2, 0)
-        region_layout.addWidget(analyse_regions_button, 2, 1)
-
         region_layout.setColumnMinimumWidth(1, 150)
         self.region_panel.setLayout(region_layout)
         layout.addWidget(self.region_panel, 5, 0, 1, 2)
 
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
-        add_region_button.clicked.connect(self.add_new_region)
-        analyse_regions_button.clicked.connect(self.run_region_analysis)
         self.region_panel.setVisible(False)
 
     def add_track_panel(self, layout):
-
-        add_track_button = QPushButton("Add track", self)
-        trace_track_button = QPushButton("Trace tracks", self)
-
         self.track_panel = QGroupBox("Track tracing")
         track_layout = QGridLayout()
+
+        add_button(
+            "Add track", track_layout, self.add_new_track, 5, 0,
+        )
+        add_button(
+            "Trace tracks", track_layout, self.run_track_analysis, 5, 1,
+        )
 
         self.summarise_track_checkbox = add_checkbox(
             track_layout, self.summarise_track_default, "Summarise", 0,
@@ -280,17 +286,12 @@ class General(QWidget):
             4,
         )
 
-        track_layout.addWidget(add_track_button, 5, 0)
-        track_layout.addWidget(trace_track_button, 5, 1)
-
         track_layout.setColumnMinimumWidth(1, 150)
         self.track_panel.setLayout(track_layout)
         layout.addWidget(self.track_panel, 3, 0, 1, 2)
 
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
-        add_track_button.clicked.connect(self.add_new_track)
-        trace_track_button.clicked.connect(self.run_track_analysis)
         self.track_panel.setVisible(False)
 
     def load_atlas(self):
@@ -497,6 +498,23 @@ class General(QWidget):
             track_file_extension=self.track_file_extension,
         )
         worker.start()
+
+
+def add_button(
+    label,
+    layout,
+    connected_function,
+    row,
+    column,
+    visibility=True,
+    minimum_width=0,
+):
+    button = QPushButton(label)
+    button.setVisible(visibility)
+    button.setMinimumWidth(minimum_width)
+    layout.addWidget(button, row, column)
+    button.clicked.connect(connected_function)
+    return button
 
 
 def add_checkbox(layout, default, label, row, column=0):
