@@ -16,7 +16,7 @@ requirements = [
 
 setup(
     name="neuro",
-    version="0.0.13rc6",
+    version="0.0.13rc7",
     description="Visualisation and analysis of brain imaging data",
     install_requires=requirements,
     extras_require={
