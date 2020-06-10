@@ -119,19 +119,28 @@ class ViewerWidget(QWidget):
             visibility=False,
         )
 
-        self.load_registration_button = add_button(
-            "Load registration",
+        self.load_downsampled_data_button = add_button(
+            "Load downsampled_data",
             layout,
-            self.load_registration,
+            self.load_downsampled_data,
             3,
             0,
             visibility=False,
         )
+
+        self.load_registration_button = add_button(
+            "Load registration",
+            layout,
+            self.load_registration,
+            4,
+            0,
+            visibility=False,
+        )
         self.load_cells_button = add_button(
-            "Load cells", layout, self.load_cells, 4, 0, visibility=False,
+            "Load cells", layout, self.load_cells, 5, 0, visibility=False,
         )
         self.save_cells_button = add_button(
-            "Save cells", layout, self.save_cells, 5, 0, visibility=False,
+            "Save cells", layout, self.save_cells, 6, 0, visibility=False,
         )
 
         self.setLayout(layout)
@@ -145,10 +154,20 @@ class ViewerWidget(QWidget):
         self.directory = Path(dir)
         self.initialise_paths()
         self.load_button.setMinimumWidth(0)
-        self.load_registration_button.setVisible(True)
+
         self.load_raw_data_directory_button.setVisible(True)
         # self.load_raw_data_single_button.setVisible(True)
         self.load_cells_button.setVisible(True)
+
+        self.image_scales = self.get_registration_scaling()
+        if self.image_scales is not None:
+            self.load_registration_button.setVisible(True)
+            self.load_downsampled_data_button.setVisible(True)
+        else:
+            print(
+                "Config files and logs could not be parsed to detect "
+                "the data scaling"
+            )
 
     def initialise_paths(self):
         self.cells = self.directory / "cells.xml"
@@ -172,7 +191,7 @@ class ViewerWidget(QWidget):
     def load_raw_data_single(self):
         pass
 
-    def load_registration(self):
+    def get_registration_scaling(self):
         log_entries = []
         try:
             log_entries = read_log_file(
@@ -189,23 +208,62 @@ class ViewerWidget(QWidget):
                 pass
         if log_entries:
             config_file = Path(self.registration_directory, "config.conf")
-            self.image_scales = get_image_scales(log_entries, config_file)
-            print(self.image_scales)
-            self.region_labels = display_registration(
-                self.viewer,
-                self.registration_paths.registered_atlas_path,
-                self.registration_paths.boundaries_file_path,
-                self.image_scales,
-                memory=memory,
-            )
-            self.structures_df = load_structures_as_df(get_structures_path())
-
-            @self.region_labels.mouse_move_callbacks.append
-            def display_region_name(layer, event):
-                display_brain_region_name(layer, self.structures_df)
-
+            return get_image_scales(log_entries, config_file)
         else:
-            print("No log could be found, so cannot load registration results")
+            return None
+
+    def load_registration(self):
+        self.region_labels = display_registration(
+            self.viewer,
+            self.registration_paths.registered_atlas_path,
+            self.registration_paths.boundaries_file_path,
+            self.image_scales,
+            memory=memory,
+        )
+        self.structures_df = load_structures_as_df(get_structures_path())
+
+        @self.region_labels.mouse_move_callbacks.append
+        def display_region_name(layer, event):
+            display_brain_region_name(layer, self.structures_df)
+
+    def load_downsampled_data(self,):
+        self.load_main_downsampled_channel()
+        self.load_additional_downsampled_channels()
+
+    def load_additional_downsampled_channels(
+        self, search_string="downsampled_", extension=".nii"
+    ):
+        for file in self.registration_directory.iterdir():
+            if (
+                (file.suffix == extension)
+                and file.name.startswith(search_string)
+                and file
+                != Path(self.registration_paths.downsampled_brain_path)
+                and file
+                != Path(self.registration_paths.tmp__downsampled_filtered)
+            ):
+                print(
+                    f"Found additional downsampled image: {file.name}, "
+                    f"adding to viewer"
+                )
+                name = (
+                    file.name.strip(search_string).strip(extension)
+                    + " (Downsampled)"
+                )
+                self.viewer.add_image(
+                    prepare_load_nii(file, memory=memory),
+                    name=name,
+                    scale=self.image_scales,
+                )
+
+    def load_main_downsampled_channel(self):
+        self.viewer.add_image(
+            prepare_load_nii(
+                self.registration_paths.downsampled_brain_path, memory=memory,
+            ),
+            scale=self.image_scales,
+            name="Raw data (downsampled)",
+        )
 
     def load_cells(self):
         print("Loading cells")
