@@ -75,13 +75,13 @@ BRAINRENDER_TO_NAPARI_SCALE = 0.3
 
 
 class ViewerWidget(QWidget):
-    def __init__(self, viewer):
+    def __init__(self, viewer, cell_symbol, cell_opacity, cell_marker_size):
         super(ViewerWidget, self).__init__()
         self.viewer = viewer
 
-        self.cell_symbol = "ring"
-        self.cell_opacity = 0.6
-        self.cell_marker_size = 15
+        self.cell_symbol = cell_symbol
+        self.cell_opacity = cell_opacity
+        self.cell_marker_size = cell_marker_size
 
         self.setup_layout()
 
@@ -235,10 +235,43 @@ def get_cell_arrays(cells_file):
     return cells, non_cells
 
 
+def parser():
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument(
+        "--cell-symbol",
+        dest="cell_symbol",
+        type=str,
+        default="ring",
+        help="Marker symbol.",
+    )
+    parser.add_argument(
+        "--cell-marker-size",
+        dest="cell_marker_size",
+        type=int,
+        default=15,
+        help="Marker size.",
+    )
+    parser.add_argument(
+        "--cell-opacity",
+        dest="cell_opacity",
+        type=float,
+        default=0.6,
+        help="Opacity of the markers.",
+    )
+    return parser
+
+
 def main():
+    args = parser().parse_args()
+
     with napari.gui_qt():
         viewer = napari.Viewer(title="cellfinder viewer")
-        viewer_widget = ViewerWidget(viewer)
+        viewer_widget = ViewerWidget(
+            viewer,
+            cell_opacity=args.cell_opacity,
+            cell_symbol=args.cell_symbol,
+            cell_marker_size=args.cell_marker_size,
+        )
         viewer.window.add_dock_widget(
             viewer_widget, name="General", area="right"
         )
