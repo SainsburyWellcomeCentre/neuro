@@ -5,9 +5,9 @@ from neuro.structures.IO import load_structures_as_df
 
 from neuro.atlas_tools.paths import Paths
 from imlib.source.source_files import get_structures_path
-from neuro.visualise.napari.callbacks import display_brain_region_name
+from neuro.visualise.napari_tools.callbacks import display_brain_region_name
 
-from neuro.visualise.napari.layers import (
+from neuro.visualise.napari_tools.layers import (
     display_raw,
     display_downsampled,
     display_registration,

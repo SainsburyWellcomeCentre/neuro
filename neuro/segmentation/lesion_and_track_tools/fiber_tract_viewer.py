@@ -8,14 +8,16 @@ from PySide2.QtWidgets import QApplication
 from brainio import brainio
 from glob import glob
 
-from neuro.visualise.brainrender import volume_to_vector_array_to_obj_file
+from neuro.visualise.brainrender_tools import (
+    volume_to_vector_array_to_obj_file,
+)
 from neuro.segmentation.lesion_and_track_tools.lesion_and_track_estimation import (
     get_fiber_track,
 )
 from neuro.generic_neuro_tools import (
     transform_background_channel_to_standard_space,
 )
-from neuro.visualise.napari.layers import display_channel
+from neuro.visualise.napari_tools.layers import display_channel
 
 
 def run_track_viewer(
