@@ -23,8 +23,10 @@ from neuro.visualise.napari_tools.callbacks import (
 )
 
 from neuro.segmentation.manual_segmentation.man_seg_tools import (
-    add_existing_label_layers,
+    add_existing_region_segmentation,
     add_existing_track_layers,
+    add_new_track_layer,
+    add_new_region_layer,
     view_in_brainrender,
 )
 from neuro.gui.elements import *
@@ -32,7 +34,6 @@ from neuro.gui.elements import *
 from qtpy.QtWidgets import (
     QLabel,
     QFileDialog,
-    QComboBox,
     QGridLayout,
     QGroupBox,
     QApplication,
@@ -150,6 +151,92 @@ class General(QWidget):
 
         self.setLayout(layout)
 
+    def add_track_panel(self, layout):
+        self.track_panel = QGroupBox("Track tracing")
+        track_layout = QGridLayout()
+
+        add_button(
+            "Add track", track_layout, self.add_track, 5, 0,
+        )
+        add_button(
+            "Trace tracks", track_layout, self.run_track_analysis, 5, 1,
+        )
+
+        self.summarise_track_checkbox = add_checkbox(
+            track_layout, self.summarise_track_default, "Summarise", 0,
+        )
+
+        self.add_surface_point_checkbox = add_checkbox(
+            track_layout,
+            self.add_surface_point_default,
+            "Add surface point",
+            1,
+        )
+
+        self.fit_degree = add_int_box(
+            track_layout, self.fit_degree_default, 1, 5, "Fit degree", 2,
+        )
+
+        self.spline_smoothing = add_float_box(
+            track_layout,
+            self.spline_smoothing_default,
+            0,
+            1,
+            "Spline smoothing",
+            0.1,
+            3,
+        )
+
+        self.spline_points = add_int_box(
+            track_layout,
+            self.spline_points_default,
+            1,
+            10000,
+            "Spline points",
+            4,
+        )
+
+        track_layout.setColumnMinimumWidth(1, 150)
+        self.track_panel.setLayout(track_layout)
+        layout.addWidget(self.track_panel, 3, 0, 1, 2)
+
+        layout.setAlignment(QtCore.Qt.AlignTop)
+        layout.setSpacing(4)
+        self.track_panel.setVisible(False)
+
+    def add_region_panel(self, layout):
+        self.region_panel = QGroupBox("Region analysis")
+        region_layout = QGridLayout()
+
+        add_button(
+            "Add region", region_layout, self.add_new_region, 2, 0,
+        )
+        add_button(
+            "Analyse regions", region_layout, self.run_region_analysis, 2, 1,
+        )
+
+        self.calculate_volumes_checkbox = add_checkbox(
+            region_layout,
+            self.calculate_volumes_default,
+            "Calculate volumes",
+            0,
+        )
+
+        self.summarise_volumes_checkbox = add_checkbox(
+            region_layout,
+            self.summarise_volumes_default,
+            "Summarise volumes",
+            1,
+        )
+
+        region_layout.setColumnMinimumWidth(1, 150)
+        self.region_panel.setLayout(region_layout)
+        layout.addWidget(self.region_panel, 5, 0, 1, 2)
+
+        layout.setAlignment(QtCore.Qt.AlignTop)
+        layout.setSpacing(4)
+        self.region_panel.setVisible(False)
+
     def add_brainrender_panel(self, layout):
         self.initialise_brainrender()
 
@@ -202,92 +289,6 @@ class General(QWidget):
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
         self.brainrender_panel.setVisible(False)
-
-    def add_region_panel(self, layout):
-        self.region_panel = QGroupBox("Region analysis")
-        region_layout = QGridLayout()
-
-        add_button(
-            "Add region", region_layout, self.add_new_region, 2, 0,
-        )
-        add_button(
-            "Analyse regions", region_layout, self.run_region_analysis, 2, 1,
-        )
-
-        self.calculate_volumes_checkbox = add_checkbox(
-            region_layout,
-            self.calculate_volumes_default,
-            "Calculate volumes",
-            0,
-        )
-
-        self.summarise_volumes_checkbox = add_checkbox(
-            region_layout,
-            self.summarise_volumes_default,
-            "Summarise volumes",
-            1,
-        )
-
-        region_layout.setColumnMinimumWidth(1, 150)
-        self.region_panel.setLayout(region_layout)
-        layout.addWidget(self.region_panel, 5, 0, 1, 2)
-
-        layout.setAlignment(QtCore.Qt.AlignTop)
-        layout.setSpacing(4)
-        self.region_panel.setVisible(False)
-
-    def add_track_panel(self, layout):
-        self.track_panel = QGroupBox("Track tracing")
-        track_layout = QGridLayout()
-
-        add_button(
-            "Add track", track_layout, self.add_new_track, 5, 0,
-        )
-        add_button(
-            "Trace tracks", track_layout, self.run_track_analysis, 5, 1,
-        )
-
-        self.summarise_track_checkbox = add_checkbox(
-            track_layout, self.summarise_track_default, "Summarise", 0,
-        )
-
-        self.add_surface_point_checkbox = add_checkbox(
-            track_layout,
-            self.add_surface_point_default,
-            "Add surface point",
-            1,
-        )
-
-        self.fit_degree = add_int_box(
-            track_layout, self.fit_degree_default, 1, 5, "Fit degree", 2,
-        )
-
-        self.spline_smoothing = add_float_box(
-            track_layout,
-            self.spline_smoothing_default,
-            0,
-            1,
-            "Spline smoothing",
-            0.1,
-            3,
-        )
-
-        self.spline_points = add_int_box(
-            track_layout,
-            self.spline_points_default,
-            1,
-            10000,
-            "Spline points",
-            4,
-        )
-
-        track_layout.setColumnMinimumWidth(1, 150)
-        self.track_panel.setLayout(track_layout)
-        layout.addWidget(self.track_panel, 3, 0, 1, 2)
-
-        layout.setAlignment(QtCore.Qt.AlignTop)
-        layout.setSpacing(4)
-        self.track_panel.setVisible(False)
 
     def load_atlas(self):
         if not self.region_labels:
@@ -366,25 +367,6 @@ class General(QWidget):
         )
         self.downsampled_file = Path(file)
 
-    def initialise_brainrender(self):
-        self.scene = Scene(add_root=True)
-        self.splines = None
-        self.available_meshes = [""] + self.scene.atlas.all_avaliable_meshes
-
-    def initialise_region_segmentation(self):
-        label_files = glob(
-            str(self.paths.regions_directory)
-            + "/*"
-            + self.image_file_extension
-        )
-        if self.paths.regions_directory.exists() and label_files != []:
-            for label_file in label_files:
-                self.label_layers.append(
-                    add_existing_label_layers(
-                        self.viewer, label_file, memory=memory
-                    )
-                )
-
     def initialise_track_tracing(self):
         track_files = glob(
             str(self.paths.tracks_directory) + "/*" + self.track_file_extension
@@ -405,16 +387,11 @@ class General(QWidget):
         self.region_panel.setVisible(True)
         self.brainrender_panel.setVisible(True)
 
-    def add_new_track(self):
+    def add_track(self):
         print("Adding a new track\n")
-        num = len(self.track_layers)
-        new_track_layers = self.viewer.add_points(
-            n_dimensional=True,
-            size=self.napari_point_size,
-            name=f"track_{num}",
+        add_new_track_layer(
+            self.viewer, self.track_layers, self.napari_point_size
         )
-        new_track_layers.mode = "ADD"
-        self.track_layers.append(new_track_layers)
 
     def run_track_analysis(self):
         print("Running track analysis")
@@ -438,18 +415,24 @@ class General(QWidget):
         )
         print("Finished!\n")
 
+    def initialise_region_segmentation(self):
+        add_existing_region_segmentation(
+            self.paths.regions_directory,
+            self.viewer,
+            self.label_layers,
+            self.image_file_extension,
+            memory=memory,
+        )
+
     def add_new_region(self):
         print("Adding a new region\n")
-        num = len(self.label_layers)
-        new_label_layer = add_new_label_layer(
+        add_new_region_layer(
             self.viewer,
+            self.label_layers,
             self.registered_image,
-            name=f"region_{num}",
-            brush_size=self.brush_size,
-            num_colors=self.num_colors,
+            self.brush_size,
+            self.num_colors,
         )
-        new_label_layer.mode = "PAINT"
-        self.label_layers.append(new_label_layer)
 
     def run_region_analysis(self):
         print("Running region analysis")
@@ -464,6 +447,11 @@ class General(QWidget):
             summarise=self.summarise_volumes_checkbox.isChecked(),
         )
         worker.start()
+
+    def initialise_brainrender(self):
+        self.scene = Scene(add_root=True)
+        self.splines = None
+        self.available_meshes = [""] + self.scene.atlas.all_avaliable_meshes
 
     def to_brainrender(self):
         print("Closing viewer and viewing in brainrender.")

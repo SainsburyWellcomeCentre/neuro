@@ -11,7 +11,6 @@ from imlib.source.source_files import source_custom_config_amap
 from imlib.general.list import unique_elements_lists
 from imlib.general.system import ensure_directory_exists
 
-from neuro.visualise.napari_tools.layers import prepare_load_nii
 from neuro.generic_neuro_tools import save_brain
 from neuro.visualise.brainrender_tools import (
     volume_to_vector_array_to_obj_file,
@@ -22,6 +21,10 @@ from neuro.atlas_tools.misc import get_voxel_volume, get_atlas_pixel_sizes
 from neuro.structures.structures_tree import (
     atlas_value_to_name,
     UnknownAtlasValue,
+)
+from neuro.visualise.napari_tools.layers import (
+    prepare_load_nii,
+    add_new_label_layer,
 )
 
 
@@ -582,3 +585,38 @@ def view_in_brainrender(
     except:
         pass
     scene.render()
+
+
+def add_new_track_layer(viewer, track_layers, point_size):
+    num = len(track_layers)
+    new_track_layers = viewer.add_points(
+        n_dimensional=True, size=point_size, name=f"track_{num}",
+    )
+    new_track_layers.mode = "ADD"
+    track_layers.append(new_track_layers)
+
+
+def add_new_region_layer(
+    viewer, label_layers, image_like, brush_size, num_colors
+):
+    num = len(label_layers)
+    new_label_layer = add_new_label_layer(
+        viewer,
+        image_like,
+        name=f"region_{num}",
+        brush_size=brush_size,
+        num_colors=num_colors,
+    )
+    new_label_layer.mode = "PAINT"
+    label_layers.append(new_label_layer)
+
+
+def add_existing_region_segmentation(
+    directory, viewer, label_layers, file_extension, memory=False
+):
+    label_files = glob(str(directory) + "/*" + file_extension)
+    if directory and label_files != []:
+        for label_file in label_files:
+            label_layers.append(
+                add_existing_label_layers(viewer, label_file, memory=memory)
+            )
