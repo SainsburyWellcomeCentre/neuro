@@ -27,26 +27,18 @@ from neuro.segmentation.manual_segmentation.man_seg_tools import (
     add_existing_track_layers,
     view_in_brainrender,
 )
+from neuro.gui.elements import *
 
 from qtpy.QtWidgets import (
-    QDoubleSpinBox,
-    QPushButton,
-    QCheckBox,
     QLabel,
-    QSpinBox,
     QFileDialog,
     QComboBox,
     QGridLayout,
     QGroupBox,
-)
-
-from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
-    QInputDialog,
-    QLineEdit,
-    QFileDialog,
 )
+
 
 memory = False
 BRAINRENDER_TO_NAPARI_SCALE = 0.3
@@ -76,6 +68,7 @@ class General(QWidget):
         structure_alpha_default=0.8,
         shading_default="flat",
         region_to_add_default="",
+        vtkplotter_shading_types=["flat", "giroud", "phong"],
     ):
         super(General, self).__init__()
         self.point_size = point_size
@@ -119,6 +112,7 @@ class General(QWidget):
         self.structure_alpha_default = structure_alpha_default
         self.shading_default = shading_default
         self.region_to_add_default = region_to_add_default
+        self.vtkplotter_shading_types = vtkplotter_shading_types
 
         self.setup_layout()
 
@@ -190,15 +184,16 @@ class General(QWidget):
             1,
         )
 
-        self.shading = QComboBox()
-        self.shading.addItems(["flat", "giroud", "phong"])
-        brainrender_layout.addWidget(QLabel("Segmented region shading"), 2, 0)
-        brainrender_layout.addWidget(self.shading, 2, 1)
+        self.shading = add_combobox(
+            brainrender_layout,
+            "Segmented region shading",
+            self.vtkplotter_shading_types,
+            2,
+        )
 
-        self.region_to_render = QComboBox()
-        self.region_to_render.addItems(self.available_meshes)
-        brainrender_layout.addWidget(QLabel("Region to render"), 3, 0)
-        brainrender_layout.addWidget(self.region_to_render, 3, 1)
+        self.region_to_render = add_combobox(
+            brainrender_layout, "Region to render", self.available_meshes, 3,
+        )
 
         brainrender_layout.setColumnMinimumWidth(1, 150)
         self.brainrender_panel.setLayout(brainrender_layout)
@@ -498,52 +493,3 @@ class General(QWidget):
             track_file_extension=self.track_file_extension,
         )
         worker.start()
-
-
-def add_button(
-    label,
-    layout,
-    connected_function,
-    row,
-    column,
-    visibility=True,
-    minimum_width=0,
-):
-    button = QPushButton(label)
-    button.setVisible(visibility)
-    button.setMinimumWidth(minimum_width)
-    layout.addWidget(button, row, column)
-    button.clicked.connect(connected_function)
-    return button
-
-
-def add_checkbox(layout, default, label, row, column=0):
-    box = QCheckBox()
-    box.setChecked(default)
-    layout.addWidget(QLabel(label), row, column)
-    layout.addWidget(box, row, column + 1)
-    return box
-
-
-def add_float_box(
-    layout, default, minimum, maximum, label, step, row, column=0
-):
-    box = QDoubleSpinBox()
-    box.setMinimum(minimum)
-    box.setMaximum(maximum)
-    box.setValue(default)
-    box.setSingleStep(step)
-    layout.addWidget(QLabel(label), row, column)
-    layout.addWidget(box, row, column + 1)
-    return box
-
-
-def add_int_box(layout, default, minimum, maximum, label, row, column=0):
-    box = QSpinBox()
-    box.setMinimum(minimum)
-    box.setMaximum(maximum)
-    # Not always set if not after min & max
-    box.setValue(default)
-    layout.addWidget(QLabel(label), row, column)
-    layout.addWidget(box, row, column + 1)
-    return box
