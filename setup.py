@@ -7,7 +7,7 @@ requirements = [
     "napari[pyqt5]",
     "brainrender",
     "imlib >= 0.0.23",
-    "brainio >= 0.0.13",
+    "brainio >= 0.0.19",
     "dask >= 2.15.0",
     "scikit-image==0.16.2",
 ]
@@ -15,7 +15,7 @@ requirements = [
 
 setup(
     name="neuro",
-    version="0.0.13rc7",
+    version="0.0.14",
     description="Visualisation and analysis of brain imaging data",
     install_requires=requirements,
     extras_require={
