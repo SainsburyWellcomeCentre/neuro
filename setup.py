@@ -5,7 +5,6 @@ requirements = [
     "scikit-image",
     "pandas<=0.25.3,>=0.25.1",
     "napari[pyqt5]",
-    "magicgui",
     "brainrender",
     "imlib >= 0.0.23",
     "brainio >= 0.0.13",

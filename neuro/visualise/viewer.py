@@ -1,77 +1,36 @@
 import napari
-from neuro.segmentation.manual_segmentation.widgets import General
-
-from qtpy import QtCore
-
-from pathlib import Path
-from glob import glob
-
-from brainrender.scene import Scene
-from neuro.structures.IO import load_structures_as_df
-from imlib.source.source_files import get_structures_path
-
-from neuro.segmentation.paths import Paths
-from neuro.generic_neuro_tools import transform_image_to_standard_space
-
-from neuro.visualise.napari_tools.layers import (
-    display_channel,
-    prepare_load_nii,
-)
-from neuro.visualise.napari_tools.callbacks import (
-    display_brain_region_name,
-    region_analysis,
-    track_analysis,
-    save_all,
-)
-
-from neuro.segmentation.manual_segmentation.man_seg_tools import (
-    add_existing_region_segmentation,
-    add_existing_track_layers,
-    add_new_track_layer,
-    add_new_region_layer,
-    view_in_brainrender,
-)
-
-import napari
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from pathlib import Path
-from neuro.structures.IO import load_structures_as_df
-from brainio import brainio
-from neuro.atlas_tools.paths import Paths as registration_paths
-from imlib.source.source_files import get_structures_path
-from neuro.visualise.napari_tools.callbacks import display_brain_region_name
-
-from neuro.visualise.napari_tools.layers import (
-    display_raw,
-    display_downsampled,
-    display_registration,
-)
 import numpy as np
 
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-import napari
+from pathlib import Path
 from napari.utils.io import magic_imread
-from imlib.general.system import get_sorted_file_paths
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from qtpy import QtCore
+from qtpy.QtWidgets import (
+    QLabel,
+    QFileDialog,
+    QGridLayout,
+    QWidget,
+)
 
+from brainio import brainio
+from imlib.source.source_files import get_structures_path
+from imlib.general.system import get_sorted_file_paths
 from imlib.IO.cells import cells_xml_to_df, cells_to_xml
 from imlib.cells.cells import Cell
-from magicgui import magicgui
+
+from neuro.structures.IO import load_structures_as_df
+from neuro.atlas_tools.paths import Paths as registration_paths
+from neuro.visualise.napari_tools.callbacks import display_brain_region_name
+from neuro.visualise.napari_tools.layers import (
+    prepare_load_nii,
+    display_registration,
+)
 from neuro.visualise.vis_tools import (
     get_image_scales,
     get_most_recent_log,
     read_log_file,
 )
-
 from neuro.gui.elements import *
-
-from qtpy.QtWidgets import (
-    QLabel,
-    QFileDialog,
-    QGridLayout,
-    QGroupBox,
-    QApplication,
-    QWidget,
-)
 
 
 memory = False
@@ -156,26 +115,28 @@ class ViewerWidget(QWidget):
         self.status_label.setText("Loading...")
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        dir = QFileDialog.getExistingDirectory(
+        directory = QFileDialog.getExistingDirectory(
             self, "Select cellfinder directory", options=options,
         )
-        self.directory = Path(dir)
-        self.initialise_paths()
-        self.load_button.setMinimumWidth(0)
+        # deal with existing dialog
+        if directory is not "":
+            self.directory = Path(directory)
+            self.initialise_paths()
+            self.load_button.setMinimumWidth(0)
 
-        self.load_raw_data_directory_button.setVisible(True)
-        self.load_raw_data_single_button.setVisible(True)
-        self.load_cells_button.setVisible(True)
+            self.load_raw_data_directory_button.setVisible(True)
+            self.load_raw_data_single_button.setVisible(True)
+            self.load_cells_button.setVisible(True)
 
-        self.image_scales = self.get_registration_scaling()
-        if self.image_scales is not None:
-            self.load_registration_button.setVisible(True)
-            self.load_downsampled_data_button.setVisible(True)
-        else:
-            print(
-                "Config files and logs could not be parsed to detect "
-                "the data scaling"
-            )
+            self.image_scales = self.get_registration_scaling()
+            if self.image_scales is not None:
+                self.load_registration_button.setVisible(True)
+                self.load_downsampled_data_button.setVisible(True)
+            else:
+                print(
+                    "Config files and logs could not be parsed to detect "
+                    "the data scaling"
+                )
         self.status_label.setText("Ready")
 
     def initialise_paths(self):
@@ -193,10 +154,14 @@ class ViewerWidget(QWidget):
         directory = QFileDialog.getExistingDirectory(
             self, "Select data directory", options=options,
         )
-        directory = Path(directory)
-        img_paths = get_sorted_file_paths(directory, file_extension=".tif*")
-        images = magic_imread(img_paths, use_dask=True, stack=True)
-        self.viewer.add_image(images, name=directory.stem)
+        # deal with existing dialog
+        if directory is not "":
+            directory = Path(directory)
+            img_paths = get_sorted_file_paths(
+                directory, file_extension=".tif*"
+            )
+            images = magic_imread(img_paths, use_dask=True, stack=True)
+            self.viewer.add_image(images, name=directory.stem)
         self.status_label.setText("Ready")
 
     def load_raw_data_single(self):
@@ -210,14 +175,18 @@ class ViewerWidget(QWidget):
             "Images (*.tif *.tiff *.nii)",
             options=options,
         )
-        file = Path(file)
+        # deal with existing dialog
+        if file is not "":
+            file = Path(file)
+            self.add_single_image(file)
+        self.status_label.setText("Ready")
+
+    def add_single_image(self, file):
         image = brainio.load_any(file, as_numpy=memory)
         # This should be generalised
         image = np.swapaxes(image, 2, 0)
         image = np.rot90(image, axes=(1, 2), k=3)
-        image = self.viewer.add_image(image, name=file.stem)
-
-        self.status_label.setText("Ready")
+        self.viewer.add_image(image, name=file.stem)
 
     def get_registration_scaling(self):
         log_entries = []
