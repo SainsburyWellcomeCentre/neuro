@@ -52,11 +52,19 @@ class ViewerWidget(QWidget):
         self.instantiated = False
         layout = QGridLayout()
 
-        self.load_button = add_button(
-            "Load project",
+        self.load_cellfinder_project_button = add_button(
+            "Load cellfinder project",
             layout,
-            self.load_directory,
+            self.load_cellfinder_directory,
             0,
+            0,
+            minimum_width=200,
+        )
+        self.load_registration_project_button = add_button(
+            "Load amap project",
+            layout,
+            self.load_registration_directory,
+            1,
             0,
             minimum_width=200,
         )
@@ -65,7 +73,7 @@ class ViewerWidget(QWidget):
             "Load data directory",
             layout,
             self.load_raw_data_directory,
-            1,
+            2,
             0,
             visibility=False,
         )
@@ -73,7 +81,7 @@ class ViewerWidget(QWidget):
             "Load single image",
             layout,
             self.load_raw_data_single,
-            2,
+            3,
             0,
             visibility=False,
         )
@@ -82,7 +90,7 @@ class ViewerWidget(QWidget):
             "Load downsampled_data",
             layout,
             self.load_downsampled_data,
-            3,
+            4,
             0,
             visibility=False,
         )
@@ -91,15 +99,15 @@ class ViewerWidget(QWidget):
             "Load registration",
             layout,
             self.load_registration,
-            4,
+            5,
             0,
             visibility=False,
         )
         self.load_cells_button = add_button(
-            "Load cells", layout, self.load_cells, 5, 0, visibility=False,
+            "Load cells", layout, self.load_cells, 6, 0, visibility=False,
         )
         self.save_cells_button = add_button(
-            "Save cells", layout, self.save_cells, 6, 0, visibility=False,
+            "Save cells", layout, self.save_cells, 7, 0, visibility=False,
         )
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
@@ -111,7 +119,7 @@ class ViewerWidget(QWidget):
         self.viewer._status = "TESTING"
         self.setLayout(layout)
 
-    def load_directory(self):
+    def load_cellfinder_directory(self):
         self.status_label.setText("Loading...")
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -120,10 +128,10 @@ class ViewerWidget(QWidget):
         )
         # deal with existing dialog
         if directory is not "":
-            self.directory = Path(directory)
-            self.initialise_paths()
-            self.load_button.setMinimumWidth(0)
-
+            self.cellfinder_directory = Path(directory)
+            self.initialise_cellfinder_paths()
+            self.load_cellfinder_project_button.setVisible(False)
+            self.load_registration_project_button.setVisible(False)
             self.load_raw_data_directory_button.setVisible(True)
             self.load_raw_data_single_button.setVisible(True)
             self.load_cells_button.setVisible(True)
@@ -139,10 +147,44 @@ class ViewerWidget(QWidget):
                 )
         self.status_label.setText("Ready")
 
-    def initialise_paths(self):
-        self.cells = self.directory / "cells.xml"
-        self.classified_cells = self.directory / "cell_classification.xml"
-        self.registration_directory = self.directory / "registration"
+    def load_registration_directory(self):
+        self.status_label.setText("Loading...")
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        directory = QFileDialog.getExistingDirectory(
+            self, "Select registration directory", options=options,
+        )
+        # deal with existing dialog
+        if directory is not "":
+            self.registration_directory = Path(directory)
+            self.initialise_registration_paths()
+            self.load_cellfinder_project_button.setVisible(False)
+            self.load_registration_project_button.setVisible(False)
+            self.load_raw_data_directory_button.setVisible(True)
+            self.load_raw_data_single_button.setVisible(True)
+
+            self.image_scales = self.get_registration_scaling()
+            if self.image_scales is not None:
+                self.load_registration_button.setVisible(True)
+                self.load_downsampled_data_button.setVisible(True)
+            else:
+                print(
+                    "Config files and logs could not be parsed to detect "
+                    "the data scaling"
+                )
+        self.status_label.setText("Ready")
+
+    def initialise_cellfinder_paths(self):
+        self.cells = self.cellfinder_directory / "cells.xml"
+        self.classified_cells = (
+            self.cellfinder_directory / "cell_classification.xml"
+        )
+        self.registration_directory = (
+            self.cellfinder_directory / "registration"
+        )
+        self.initialise_registration_paths()
+
+    def initialise_registration_paths(self):
         self.registration_paths = registration_paths(
             self.registration_directory
         )
@@ -198,7 +240,8 @@ class ViewerWidget(QWidget):
             try:
                 log_entries = read_log_file(
                     get_most_recent_log(
-                        self.directory, log_pattern="cellfinder*.log"
+                        self.cellfinder_directory,
+                        log_pattern="cellfinder*.log",
                     )
                 )
             except:
