@@ -137,7 +137,7 @@ class General(QWidget):
         )
 
         self.status_label = QLabel()
-        self.status_label.setText(f"Ready")
+        self.status_label.setText("Ready")
 
         layout.addWidget(self.status_label, 8, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)

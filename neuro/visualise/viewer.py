@@ -36,7 +36,7 @@ import napari
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pathlib import Path
 from neuro.structures.IO import load_structures_as_df
-
+from brainio import brainio
 from neuro.atlas_tools.paths import Paths as registration_paths
 from imlib.source.source_files import get_structures_path
 from neuro.visualise.napari_tools.callbacks import display_brain_region_name
@@ -142,10 +142,18 @@ class ViewerWidget(QWidget):
         self.save_cells_button = add_button(
             "Save cells", layout, self.save_cells, 6, 0, visibility=False,
         )
+        layout.setAlignment(QtCore.Qt.AlignTop)
+        layout.setSpacing(4)
+        self.status_label = QLabel()
 
+        self.status_label.setText("Ready")
+
+        layout.addWidget(self.status_label, 8, 0)
+        self.viewer._status = "TESTING"
         self.setLayout(layout)
 
     def load_directory(self):
+        self.status_label.setText("Loading...")
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         dir = QFileDialog.getExistingDirectory(
@@ -156,7 +164,7 @@ class ViewerWidget(QWidget):
         self.load_button.setMinimumWidth(0)
 
         self.load_raw_data_directory_button.setVisible(True)
-        # self.load_raw_data_single_button.setVisible(True)
+        self.load_raw_data_single_button.setVisible(True)
         self.load_cells_button.setVisible(True)
 
         self.image_scales = self.get_registration_scaling()
@@ -168,6 +176,7 @@ class ViewerWidget(QWidget):
                 "Config files and logs could not be parsed to detect "
                 "the data scaling"
             )
+        self.status_label.setText("Ready")
 
     def initialise_paths(self):
         self.cells = self.directory / "cells.xml"
@@ -178,18 +187,37 @@ class ViewerWidget(QWidget):
         )
 
     def load_raw_data_directory(self):
+        self.status_label.setText("Loading...")
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        dir = QFileDialog.getExistingDirectory(
+        directory = QFileDialog.getExistingDirectory(
             self, "Select data directory", options=options,
         )
-        dir = Path(dir)
-        img_paths = get_sorted_file_paths(dir, file_extension=".tif*")
+        directory = Path(directory)
+        img_paths = get_sorted_file_paths(directory, file_extension=".tif*")
         images = magic_imread(img_paths, use_dask=True, stack=True)
-        self.viewer.add_image(images, name=dir.stem)
+        self.viewer.add_image(images, name=directory.stem)
+        self.status_label.setText("Ready")
 
     def load_raw_data_single(self):
-        pass
+        self.status_label.setText("Loading...")
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select image",
+            "",
+            "Images (*.tif *.tiff *.nii)",
+            options=options,
+        )
+        file = Path(file)
+        image = brainio.load_any(file, as_numpy=memory)
+        # This should be generalised
+        image = np.swapaxes(image, 2, 0)
+        image = np.rot90(image, axes=(1, 2), k=3)
+        image = self.viewer.add_image(image, name=file.stem)
+
+        self.status_label.setText("Ready")
 
     def get_registration_scaling(self):
         log_entries = []
@@ -213,6 +241,7 @@ class ViewerWidget(QWidget):
             return None
 
     def load_registration(self):
+        self.status_label.setText("Loading...")
         self.region_labels = display_registration(
             self.viewer,
             self.registration_paths.registered_atlas_path,
@@ -221,14 +250,17 @@ class ViewerWidget(QWidget):
             memory=memory,
         )
         self.structures_df = load_structures_as_df(get_structures_path())
+        self.status_label.setText("Ready")
 
         @self.region_labels.mouse_move_callbacks.append
         def display_region_name(layer, event):
             display_brain_region_name(layer, self.structures_df)
 
     def load_downsampled_data(self,):
+        self.status_label.setText("Loading...")
         self.load_main_downsampled_channel()
         self.load_additional_downsampled_channels()
+        self.status_label.setText("Ready")
 
     def load_additional_downsampled_channels(
         self, search_string="downsampled_", extension=".nii"
@@ -266,7 +298,7 @@ class ViewerWidget(QWidget):
         )
 
     def load_cells(self):
-        print("Loading cells")
+        self.status_label.setText("Loading...")
         cells, non_cells = get_cell_arrays(str(self.classified_cells))
         self.non_cell_layer = self.viewer.add_points(
             non_cells,
@@ -287,16 +319,16 @@ class ViewerWidget(QWidget):
             name="Cells",
         )
         self.save_cells_button.setVisible(True)
-        print("Finished!")
+        self.status_label.setText("Ready")
 
     def save_cells(self):
-        print("Saving cells")
+        self.status_label.setText("Saving...")
         napari_cells_to_xml(
             self.cell_layer.data,
             self.non_cell_layer.data,
             str(self.classified_cells),
         )
-        print("Finished!")
+        self.status_label.setText("Ready")
 
 
 def napari_array_to_cell_list(cell_array, type=-1):
