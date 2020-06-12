@@ -82,8 +82,8 @@ def run(
     if mask:
         logging.debug("Masking image based on registered atlas")
         # copy, otherwise it's modified, which affects later figure generation
-        atlas_for_mask = np.copy(atlas)
-        heatmap_array = mask_image_threshold(heatmap_array, atlas_for_mask)
+        heatmap_array = mask_image_threshold(heatmap_array, np.copy(atlas))
+        del atlas
 
     if convert_16bit:
         logging.debug("Converting to 16 bit")
