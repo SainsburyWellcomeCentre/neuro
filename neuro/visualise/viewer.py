@@ -103,11 +103,14 @@ class ViewerWidget(QWidget):
             0,
             visibility=False,
         )
+        self.load_heatmap_button = add_button(
+            "Load heatmap", layout, self.load_heatmap, 6, 0, visibility=False,
+        )
         self.load_cells_button = add_button(
-            "Load cells", layout, self.load_cells, 6, 0, visibility=False,
+            "Load cells", layout, self.load_cells, 7, 0, visibility=False,
         )
         self.save_cells_button = add_button(
-            "Save cells", layout, self.save_cells, 7, 0, visibility=False,
+            "Save cells", layout, self.save_cells, 8, 0, visibility=False,
         )
         layout.setAlignment(QtCore.Qt.AlignTop)
         layout.setSpacing(4)
@@ -115,7 +118,7 @@ class ViewerWidget(QWidget):
 
         self.status_label.setText("Ready")
 
-        layout.addWidget(self.status_label, 8, 0)
+        layout.addWidget(self.status_label, 9, 0)
         self.viewer._status = "TESTING"
         self.setLayout(layout)
 
@@ -135,6 +138,9 @@ class ViewerWidget(QWidget):
             self.load_raw_data_directory_button.setVisible(True)
             self.load_raw_data_single_button.setVisible(True)
             self.load_cells_button.setVisible(True)
+
+            if self.heatmap_path.exists():
+                self.load_heatmap_button.setVisible(True)
 
             self.image_scales = self.get_registration_scaling()
             if self.image_scales is not None:
@@ -182,6 +188,9 @@ class ViewerWidget(QWidget):
         self.registration_directory = (
             self.cellfinder_directory / "registration"
         )
+        self.figures_directory = self.cellfinder_directory / "figures"
+        self.heatmap_path = self.figures_directory / "heatmap.nii"
+
         self.initialise_registration_paths()
 
     def initialise_registration_paths(self):
@@ -308,6 +317,15 @@ class ViewerWidget(QWidget):
             scale=self.image_scales,
             name="Raw data (downsampled)",
         )
+
+    def load_heatmap(self):
+        self.status_label.setText("Loading...")
+        self.viewer.add_image(
+            prepare_load_nii(self.heatmap_path, memory=memory,),
+            scale=self.image_scales,
+            name="Heatmap",
+        )
+        self.status_label.setText("Ready")
 
     def load_cells(self):
         self.status_label.setText("Loading...")
