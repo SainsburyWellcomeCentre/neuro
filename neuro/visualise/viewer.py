@@ -256,8 +256,11 @@ class ViewerWidget(QWidget):
             except:
                 pass
         if log_entries:
-            config_file = Path(self.registration_directory, "config.conf")
-            return get_image_scales(log_entries, config_file)
+            try:
+                config_file = Path(self.registration_directory, "config.conf")
+                return get_image_scales(log_entries, config_file)
+            except:
+                return None
         else:
             return None
 
