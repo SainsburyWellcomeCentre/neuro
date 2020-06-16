@@ -297,6 +297,7 @@ class General(QWidget):
                 name="Region labels",
                 opacity=0.2,
             )
+            self.region_labels.editable = False
 
             @self.region_labels.mouse_move_callbacks.append
             def display_region_name(layer, event):

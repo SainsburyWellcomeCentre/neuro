@@ -104,6 +104,7 @@ def display_registration(
         opacity=0.2,
         scale=image_scales,
     )
+    labels.editable = False
     return labels
 
 
