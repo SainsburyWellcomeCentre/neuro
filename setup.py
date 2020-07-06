@@ -2,14 +2,13 @@ from setuptools import setup, find_namespace_packages
 
 requirements = [
     "numpy",
-    "scikit-image",
-    "pandas<=0.25.3,>=0.25.1",
+    "scikit-image>=0.14.0,<0.17.0",
+    "pandas>=0.25.1,<=0.25.3",
     "napari[pyqt5]",
     "brainrender",
     "imlib >= 0.0.23",
     "brainio >= 0.0.19",
     "dask >= 2.15.0",
-    "scikit-image==0.16.2",
 ]
 
 
@@ -19,17 +18,7 @@ setup(
     description="Visualisation and analysis of brain imaging data",
     install_requires=requirements,
     extras_require={
-        "dev": [
-            "sphinx",
-            "recommonmark",
-            "sphinx_rtd_theme",
-            "pydoc-markdown",
-            "black",
-            "pytest-cov",
-            "pytest",
-            "gitpython",
-            "coverage",
-        ]
+        "dev": ["black", "pytest-cov", "pytest", "gitpython", "coverage",]
     },
     python_requires=">=3.6, <3.8",
     packages=find_namespace_packages(exclude=("docs", "tests*")),
