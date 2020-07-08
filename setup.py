@@ -6,7 +6,7 @@ requirements = [
     "pandas>=0.25.1,<=0.25.3",
     "napari[pyqt5]",
     "brainrender",
-    "imlib >= 0.0.23",
+    "imlib >= 0.0.26",
     "brainio >= 0.0.19",
     "dask >= 2.15.0",
 ]

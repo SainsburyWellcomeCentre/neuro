@@ -584,6 +584,7 @@ def view_in_brainrender(
         )
     except:
         pass
+
     scene.render()
 
 
