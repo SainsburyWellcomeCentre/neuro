@@ -24,13 +24,3 @@ def atlas_value_to_name(atlas_value, structures_reference_df):
         raise UnknownAtlasValue(atlas_value)
     name = line["name"]
     return str(name.values[0])
-
-
-def atlas_value_to_name(atlas_value, structures_reference_df):
-    line = structures_reference_df[
-        structures_reference_df["id"] == atlas_value
-    ]
-    if len(line) == 0:
-        raise UnknownAtlasValue(atlas_value)
-    name = line["name"]
-    return str(name.values[0])
