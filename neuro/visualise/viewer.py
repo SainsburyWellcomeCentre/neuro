@@ -6,7 +6,6 @@ from napari.utils.io import magic_imread
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from qtpy import QtCore
 from qtpy.QtWidgets import (
-    QLabel,
     QFileDialog,
     QGridLayout,
     QWidget,

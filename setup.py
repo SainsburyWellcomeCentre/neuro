@@ -14,11 +14,20 @@ requirements = [
 
 setup(
     name="neuro",
-    version="0.0.16",
+    version="0.0.18",
     description="Visualisation and analysis of brain imaging data",
     install_requires=requirements,
     extras_require={
-        "dev": ["black", "pytest-cov", "pytest", "gitpython", "coverage",]
+        "dev": [
+            "black",
+            "pytest-cov",
+            "pytest",
+            "gitpython",
+            "coverage",
+            "bump2version",
+            "pre-commit",
+            "flake8",
+        ]
     },
     python_requires=">=3.6, <3.8",
     packages=find_namespace_packages(exclude=("docs", "tests*")),
