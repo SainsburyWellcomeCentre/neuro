@@ -457,9 +457,7 @@ class General(QWidget):
     def initialise_brainrender(self):
         self.scene = Scene(add_root=True)
         self.splines = None
-        self.available_meshes = [""] + list(
-            self.scene.atlas.lookup_df["acronym"]
-        )
+        self.available_meshes = [""] + self.scene.atlas.all_avaliable_meshes
 
     def to_brainrender(self):
         print("Closing viewer and viewing in brainrender.")

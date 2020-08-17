@@ -4,7 +4,7 @@ import pandas as pd
 from glob import glob
 from pathlib import Path
 from skimage.measure import regionprops_table
-from vtkplotter import mesh, Spheres, Spline
+from vedo import mesh, Spheres, Spline
 
 from imlib.pandas.misc import initialise_df
 from imlib.source.source_files import source_custom_config_amap
@@ -420,7 +420,7 @@ def analyse_track(
      scene.
     :param scene: brainrender scene object
     :param points_file:
-    :param bool add_surface_to_points: Add the closest part of the brain 
+    :param bool add_surface_to_points: Add the closest part of the brain
     surface to the list of points
     :param spline_points: How many points define the spline
     :param fit_degree: spline fit degree
@@ -431,7 +431,7 @@ def analyse_track(
     :param bool verbose: Whether to print the progress
     :return:
         scene: brainrender scene with the surface point added.
-        spline: vtkplotter spline object
+        spline: vedo spline object
     """
     points = pd.read_hdf(points_file)
     scene.add_cells(

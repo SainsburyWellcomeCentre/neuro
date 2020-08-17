@@ -5,7 +5,7 @@ requirements = [
     "scikit-image>=0.14.0,<0.17.0",
     "pandas>=0.25.1,<=0.25.3",
     "napari[pyqt5]",
-    "brainrender",
+    "brainrender==0.4.0.0",
     "imlib >= 0.0.26",
     "brainio >= 0.0.19",
     "dask >= 2.15.0",
