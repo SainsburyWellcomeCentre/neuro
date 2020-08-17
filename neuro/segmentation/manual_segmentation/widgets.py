@@ -28,7 +28,13 @@ from neuro.segmentation.manual_segmentation.man_seg_tools import (
     add_new_region_layer,
     view_in_brainrender,
 )
-from neuro.gui.elements import *
+from neuro.gui.elements import (
+    add_button,
+    add_checkbox,
+    add_float_box,
+    add_int_box,
+    add_combobox,
+)
 
 from qtpy.QtWidgets import (
     QLabel,
@@ -451,7 +457,9 @@ class General(QWidget):
     def initialise_brainrender(self):
         self.scene = Scene(add_root=True)
         self.splines = None
-        self.available_meshes = [""] + self.scene.atlas.all_avaliable_meshes
+        self.available_meshes = [""] + list(
+            self.scene.atlas.lookup_df["acronym"]
+        )
 
     def to_brainrender(self):
         print("Closing viewer and viewing in brainrender.")
