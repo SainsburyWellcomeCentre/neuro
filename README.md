@@ -7,6 +7,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/SainsburyWellcomeCentre/neuro/badge.svg?branch=master)](https://coveralls.io/github/SainsburyWellcomeCentre/neuro?branch=master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 
+## neuro is now deprecated, and all the tools are now contained within [cellfinder](https://github.com/SainsburyWellcomeCentre/cellfinder) or [brainreg](https://github.com/brainglobe/brainreg).
 
 # neuro
 Visualisation and analysis of brain imaging data
@@ -14,5 +15,3 @@ Visualisation and analysis of brain imaging data
 ### Installation
 `pip install neuro`
 
-
-### [Documentation](https://docs.cellfinder.info/neuro/introduction)
